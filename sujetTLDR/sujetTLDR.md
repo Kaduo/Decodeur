@@ -30,6 +30,7 @@ Trois codages nous intéresse pour la décompression.
 ### Le codage de Huffman
 
 **Principe** :
+
 * Plus un symbole est utilisé, plus son code est petit
 * Le code est préfixé : aucun code de symbole n'est le préfixe d'un autre symbole. Il n'y a donc pas d'ambiguïté et il est inutile d'utiliser des séparateurs entre les symboles.
 
@@ -72,10 +73,12 @@ Pour le décodage, il faut :
 ### Arbres AC et codage RLE
 
 Chacun des 63 coefficients AC non nul est codé par :
+
 * Un symbole sur un octet : les 4 bits de poids fort indiquent le nombre de coefficients zéro qui précédent le coefficient actuel et les 4 bits de poids faible codent la classe de magnitude du coefficient (identique pour DC)
 * Un nombre variable de bits
 
 Deux symboles particuliers sont en plus utilisés :
+
 * Code ZRL (0xF0) : saut de 16 composantes nulles.
 * Code EOB (0x00) : signale que toutes les composantes AC restantes du bloc sont nulles.
 
@@ -124,7 +127,7 @@ Pour transformer les informations fréquentiellse en informations spatiales, on 
 
 Le **sous-échantillonnage** est un etechnique de compression qui consiste en un ediminution du nombre de valeurs, appelées échantillons, pour certaines composantes de l'image.
 
-On utilise la notation $h_1 \times v_1, h_2 \times v_2, h_3 \times v_3$ où $h_i et v_i$ représentent le nombre de blocs horizontaux et verticaux pour la composante $i$. **On ne sous-échantillonne jamais la composante de luminance Y, son facteur d'échantillonnage donne donc les dimensions de la MCU en nombre de blocs.**
+On utilise la notation $h_1 \times v_1, h_2 \times v_2, h_3 \times v_3$ où $h_i$ et $v_i$ représentent le nombre de blocs horizontaux et verticaux pour la composante $i$. **On ne sous-échantillonne jamais la composante de luminance Y, son facteur d'échantillonnage donne donc les dimensions de la MCU en nombre de blocs.**
 
 Il existe plusieurs types de sous-échantillonnages. Le décodeur devra supporter au moins les trois suivants, mais idéalement devra gérer tous les cas :
 
