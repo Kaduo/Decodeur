@@ -51,6 +51,7 @@ Dans notre cas (JPEG), les tables de codage sout fournies avec l'image. La norme
 Le décodeur supporte donc **quatre tables** au total. Chaque table est caractérisée par un indice et par son type (AC ou DC), donnés lors de la définition des tables par le marqueur **DHT**. La correspondance indice/composante (Y, Cb, Cr) est donnée au début.
 
 Le format JPEG fournit les tables de Huffman sous une forme particulière en deux temps :
+
 1. On donne le nombre de codes de chaque longueur comprise entre 1 et 16 bits
 2. On donne les **valeurs triées** dans l'ordre des codes.
 
@@ -67,6 +68,7 @@ On classe les valeurs par odre de magnitude :
 On codera une valeur dans une classe *m* par son indice codé sur *m* bits. Par exemple, -3 est le premier élément de la classe 2, on le codera donc par 00. De même, 7 est le dernier élément de la classe 3, on le codera par 111. Pour coder une valeur de magnitude *m*, il faut donc au maximum 4 + *m* bits.
 
 Pour le décodage, il faut :
+
 1. Décoder la magnitude à partir des bits lus dans le flux et de l'arbre DC
 2. Lire les bits d'indices dans la classe de magnitude pour remonter, par différentielle, à la valeur DC.
 
@@ -105,6 +107,7 @@ On reçoit un entrée un vecteur de 64 coefficients. L'objectif est de le réorg
 ![](zigzag.png)
 
 **En conclusion :**
+
 1. Multiplication des coefficients du bloc par ceux de la matrice de quantification lue
 2. Effectuer la réorganisation zig-zag inverse
 
