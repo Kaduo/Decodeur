@@ -128,7 +128,7 @@ Pour transformer les informations fréquentiellse en informations spatiales, on 
 
 ## Reconstituion des MCUs
 
-Le **sous-échantillonnage** est un etechnique de compression qui consiste en un ediminution du nombre de valeurs, appelées échantillons, pour certaines composantes de l'image.
+Le **sous-échantillonnage** est une technique de compression qui consiste en un ediminution du nombre de valeurs, appelées échantillons, pour certaines composantes de l'image.
 
 On utilise la notation $h_1 \times v_1, h_2 \times v_2, h_3 \times v_3$ où $h_i$ et $v_i$ représentent le nombre de blocs horizontaux et verticaux pour la composante $i$. **On ne sous-échantillonne jamais la composante de luminance Y, son facteur d'échantillonnage donne donc les dimensions de la MCU en nombre de blocs.**
 
