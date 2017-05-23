@@ -1,9 +1,27 @@
 #include "extraction.h"
 
 /* Extrait un MCU d'un bitstream et d'une description donnés */
-extern struct mcu *extract_mcu(const struct bitstream *bitstream, const struct jpeg_desc *jpeg) {
-    /*bouchon*/
+
+struct mcu *create_mcu(uint8_t nb_components){
     struct mcu *mcu;
+    mcu->components = calloc(nb_components, sizeof(uint8_t *));
+    for(uint8_t i=0; i<nb_components; i++){
+        mcu->components[i] = calloc(64, sizeof(uint8_t));
+    } // end for
+    return mcu;
+}
+
+void free_mcu(struct mcu *mcu, uint8_t nb_components){
+    for(uint8_t i=0; i<nb_components; i++){
+        //free(mcu->components[i]);
+        int a;
+    } // end for
+    //free(mcu);
+}    
+
+extern struct mcu *extract_mcu(const struct bitstream *bitstream, const uint8_t nb_components, const struct jpeg_desc *jpeg) {
+    /*bouchon*/
+    struct mcu *mcu = create_mcu(nb_components);
     return mcu;
 }
 
@@ -37,8 +55,3 @@ extern void initial_DCs(struct mcu *mcus, size_t size){
     return;
 }
 
-/* Libère un MCU */
-extern void free_mcu(const struct mcu *mcu){
-    /*bouchon*/
-    return;
-}

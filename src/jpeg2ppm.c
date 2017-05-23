@@ -26,6 +26,12 @@ int main(int argc, char **argv)
 
     /* On recupere le flux des donnees brutes a partir du descripteur. */
     struct bitstream *stream = get_bitstream(jdesc);
+    
+    // Nombre de composant
+    uint8_t nb_components = get_nb_components(jdesc);
+    printf("Nombre de composante : %hhu\n", nb_components);
+    
+    
     /*******
     *  MCU
     ******/
@@ -47,24 +53,52 @@ int main(int argc, char **argv)
     printf("Taille de l'image complétée : %d x %d\n", width_ext, height_ext);
 
     // Calcul du nombre de MCU
-    uint16_t nb_mcu_h = width / (8 * h1);
-    uint16_t nb_mcu_v = height / (8 * v1);
-    uint16_t nb_mcu = nb_mcu_h * nb_mcu_v;
-    printf("Nombre de MCU : %d\n", nb_mcu);
-
+    uint16_t nb_mcus_h = width / (8 * h1); 
+    uint16_t nb_mcus_v = height / (8 * v1); 
+    uint16_t nb_mcus = nb_mcus_h * nb_mcus_v;
+    printf("Nombre de MCU : %d\n", nb_mcus);
+    
     // Extraction des MCU
-    struct mcu **mcus = calloc(nb_mcu, sizeof(struct mcu *));
-    for(uint16_t i=0; i< nb_mcu; i++){
-        mcus[i] = extract_mcu(stream, jdesc);
-     } //end for
+    struct mcu **mcus = calloc(nb_mcus, sizeof(struct mcu *));
+    for(uint16_t i=0; i< nb_mcus; i++){
+        mcus[i] = extract_mcu(stream, nb_components, jdesc);
+     } //end for 
+     
+     /************
+     *   Quantification inverse  *
+     *********/
 
-
-
+     uint8_t nb_quant_tables = get_nb_quantization_tables(jdesc);
+     printf("Nombre de table de quantification : %hhu\n", nb_quant_tables);
+     uint8_t **quant_tables = calloc(nb_quant_tables, sizeof(uint8_t *));
+     for(uint8_t j=0; j < nb_quant_tables; j++){
+         quant_tables[j] = get_quantization_table(jdesc, j);
+     } // end for
+       
+       // Pour tout les MCUS
+     for(uint16_t i=0; i< nb_mcus; i++){
+         // Pour tout les composants.
+         for(uint8_t j=0; j<nb_components; j++){
+             // Si j=0, on est sur la composante Y. Il faut la table 0.
+             uint8_t id_table = 0;
+             if(j!=0){
+                 id_table = 1;
+             }
+             //**********************************
+             // ICI erreur de segmentation!! Erreur de segmentation (core dumped)                                                                                                                                    
+             //inverse_quant(mcus[i]->components[j], quant_tables[id_table]);
+             int a;
+         } // end for components
+     } // end for MCUS
+     
+     
+     
+    
+    
 
     // Libération mémoire du tableau de MCU
-    for(uint16_t i=0; i< nb_mcu; i++)
-    {
-         free(mcus[i]);
+    for(uint16_t i=0; i< nb_mcus; i++){
+         free_mcu(mcus[i], nb_components);
      } // end for
     free(mcus);
 
