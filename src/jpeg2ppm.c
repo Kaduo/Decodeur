@@ -101,7 +101,7 @@ int main(int argc, char **argv)
      } // end for
      printf("\n");
      
-     for(int16_t m=0; m<nb_mcus; m++){
+     for(uint16_t m=0; m<nb_mcus; m++){
          for(uint8_t j=0; j<nb_components; j++){
              // Si j=0, on est sur la composante Y. Il faut la table 0.
              uint8_t id_table = 0;
