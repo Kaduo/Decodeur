@@ -3,7 +3,9 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "bitstream.h"
+#include "jpeg_reader.h"
 
 /* Structure représentant un MCU */
 struct mcu {
@@ -16,7 +18,7 @@ struct mcu {
 };
 
 /* Extrait un MCU d'un bitstream et d'une description donnés */
-extern struct *mcu extract_mcu(const struct bitstream *bitstream, const struct jpeg_desc *jpeg);
+extern struct mcu *extract_mcu(const struct bitstream *bitstream, const struct jpeg_desc *jpeg);
 
 /* Extrait un type de composante d'un bitstream donné */
 extern int16_t *extract_component(const struct bitstream *bitstream,

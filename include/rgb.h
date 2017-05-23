@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include "bitstream.h"
 #include "extraction.h"
+#include "upsampling.h"
 
 /* RGB dans un uint32_t:
 0x00RRGGBB

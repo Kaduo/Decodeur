@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include "upsampling.h"
 
 /* Cree un fichier PPM a partir d'une image (tableau uint32_t) */

@@ -1,9 +1,10 @@
 #include "rgb.h"
 
 uint32_t *block_ybr_to_rgb(const struct block *block){
-uint32_t block_rgb[64] = {0};
- return block_rgb;
+    uint32_t block_rgb[64] = {0};
+    return block_rgb;
 }
+
 uint32_t *new_image(size_t n_pixel) {
 	uint32_t *image = calloc(n_pixel, sizeof(uint32_t));
 	return image;

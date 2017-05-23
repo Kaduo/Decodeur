@@ -6,14 +6,12 @@
 #include "bitstream.h"
 #include "extraction.h"
 
-const size_t TAILLE_BLOC = 64;
-
 /* Structure représentant un bloc */
 struct block {
-    uint8_t y[TAILLE_BLOC];
-    uint8_t cb[TAILLE_BLOC];
-    uint8_t cr[TAILLE_BLOC];
-}
+    uint8_t y[64];
+    uint8_t cb[64];
+    uint8_t cr[64];
+};
 
 /* Suréchantillonne le MCU donné */
 extern struct block *upsampling(const struct mcu *mcu, uint8_t *sampling_factors);
