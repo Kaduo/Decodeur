@@ -11,5 +11,7 @@ int main(){
     for (size_t i = 0; i < 64; i++) {
         printf("%04x ", resultat[i]);
     }
+    printf("\n");
+    free(resultat);
     return 0;
 }
