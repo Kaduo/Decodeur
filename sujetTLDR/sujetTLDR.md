@@ -102,9 +102,11 @@ Au décodage, on fait l'inverse : on multiplie élément par élément le bloc f
 
 ### Zig-zag inverse
 
-On reçoit un entrée un vecteur de 64 coefficients. L'objectif est de le réorganiser par une opération zig-zag inverse qui recopie les 64 coefficients aux coordonnées comme présentées dans la figure suivante :
+On reçoit un entrée un vecteur de 64 coefficients en "zig-zag" lorsque ramenés à une tableau 2D.
 
 ![](zigzag.png)
+
+L'objectif est de le réorganiser par une opération de "zig-zag inverse" qui déroule le zig-zag ci-dessus.
 
 **En conclusion :**
 
