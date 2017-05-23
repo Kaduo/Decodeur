@@ -82,9 +82,12 @@ int main(int argc, char **argv)
              // Si j=0, on est sur la composante Y. Il faut la table 0.
              uint8_t id_table = 0;
              if(j!=0){
-                 id_table = 0;
+                 id_table = 1;
              }
-             inverse_quant(mcus[i]->components[j], quant_tables[id_table]);
+             //**********************************
+             // ICI erreur de segmentation!! Erreur de segmentation (core dumped)                                                                                                                                    
+             //inverse_quant(mcus[i]->components[j], quant_tables[id_table]);
+             int a;
          } // end for components
      } // end for MCUS
      
@@ -95,8 +98,7 @@ int main(int argc, char **argv)
 
     // Libération mémoire du tableau de MCU
     for(uint16_t i=0; i< nb_mcus; i++){
-         //free_mcu(mcus[i]);
-         int a;
+         free_mcu(mcus[i], nb_components);
      } // end for
     free(mcus);
 
