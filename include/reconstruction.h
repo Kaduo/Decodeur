@@ -6,6 +6,7 @@
 #include "bitstream.h"
 #include "extraction.h"
 
+
 /* Quantification inverse : multiplie la composante par la table de quantification donnée */
 extern void inverse_quant(int16_t *component, uint8_t *quant_table);
 

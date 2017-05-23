@@ -16,6 +16,6 @@ struct block {
 }
 
 /* Suréchantillonne le MCU donné */
-extern struct block *upsampling(const struct mcu *mcu);
+extern struct block *upsampling(const struct mcu *mcu, uint8_t *sampling_factors);
 
 #endif
