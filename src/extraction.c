@@ -1,9 +1,19 @@
 #include "extraction.h"
 
 /* Extrait un MCU d'un bitstream et d'une description donnés */
-extern struct mcu *extract_mcu(const struct bitstream *bitstream, const struct jpeg_desc *jpeg) {
-    /*bouchon*/
+
+struct mcu *create_mcu(uint8_t nb_components){
     struct mcu *mcu;
+    mcu->components = calloc(nb_components, sizeof(uint8_t *));
+    for(uint8_t i=0; i<nb_components; i++){
+        mcu->components[i] = calloc(64, sizeof(uint8_t));
+    } // end for
+    return mcu;
+}
+    
+extern struct mcu *extract_mcu(const struct bitstream *bitstream, const uint8_t nb_components, const struct jpeg_desc *jpeg) {
+    /*bouchon*/
+    struct mcu *mcu = create_mcu(nb_components);
     return mcu;
 }
 
