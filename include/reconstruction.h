@@ -13,6 +13,8 @@ extern void inverse_quant(int16_t *component, uint8_t *quant_table);
 /* Zag zig la composante */
 extern void zag_zig(int16_t *component);
 
+extern float16_t C(int16_t ksi);
+
 /* Applique la transformée en cosinus discrète inverse sur la composante */
 extern void idct(int16_t *component);
 
