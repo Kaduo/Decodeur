@@ -7,10 +7,15 @@
 #include "extraction.h"
 
 struct pixel_rgb {
-  uint8_t red;
-  uint8_t green;
-  uint8_t blue;
+  uint8_t r;
+  uint8_t g;
+  uint8_t b;
 }
 
+/*Convertit un bloc en RGB.*/
+struct pixel_rgb *YCbCr_to_RGB(const struct block *block);
+
+/*Rassemble des tableaux RGBs en une image complète.*/
+struct pixel_rgb *reconstruct_image(const struct **pixel_rgb pixels, size_t width, size_t height);
 
 #endif

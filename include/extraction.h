@@ -32,6 +32,9 @@ extern int16_t extract_dc(const struct bitstream *bitstream, const struct huff_t
 /* Extrait AC */
 extern int16_t *extract_ac(const struct bitstream *bitstream, const struct huff_table *huff);
 
+/*Calcule les DCs d'origine*/
+extern void initial_DCs(struct mcu *mcus, size_t size);
+
 /* Libère un MCU */
 extern void free_mcu(const struct mcu *mcu);
 
