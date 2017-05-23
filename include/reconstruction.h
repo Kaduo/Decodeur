@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "bitstream.h"
 #include "extraction.h"
 
@@ -13,7 +14,7 @@ extern void inverse_quant(int16_t *component, uint8_t *quant_table);
 /* Zag zig la composante */
 extern void zag_zig(int16_t *component);
 
-extern float16_t C(int16_t ksi);
+extern float C(int16_t ksi);
 
 /* Applique la transformée en cosinus discrète inverse sur la composante */
 extern int8_t *idct(int16_t *component);
