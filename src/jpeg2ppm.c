@@ -53,15 +53,19 @@ int main(int argc, char **argv)
     printf("Nombre de MCU : %d\n", nb_mcu);
     
     // Extraction des MCU
-    struct mcu **mcus = calloc(nb_mcu, sizeof(struct mcu));
-    for(uint16_t i=0; i< nb_mcu; i++)
-    {
+    struct mcu **mcus = calloc(nb_mcu, sizeof(struct mcu *));
+    for(uint16_t i=0; i< nb_mcu; i++){
         mcus[i] = extract_mcu(stream, jdesc);
-    
      } //end for 
+     
+     
     
     
     // Libération mémoire du tableau de MCU
+    for(uint16_t i=0; i< nb_mcu; i++)
+    {
+         free(mcus[i]);
+     } // end for
     free(mcus);
     
     
