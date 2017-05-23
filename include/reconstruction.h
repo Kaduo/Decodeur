@@ -17,7 +17,7 @@ extern void zag_zig(int16_t *component);
 extern float C(int16_t ksi);
 
 /* Applique la transformée en cosinus discrète inverse sur la composante */
-extern int8_t *idct(int16_t *component);
+extern int16_t *idct(int16_t *component);
 
 /* Transforme un MCU fréquentiel en spatial */
 extern void reconstruct_mcu(struct mcu *mcu, const struct jpeg_desc *jpeg);
