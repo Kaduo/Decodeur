@@ -17,12 +17,13 @@ float C(int16_t ksi){
     if (ksi == 0) {
         return 1/sqrt(2.);
     }
-    return 0;
+    return 1;
 }
 
+/*Fonction très moche, ne pas s'aventurer ici*/
 int16_t *idct(int16_t *component){
-    float coefficients[63];
-    float resultat_float[63];
+    float coefficients[64] = {0};
+    float resultat_float[64] = {0};
 
     int16_t *resultat;
     resultat = calloc(64, sizeof(int16_t));
@@ -41,6 +42,7 @@ int16_t *idct(int16_t *component){
                                                                             * cos((2*y + 1)*mu*PI/16);
                 }
             }
+            resultat_float[y*8 + x] /= 4;
             resultat_float[y*8 + x] += 128;
             if (resultat_float[y*8 + x] < 0) {
                 resultat_float[y*8 + x] = 0;
