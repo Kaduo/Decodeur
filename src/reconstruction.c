@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <math.h>
 #include "reconstruction.h"
 
@@ -5,7 +6,7 @@
 const size_t TAILLE_BLOC = 8;
 
 /* Valeur approchée de PI */
-const float PI = acos(-1);
+#define PI 3.14159265359
 
 void inverse_quant(int16_t *component, uint8_t *quant_table)
 {
@@ -22,7 +23,7 @@ int16_t *zag_zig(int16_t *component)
     struct point current_point = {0, 0};
     enum orientation current_orientation = ORI_E;
     /* Parcours de chaque valeur dans le vecteur zigzag */
-    for(int i = 0; i < TAILLE_BLOC * TAILLE_BLOC; ++i) {
+    for(size_t i = 0; i < TAILLE_BLOC * TAILLE_BLOC; ++i) {
         inverse[current_point.y*TAILLE_BLOC+current_point.x] = component[i];
         update_point(&current_point, current_orientation);
         current_orientation = next_orientation(current_orientation, &current_point);

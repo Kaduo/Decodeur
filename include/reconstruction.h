@@ -27,7 +27,7 @@ struct point {
 extern void inverse_quant(int16_t *component, uint8_t *quant_table);
 
 /* Zig-zag inverse de la composante */
-extern void zag_zig(int16_t *component);
+extern int16_t *zag_zig(int16_t *component);
 
 /* Met à jour le point courant */
 extern void update_point(struct point *point, enum orientation orientation);
