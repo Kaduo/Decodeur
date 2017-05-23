@@ -13,7 +13,7 @@ LD = clang
 INC = -I$(INC_DIR)
 
 CFLAGS += $(INC) -Wall -std=c99 -O0 -g  -Wextra
-LDFLAGS =
+LDFLAGS += -lm
 
 # Liste des fichiers objet
 
