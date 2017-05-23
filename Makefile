@@ -50,7 +50,7 @@ $(OBJ_DIR)/rgb.o: $(SRC_DIR)/rgb.c $(INC_DIR)/rgb.h
 $(OBJ_DIR)/upsampling.o: $(SRC_DIR)/upsampling.c $(INC_DIR)/upsampling.h
 	$(CC) $(CFLAGS) -c $(SRC_DIR)/upsampling.c -o $(OBJ_DIR)/upsampling.o
 
-$(OBJ_DIR)/jpeg2ppm.o: $(SRC_DIR)/jpeg2ppm.c #Rajouter les includes ici ! $(INC_DIR)/nom_du_fichier.h
+$(OBJ_DIR)/jpeg2ppm.o: $(SRC_DIR)/jpeg2ppm.c $(INC_DIR)/extraction.h $(INC_DIR)/reconstruction.h $(INC_DIR)/ppm.h $(INC_DIR)/rgb.h $(INC_DIR)/upsampling.h
 	$(CC) $(CFLAGS) -c $(SRC_DIR)/jpeg2ppm.c -o $(OBJ_DIR)/jpeg2ppm.o
 
 
