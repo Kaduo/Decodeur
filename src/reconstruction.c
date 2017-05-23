@@ -111,7 +111,9 @@ int16_t *idct(int16_t *component){
                                                                             * cos((2*y + 1)*mu*PI/16);
                 }
             }
-            resultat_float[y*8 + x] /= 4;
+            printf("AVANT %f\n", resultat_float[y*8+x]);
+            resultat_float[y*8 + x] /= 4.;
+            printf("APRES %f\n", resultat_float[y*8+x]);
             resultat_float[y*8 + x] += 128;
             if (resultat_float[y*8 + x] < 0) {
                 resultat_float[y*8 + x] = 0;
@@ -120,7 +122,7 @@ int16_t *idct(int16_t *component){
                 resultat_float[y*8 + x] = 255;
 
             }
-            resultat[y*8 + x] = resultat_float[y*8 + x];
+            resultat[y*8 + x] = (int16_t) resultat_float[y*8 + x];
         }
     }
 
