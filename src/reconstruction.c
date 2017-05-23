@@ -24,7 +24,8 @@ int16_t *idct(int16_t *component){
     float coefficients[63];
     float resultat_float[63];
 
-    int16_t resultat[63];
+    int16_t *resultat;
+    resultat = calloc(64, sizeof(int16_t));
 
     for (size_t lambda = 0; lambda < 8; lambda++) {
         for (size_t mu = 0; mu < 8; mu++) {
