@@ -4,9 +4,9 @@
 
 struct mcu *create_mcu(uint8_t nb_components){
     struct mcu *mcu = malloc(sizeof(struct mcu));
-    mcu->components = calloc(nb_components, sizeof(uint8_t *));
+    mcu->components = calloc(nb_components, sizeof(uint16_t *));
     for(uint8_t i=0; i<nb_components; i++){
-        mcu->components[i] = calloc(64, sizeof(uint8_t));
+        mcu->components[i] = calloc(64, sizeof(uint16_t));
     } // end for
     return mcu;
 }

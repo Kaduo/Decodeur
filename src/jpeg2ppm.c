@@ -77,9 +77,9 @@ int main(int argc, char **argv)
     } // end for
     
     // Pour debug : Affiche un composant mcu 1, Y ! OK!
-    printf("Debug : mcu 1, composante Y : \n");
+    printf("Debug : mcu 0, composante Y : \n");
     for(uint8_t j=0; j<64;j++){
-            printf("%d ", mcus[1]->components[0][j]);
+            printf("%d ", mcus[0]->components[0][j]);
          } //end for 
          printf("\n");
      
@@ -100,19 +100,17 @@ int main(int argc, char **argv)
          printf("%hhu ", quant_tables[0][i]);
      } // end for
      printf("\n");
-     
+
+     // Boucle sur les MCUs     
      for(uint16_t m=0; m<nb_mcus; m++){
+         // Boucle sur chaque composantes.
          for(uint8_t j=0; j<nb_components; j++){
              // Si j=0, on est sur la composante Y. Il faut la table 0.
              uint8_t id_table = 0;
              if(j!=0){
+                 // Pour les autres, on est sur la seconde table.
                  id_table = 1;
              } // end if
-             printf("dans la boucle : mcu = %d, composant = %hhu, id_table = %hhu\n", m, j, id_table);
-             //**********************************
-             // ICI erreur de segmentation!! Erreur de segmentation (core dumped)                                                                                                                                    
-             // Si on remplace la variable m par la bonne valeur, exemple : 1, ça marche.
-             // Mais quand on laisse la variable m, et que m=1! Ca plante
              inverse_quant(mcus[m]->components[j], quant_tables[id_table]);
          } // end for components
      } // end for MCUS
