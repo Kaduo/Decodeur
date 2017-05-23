@@ -76,10 +76,10 @@ int main(int argc, char **argv)
         mcus[i] = extract_mcu(stream, nb_components, jdesc);
     } // end for
     
-    // For debug : print mcu 1, Y ! OK!
+    // Pour debug : Affiche un composant mcu 1, Y ! OK!
     printf("Debug : mcu 1, composante Y : \n");
     for(uint8_t j=0; j<64;j++){
-            printf("%hhu ", mcus[0]->components[0][j]);
+            printf("%d ", mcus[1]->components[0][j]);
          } //end for 
          printf("\n");
      
@@ -100,21 +100,20 @@ int main(int argc, char **argv)
          printf("%hhu ", quant_tables[0][i]);
      } // end for
      printf("\n");
-       
-       // Pour tout les MCUS
-     for(uint16_t i=0; i< nb_mcus; i++){
-         // Pour tout les composants.
+     
+     for(int16_t m=0; m<nb_mcus; m++){
          for(uint8_t j=0; j<nb_components; j++){
              // Si j=0, on est sur la composante Y. Il faut la table 0.
              uint8_t id_table = 0;
              if(j!=0){
                  id_table = 1;
              } // end if
-             printf("dans la boucle : i = %d, j= %hhu, id_table = %hhu\n", i, j, id_table);
+             printf("dans la boucle : mcu = %d, composant = %hhu, id_table = %hhu\n", m, j, id_table);
              //**********************************
              // ICI erreur de segmentation!! Erreur de segmentation (core dumped)                                                                                                                                    
-             inverse_quant(mcus[i]->components[j], quant_tables[id_table]);
-             printf("i = %d, j= %hhu\n", i, j);
+             // Si on remplace la variable m par la bonne valeur, exemple : 1, ça marche.
+             // Mais quand on laisse la variable m, et que m=1! Ca plante
+             inverse_quant(mcus[m]->components[j], quant_tables[id_table]);
          } // end for components
      } // end for MCUS
      
