@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "bitstream.h"
 #include "extraction.h"
 
@@ -34,8 +35,10 @@ extern void update_point(struct point *point, enum orientation orientation);
 /* Renvoie l'orientation suivante */
 enum orientation next_orientation(enum orientation ori, const struct point *point);
 
+extern float C(int16_t x);
+
 /* Applique la transformée en cosinus discrète inverse sur la composante */
-extern void idct(int16_t *component);
+extern int16_t *idct(int16_t *component);
 
 /* Transforme un MCU fréquentiel en spatial */
 extern void reconstruct_mcu(struct mcu *mcu, const struct jpeg_desc *jpeg);

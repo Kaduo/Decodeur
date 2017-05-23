@@ -1,2 +1,4 @@
-./obj/*.o
-./bin/*
+/obj/*.o
+/bin/*
+/images/*.pgm
+/images/*.blabla

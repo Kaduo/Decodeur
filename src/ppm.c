@@ -21,7 +21,8 @@ void create_image_ppm(const struct block *blocks,
     /* Ecriture de l'entete */
     write_ppm_header(width, height, filename);
     /* Ecriture des donnees */
-    write_ppm_data(blocks, width, height, filename);
+    write_ppm_data(blocks
+        , width, height, filename);
 }
 
 /* Ecrit l'entete d'un fichier PPM */
