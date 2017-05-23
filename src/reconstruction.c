@@ -91,40 +91,33 @@ float C(int16_t x){
 
 /*Fonction très moche, ne pas s'aventurer ici*/
 int16_t *idct(int16_t *component){
-    float coefficients[64] = {0};
-    float resultat_float[64] = {0};
-
-    int16_t *resultat;
-    resultat = calloc(64, sizeof(int16_t));
-
-    for (size_t lambda = 0; lambda < 8; lambda++) {
-        for (size_t mu = 0; mu < 8; mu++) {
-            coefficients[mu*8 + lambda] = C(mu)*C(lambda)*component[mu*8 + lambda];
-        }
-    }
-
-    for (size_t x = 0; x < 8; x++) {
-        for (size_t y = 0; y < 8; y++) {
-            for (size_t lambda = 0; lambda < 8; lambda++) {
-                for (size_t mu = 0; mu < 8; mu++) {
-                    resultat_float[y*8 + x] += coefficients[mu*8 + lambda] * cos((2*x + 1)*lambda*PI/16)
-                                                                            * cos((2*y + 1)*mu*PI/16);
+    int16_t *transformee = malloc(sizeof(int16_t) * TAILLE_BLOC * TAILLE_BLOC);
+    float offset = 128.;
+    float facteur = 1/sqrt(2. * TAILLE_BLOC);
+    float somme = 0.;
+    float resultat = 0.;
+    for(size_t y = 0; y < TAILLE_BLOC; ++y) {
+        for(size_t x = 0; x < TAILLE_BLOC; ++x) {
+            somme = 0.;
+            for(size_t lambda = 0; lambda < TAILLE_BLOC; ++lambda) {
+                for(size_t mu = 0; mu < TAILLE_BLOC; ++mu) {
+                    somme += C(lambda) * C(mu)
+                              * cos((2*x+1)*lambda*PI/(2*TAILLE_BLOC))
+                              * cos((2*y+1)*mu*PI/(2*TAILLE_BLOC))
+                              * component[mu*TAILLE_BLOC+lambda];
                 }
             }
-            resultat_float[y*8 + x] /= 4;
-            resultat_float[y*8 + x] += 128;
-            if (resultat_float[y*8 + x] < 0) {
-                resultat_float[y*8 + x] = 0;
+            resultat = facteur * somme + offset;
+            printf("Resultat %f\n", resultat);
+            if(resultat < 0.) {
+              resultat = 0.;
+            } else if(resultat > 255.) {
+              resultat = 255.;
             }
-            else if (resultat_float[y*8 + x] > 255) {
-                resultat_float[y*8 + x] = 255;
-
-            }
-            resultat[y*8 + x] = resultat_float[y*8 + x];
+            transformee[y*TAILLE_BLOC+x] = (int16_t) round(resultat);
         }
     }
-
-    return resultat;
+    return transformee;
 }
 
 void reconstruct_mcu(struct mcu *mcu, const struct jpeg_desc *jpeg){
