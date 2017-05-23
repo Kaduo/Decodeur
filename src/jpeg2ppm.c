@@ -48,8 +48,20 @@ int main(int argc, char **argv)
     uint16_t height = get_image_size(jdesc, DIR_V);
     printf("Taille de l'image : %d x %d\n", width, height);
     // Taille de l'image complétée.
-    uint16_t width_ext = width + 8 - width%8;
-    uint16_t height_ext = height + 8 - height%8;
+    uint16_t width_ext;
+    uint16_t height_ext;
+    if(width%8){
+        width_ext = width + 8 - width%8;
+    }
+    else{
+        width_ext = width;
+    }
+    if(height%8){
+        width_ext = width + 8 - width%8;
+    }
+    else{
+        height_ext = height;
+    }
     printf("Taille de l'image complétée : %d x %d\n", width_ext, height_ext);
 
     // Calcul du nombre de MCU
@@ -62,7 +74,12 @@ int main(int argc, char **argv)
     struct mcu **mcus = calloc(nb_mcus, sizeof(struct mcu *));
     for(uint16_t i=0; i< nb_mcus; i++){
         mcus[i] = extract_mcu(stream, nb_components, jdesc);
-     } //end for 
+    } // end for
+    
+    // For debug : print mcu 1, Y ! OK!
+    for(uint8_t j=0; j<64;j++){
+            printf("%hhu ", mcus[0]->components[0][j]);
+         } //end for 
      
      /************
      *   Quantification inverse  *

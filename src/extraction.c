@@ -3,7 +3,7 @@
 /* Extrait un MCU d'un bitstream et d'une description donnés */
 
 struct mcu *create_mcu(uint8_t nb_components){
-    struct mcu *mcu;
+    struct mcu *mcu = malloc(sizeof(struct mcu));
     mcu->components = calloc(nb_components, sizeof(uint8_t *));
     for(uint8_t i=0; i<nb_components; i++){
         mcu->components[i] = calloc(64, sizeof(uint8_t));
@@ -22,6 +22,9 @@ void free_mcu(struct mcu *mcu, uint8_t nb_components){
 extern struct mcu *extract_mcu(const struct bitstream *bitstream, const uint8_t nb_components, const struct jpeg_desc *jpeg) {
     /*bouchon*/
     struct mcu *mcu = create_mcu(nb_components);
+    mcu->components[0][0] = 0;  
+    mcu->components[0][1] = 1;  
+    mcu->components[0][2] = 2;  
     return mcu;
 }
 
