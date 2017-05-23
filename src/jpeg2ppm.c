@@ -109,10 +109,11 @@ int main(int argc, char **argv)
              uint8_t id_table = 0;
              if(j!=0){
                  id_table = 1;
-             } // end else
+             } // end if
+             printf("dans la boucle : i = %d, j= %hhu, id_table = %hhu\n", i, j, id_table);
              //**********************************
              // ICI erreur de segmentation!! Erreur de segmentation (core dumped)                                                                                                                                    
-             //inverse_quant(mcus[i]->components[j], quant_tables[id_table]);
+             inverse_quant(mcus[i]->components[j], quant_tables[id_table]);
              printf("i = %d, j= %hhu\n", i, j);
          } // end for components
      } // end for MCUS
