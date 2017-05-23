@@ -3,9 +3,8 @@
 #include "reconstruction.h"
 
 extern void inverse_quant(int16_t *component, uint8_t *quant_table){
-    for (size_t i = 0; i < sizeof(component)/sizeof(int16_t); i++) {
-        component[i] = component[i]*quant_table[i];
-    }
+    /*bouchon*/
+    return;
 }
 
 extern void zag_zig(int16_t *component){
