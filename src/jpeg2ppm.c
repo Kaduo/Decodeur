@@ -77,9 +77,11 @@ int main(int argc, char **argv)
     } // end for
     
     // For debug : print mcu 1, Y ! OK!
+    printf("Debug : mcu 1, composante Y : \n");
     for(uint8_t j=0; j<64;j++){
             printf("%hhu ", mcus[0]->components[0][j]);
          } //end for 
+         printf("\n");
      
      /************
      *   Quantification inverse  *
@@ -91,6 +93,13 @@ int main(int argc, char **argv)
      for(uint8_t j=0; j < nb_quant_tables; j++){
          quant_tables[j] = get_quantization_table(jdesc, j);
      } // end for
+     
+     // Debug
+     printf("Table de quantification index 0 : \n");
+     for(uint8_t i=0; i<64; i++){
+         printf("%hhu ", quant_tables[0][i]);
+     } // end for
+     printf("\n");
        
        // Pour tout les MCUS
      for(uint16_t i=0; i< nb_mcus; i++){
@@ -100,11 +109,11 @@ int main(int argc, char **argv)
              uint8_t id_table = 0;
              if(j!=0){
                  id_table = 1;
-             }
+             } // end else
              //**********************************
              // ICI erreur de segmentation!! Erreur de segmentation (core dumped)                                                                                                                                    
              //inverse_quant(mcus[i]->components[j], quant_tables[id_table]);
-             int a;
+             printf("i = %d, j= %hhu\n", i, j);
          } // end for components
      } // end for MCUS
      
