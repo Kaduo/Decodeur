@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include "bitstream.h"
 #include "jpeg_reader.h"
+#include "huffman.h"
 
 /* Structure représentant un MCU */
 struct mcu {
@@ -32,10 +33,10 @@ extern struct mcu *extract_mcu(const struct bitstream *bitstream,
 
 /* Extrait un type de composante d'un bitstream donné */
 void extract_component(const struct bitstream *bitstream,
-                                    const struct huff_table *huff_dc,
-                                    const struct huff_table *huff_ac,
-                                    int16_t previous_dc,
-                                    int16_t *component);
+                        const struct huff_table *huff_dc,
+                        const struct huff_table *huff_ac,
+                        int16_t previous_dc,
+                        int16_t *component);
 
 /* Extrait DC */
 extern int16_t extract_dc(const struct bitstream *bitstream, const struct huff_table *huff);
