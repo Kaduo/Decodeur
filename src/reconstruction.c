@@ -60,22 +60,22 @@ enum orientation next_orientation(enum orientation ori, const struct point *poin
             return (point->y == 7) ? ORI_NE : ORI_SW;
         case ORI_S:
             return (point->x == 7) ? ORI_SW : ORI_NE;
-		    case ORI_NE:
+		case ORI_NE:
             if(!(point->y == 0) && !(point->x == 7)) {
-				          return ORI_NE;
-			      } else if (point->x == 7) {
-				          return ORI_S;
-			      } else {
-				          return ORI_E;
-			      }
-		    case ORI_SW:
-			      if(!(point->y == 7 || point->x == 0)) {
-				          return ORI_SW;
-			      } else if (point->y == 7) {
-				          return ORI_E;
-			      } else {
-				          return ORI_S;
-			      }
+                return ORI_NE;
+			} else if (point->x == 7) {
+                return ORI_S;
+			} else {
+	            return ORI_E;
+			}
+		case ORI_SW:
+			if(!(point->y == 7 || point->x == 0)) {
+                return ORI_SW;
+			} else if (point->y == 7) {
+				return ORI_E;
+			} else {
+				return ORI_S;
+			}
         default:
             perror("Orientation inconnue.");
   }
