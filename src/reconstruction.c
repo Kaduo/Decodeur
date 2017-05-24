@@ -12,7 +12,7 @@ void inverse_quant(int16_t *component, uint8_t *quant_table)
 {
     /* Multiplication terme à terme de la composante par la table de quantification */
     for (size_t i = 0; i < TAILLE_BLOC * TAILLE_BLOC; ++i) {
-      component[i] *= quant_table[i];
+        component[i] *= quant_table[i];
     }
 }
 
