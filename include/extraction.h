@@ -9,22 +9,33 @@
 
 /* Structure représentant un MCU */
 struct mcu {
-  int16_t **components;
+  int16_t **components_y;
+  int16_t **components_cb;
+  int16_t **components_cr;
+  uint8_t nb_ys;
+  uint8_t nb_cbs;
+  uint8_t nb_crs;
 };
 
-extern struct mcu *create_mcu(uint8_t nb_components);
-void free_mcu(struct mcu *mcu, uint8_t nb_components);
+extern struct mcu *create_mcu(uint8_t nb_components_y,
+                                uint8_t nb_components_cb,
+                                uint8_t nb_components_cr);
+
+void free_mcu(struct mcu *mcu);
 
 /* Extrait un MCU d'un bitstream et d'une description donnés */
-extern struct mcu *extract_mcu(const struct bitstream *bitstream, const uint8_t nb_components, const struct jpeg_desc *jpeg);
+extern struct mcu *extract_mcu(const struct bitstream *bitstream,
+                                uint8_t nb_components_y,
+                                uint8_t nb_components_cb,
+                                uint8_t nb_components_cr,
+                                const struct jpeg_desc *jpeg);
 
 /* Extrait un type de composante d'un bitstream donné */
-extern int16_t *extract_component(const struct bitstream *bitstream,
-                                    const struct huff_table *y_dc,
-                                    const struct huff_table *y_ac,
-                                    const struct huff_table *c_dc,
-                                    const struct huff_table *c_ac,
-                                    enum component comp);
+void extract_component(const struct bitstream *bitstream,
+                                    const struct huff_table *huff_dc,
+                                    const struct huff_table *huff_ac,
+                                    int16_t previous_dc,
+                                    int16_t *component);
 
 /* Extrait DC */
 extern int16_t extract_dc(const struct bitstream *bitstream, const struct huff_table *huff);

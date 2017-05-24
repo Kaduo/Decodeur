@@ -10,6 +10,10 @@
 #include "rgb.h"
 #include "upsampling.h"
 
+bool est_couleur(const struct jpeg_desc *jpeg){
+    return get_nb_components(jpeg) > 1;
+}
+
 int main(int argc, char **argv)
 {
     if (argc != 2) {
@@ -26,22 +30,33 @@ int main(int argc, char **argv)
 
     /* On recupere le flux des donnees brutes a partir du descripteur. */
     struct bitstream *stream = get_bitstream(jdesc);
-    
+
     // Nombre de composant
     uint8_t nb_components = get_nb_components(jdesc);
     printf("Nombre de composante : %hhu\n", nb_components);
-    
-    
+
+
     /*******
     *  MCU
     ******/
 
     // Calcul du nombre de MCU
 
+    uint8_t sampling_factors[3][2] = {{0}}; //Contient les sampling factors h1,v1,h2,...
+
+
+    for (size_t i = 0; i < nb_components; ++i) {
+        sampling_factors[i][0] = get_frame_component_sampling_factor(jdesc, DIR_H, i);
+        sampling_factors[i][1] = get_frame_component_sampling_factor(jdesc, DIR_V, i);
+    }
+
     // H1 V1
-    uint8_t h1 = get_frame_component_sampling_factor(jdesc, DIR_H, 0);
-    uint8_t v1 = get_frame_component_sampling_factor(jdesc, DIR_V, 0);
-    printf("H1 : %hhu, V1 : %hhu\n", h1, v1);
+    printf("H1 : %hhu, V1 : %hhu\n", sampling_factors[1][0], sampling_factors[1][1]);
+
+    //Nombre de composantes par MCU
+    uint8_t nb_components_y = sampling_factors[0][0]*sampling_factors[0][1];
+    uint8_t nb_components_cb = sampling_factors[1][0]*sampling_factors[1][1];
+    uint8_t nb_components_cr = sampling_factors[2][0]*sampling_factors[2][1];
 
     // Taille de l'image.
     uint16_t width = get_image_size(jdesc, DIR_H);
@@ -51,13 +66,13 @@ int main(int argc, char **argv)
     uint16_t width_ext;
     uint16_t height_ext;
     if(width%8){
-        width_ext = width + 8 - width%8;
+        width_ext = width + 8 - width % 8;
     }
     else{
         width_ext = width;
     }
     if(height%8){
-        width_ext = width + 8 - width%8;
+        width_ext = width + 8 - width % 8;
     }
     else{
         height_ext = height;
@@ -65,24 +80,24 @@ int main(int argc, char **argv)
     printf("Taille de l'image complétée : %d x %d\n", width_ext, height_ext);
 
     // Calcul du nombre de MCU
-    uint16_t nb_mcus_h = width / (8 * h1); 
-    uint16_t nb_mcus_v = height / (8 * v1); 
+    uint16_t nb_mcus_h = width_ext / (8 * sampling_factors[0][0]);
+    uint16_t nb_mcus_v = height_ext / (8 * sampling_factors[0][1]);
     uint16_t nb_mcus = nb_mcus_h * nb_mcus_v;
     printf("Nombre de MCU : %d\n", nb_mcus);
-    
+
     // Extraction des MCU
     struct mcu **mcus = calloc(nb_mcus, sizeof(struct mcu *));
     for(uint16_t i=0; i< nb_mcus; i++){
-        mcus[i] = extract_mcu(stream, nb_components, jdesc);
+        mcus[i] = extract_mcu(stream, nb_components_y, nb_components_cb, nb_components_cr, jdesc);
     } // end for
-    
+
     // Pour debug : Affiche un composant mcu 1, Y ! OK!
     printf("Debug : mcu 0, composante Y : \n");
     for(uint8_t j=0; j<64;j++){
-            printf("%d ", mcus[0]->components[0][j]);
-         } //end for 
+            printf("%d ", mcus[0]->components_y[j]);
+         } //end for
          printf("\n");
-     
+
      /************
      *   Quantification inverse  *
      *********/
@@ -93,7 +108,7 @@ int main(int argc, char **argv)
      for(uint8_t j=0; j < nb_quant_tables; j++){
          quant_tables[j] = get_quantization_table(jdesc, j);
      } // end for
-     
+
      // Debug
      printf("Table de quantification index 0 : \n");
      for(uint8_t i=0; i<64; i++){
@@ -101,28 +116,28 @@ int main(int argc, char **argv)
      } // end for
      printf("\n");
 
-     // Boucle sur les MCUs     
-     for(uint16_t m=0; m<nb_mcus; m++){
-         // Boucle sur chaque composantes.
-         for(uint8_t j=0; j<nb_components; j++){
-             // Si j=0, on est sur la composante Y. Il faut la table 0.
-             uint8_t id_table = 0;
-             if(j!=0){
-                 // Pour les autres, on est sur la seconde table.
-                 id_table = 1;
-             } // end if
-             inverse_quant(mcus[m]->components[j], quant_tables[id_table]);
-         } // end for components
-     } // end for MCUS
-     
-     
-     
-    
-    
+
+     // Boucle sur les MCUs
+     for(uint16_t m = 0; m < nb_mcus; ++m) {
+         /* Quantification inverse sur les composantes Y */
+         for(uint8_t y = 0; y < nb_components_y; ++y) {
+             inverse_quant(mcus[m]->components_y[y], quant_tables[0]);
+         }
+         if(est_couleur(jdesc)) {
+             /* Quantification inverse sur les composantes Cb */
+             for(uint8_t cb = 0; cb < nb_components_cb; ++cb) {
+                 inverse_quant(mcus[m]->components_cb[cb], quant_tables[1]);
+             }
+             /* Quantification inverse sur les composantes Cr */
+             for(uint8_t cr = 0; cr < nb_components_cr; ++cr) {
+                 inverse_quant(mcus[m]->components_cr[cr], quant_tables[2]);
+             }
+         }
+     }
 
     // Libération mémoire du tableau de MCU
     for(uint16_t i=0; i< nb_mcus; i++){
-         free_mcu(mcus[i], nb_components);
+         free_mcu(mcus[i]);
      } // end for
     free(mcus);
 
