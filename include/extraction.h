@@ -40,14 +40,4 @@ void extract_component(struct bitstream *bitstream,
                         int16_t previous_dc,
                         int16_t *component);
 
-/* Extrait DC */
-extern int16_t extract_dc(const struct bitstream *bitstream, const struct huff_table *huff);
-
-/* Extrait AC */
-extern int16_t *extract_ac(const struct bitstream *bitstream, const struct huff_table *huff);
-
-/*Calcule les DCs d'origine*/
-extern void initial_DCs(struct mcu *mcus, size_t size);
-
-
 #endif

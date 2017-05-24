@@ -161,27 +161,8 @@ void extract_component(struct bitstream *bitstream,
                 read_bitstream(bitstream, magnitude, &indice, true); //Peu sûr...
                 uint8_t signe = (indice >> (magnitude - 1)); // Attention : vaut 0 si valeur negative, 1 si positive
                 indice %= (uint32_t) pow(2, magnitude - 1);
-                if(signe == 0) component[i] = indice - pow(2, magnitude) + 1;
+                if(signe == 0) component[i] = + indice - pow(2, magnitude) + 1;
                 else component[i] = indice + pow(2, magnitude - 1);
         }
     }
-}
-
-/* Extrait DC */
-extern int16_t extract_dc(const struct bitstream *bitstream, const struct huff_table *huff) {
-    /*bouchon*/
-    int16_t dc;
-    return dc;
-}
-
-/* Extrait AC */
-extern int16_t *extract_ac(const struct bitstream *bitstream, const struct huff_table *huff){
-    /*bouchon*/
-    return NULL;
-}
-
-/*Calcule les DCs d'origine*/
-extern void initial_DCs(struct mcu *mcus, size_t size){
-    /*bouchon*/
-    return;
 }
