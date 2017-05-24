@@ -17,14 +17,14 @@ void free_mcu(struct mcu *mcu, uint8_t nb_components){
         int a;
     } // end for
     //free(mcu);
-}    
+}
 
 extern struct mcu *extract_mcu(const struct bitstream *bitstream, const uint8_t nb_components, const struct jpeg_desc *jpeg) {
     /*bouchon*/
     struct mcu *mcu = create_mcu(nb_components);
-    mcu->components[0][0] = 0;  
-    mcu->components[0][1] = 1;  
-    mcu->components[0][2] = 2;  
+    mcu->components[0][0] = 0;
+    mcu->components[0][1] = 1;
+    mcu->components[0][2] = 2;
     return mcu;
 }
 
@@ -57,4 +57,3 @@ extern void initial_DCs(struct mcu *mcus, size_t size){
     /*bouchon*/
     return;
 }
-
