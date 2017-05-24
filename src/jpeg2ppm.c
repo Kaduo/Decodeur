@@ -117,23 +117,9 @@ int main(int argc, char **argv)
      } // end for
      printf("\n");
 
-
-     // Boucle sur les MCUs
-     for(uint16_t m = 0; m < nb_mcus; ++m) {
-         /* Quantification inverse sur les composantes Y */
-         for(uint8_t y = 0; y < nb_components_y; ++y) {
-             inverse_quant(mcus[m]->components_y[y], quant_tables[0]);
-         }
-         if(est_couleur(jdesc)) {
-             /* Quantification inverse sur les composantes Cb */
-             for(uint8_t cb = 0; cb < nb_components_cb; ++cb) {
-                 inverse_quant(mcus[m]->components_cb[cb], quant_tables[1]);
-             }
-             /* Quantification inverse sur les composantes Cr */
-             for(uint8_t cr = 0; cr < nb_components_cr; ++cr) {
-                 inverse_quant(mcus[m]->components_cr[cr], quant_tables[1]);
-             }
-         }
+     // On reconstruit les mcus
+     for (size_t m = 0; m < nb_mcus; m++) {
+         reconstruct_mcu(mcus[m], jdesc);
      }
 
     // Libération mémoire du tableau de MCU

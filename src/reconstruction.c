@@ -57,21 +57,21 @@ enum orientation next_orientation(enum orientation ori, const struct point *poin
 {
     switch(ori) {
         case ORI_E:
-            return (point->y == 3) ? ORI_NE : ORI_SW;
+            return (point->y == 7) ? ORI_NE : ORI_SW;
         case ORI_S:
-            return (point->x == 3) ? ORI_SW : ORI_NE;
+            return (point->x == 7) ? ORI_SW : ORI_NE;
 		    case ORI_NE:
-            if(!(point->y == 0) && !(point->x == 3)) {
+            if(!(point->y == 0) && !(point->x == 7)) {
 				          return ORI_NE;
-			      } else if (point->x == 3) {
+			      } else if (point->x == 7) {
 				          return ORI_S;
 			      } else {
 				          return ORI_E;
 			      }
 		    case ORI_SW:
-			      if(!(point->y == 3 || point->x == 0)) {
+			      if(!(point->y == 7 || point->x == 0)) {
 				          return ORI_SW;
-			      } else if (point->y == 3) {
+			      } else if (point->y == 7) {
 				          return ORI_E;
 			      } else {
 				          return ORI_S;
@@ -105,7 +105,6 @@ int16_t *idct(int16_t *component){
                 }
             }
             resultat = facteur * somme + offset;
-            printf("Resultat %f\n", resultat);
             if(resultat < 0.) {
               resultat = 0.;
             } else if(resultat > 255.) {
@@ -121,7 +120,22 @@ void reconstruct_component(int16_t *component, uint8_t *quant_table)
 {
     inverse_quant(component, quant_table);
     int16_t *temp = zag_zig(component);
+    printf("APRES INVERSE QUANT\n");
+    for (size_t i = 0; i < 64; i++) {
+        printf("%x ", component[i]);
+    }
+    printf("\n");
+    printf("APRES ZAG ZIG\n");
+    for (size_t i = 0; i < 64; i++) {
+        printf("%x ", temp[i]);
+    }
+    printf("\n");
     int16_t *temp2 = idct(temp);
+    printf("APRES IDCT\n");
+    for (size_t i = 0; i < 64; i++) {
+        printf("%x ", temp2[i]);
+    }
+    printf("\n");
     free(temp);
     for (size_t i = 0; i < 64; i++) {
         component[i] = temp2[i];

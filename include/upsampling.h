@@ -14,6 +14,8 @@ struct block {
 };
 
 /* Suréchantillonne le MCU donné */
-extern struct block *upsampling(const struct mcu *mcu, uint8_t *sampling_factors);
+extern struct block *upsampling(const struct mcu *mcu, uint8_t sampling_factors[3][2]);
+
+void test_sale_invader(struct block *block, char *filename);
 
 #endif
