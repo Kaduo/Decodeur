@@ -82,11 +82,8 @@ enum orientation next_orientation(enum orientation ori, const struct point *poin
 	return ORI_NB;
 }
 
-float C(int16_t x){
-    if (x == 0) {
-        return 1/sqrt(2.);
-    }
-    return 1;
+float coeff_idct(int16_t x){
+    return (x == 0) ? 1/sqrt(2.) : 1;
 }
 
 /*Fonction très moche, ne pas s'aventurer ici*/
@@ -101,7 +98,7 @@ int16_t *idct(int16_t *component){
             somme = 0.;
             for(size_t lambda = 0; lambda < TAILLE_BLOC; ++lambda) {
                 for(size_t mu = 0; mu < TAILLE_BLOC; ++mu) {
-                    somme += C(lambda) * C(mu)
+                    somme += coeff_idct(lambda) * coeff_idct(mu)
                               * cos((2*x+1)*lambda*PI/(2*TAILLE_BLOC))
                               * cos((2*y+1)*mu*PI/(2*TAILLE_BLOC))
                               * component[mu*TAILLE_BLOC+lambda];
