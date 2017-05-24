@@ -18,6 +18,8 @@ struct mcu {
   uint8_t nb_crs;
 };
 
+int16_t **create_components(uint8_t nb_components);
+
 extern struct mcu *create_mcu(uint8_t nb_components_y,
                                 uint8_t nb_components_cb,
                                 uint8_t nb_components_cr);
@@ -25,16 +27,16 @@ extern struct mcu *create_mcu(uint8_t nb_components_y,
 void free_mcu(struct mcu *mcu);
 
 /* Extrait un MCU d'un bitstream et d'une description donnés */
-extern struct mcu *extract_mcu(const struct bitstream *bitstream,
+extern struct mcu *extract_mcu(struct bitstream *bitstream,
                                 uint8_t nb_components_y,
                                 uint8_t nb_components_cb,
                                 uint8_t nb_components_cr,
                                 const struct jpeg_desc *jpeg);
 
 /* Extrait un type de composante d'un bitstream donné */
-void extract_component(const struct bitstream *bitstream,
-                        const struct huff_table *huff_dc,
-                        const struct huff_table *huff_ac,
+void extract_component(struct bitstream *bitstream,
+                        struct huff_table *huff_dc,
+                        struct huff_table *huff_ac,
                         int16_t previous_dc,
                         int16_t *component);
 

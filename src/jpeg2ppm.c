@@ -63,8 +63,8 @@ int main(int argc, char **argv)
     uint16_t height = get_image_size(jdesc, DIR_V);
     printf("Taille de l'image : %d x %d\n", width, height);
     // Taille de l'image complétée.
-    uint16_t width_ext;
-    uint16_t height_ext;
+    uint16_t width_ext = 0;
+    uint16_t height_ext = 0;
     if(width%8){
         width_ext = width + 8 - width % 8;
     }
@@ -130,7 +130,7 @@ int main(int argc, char **argv)
              }
              /* Quantification inverse sur les composantes Cr */
              for(uint8_t cr = 0; cr < nb_components_cr; ++cr) {
-                 inverse_quant(mcus[m]->components_cr[cr], quant_tables[2]);
+                 inverse_quant(mcus[m]->components_cr[cr], quant_tables[1]);
              }
          }
      }
