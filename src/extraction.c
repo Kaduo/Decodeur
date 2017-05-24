@@ -54,14 +54,30 @@ struct mcu *extract_mcu(struct bitstream *bitstream,
 {
     struct mcu *mcu = create_mcu(nb_components_y, nb_components_cb, nb_components_cr);
 
-    const uint8_t id_y = get_frame_component_id(jpeg, 0);
-    const uint8_t id_cb = get_frame_component_id(jpeg, 1);
-    const uint8_t id_cr = get_frame_component_id(jpeg, 2);
+    uint8_t id_y = get_frame_component_id(jpeg, 0);
+    uint8_t id_huff_y_dc = get_scan_component_huffman_index(jpeg, DC, 0);
+    uint8_t id_huff_y_ac = get_scan_component_huffman_index(jpeg, AC, 0);
+    struct huff_table *huff_y_dc = get_huffman_table(jpeg, DC, id_huff_y_dc);
+    struct huff_table *huff_y_ac = get_huffman_table(jpeg, AC, id_huff_y_ac);
 
-    struct huff_table *huff_y_dc = get_huffman_table(jpeg, DC, id_y);
-    struct huff_table *huff_y_ac = get_huffman_table(jpeg, AC, id_y);
-    struct huff_table *huff_c_dc = get_huffman_table(jpeg, DC, id_cb);
-    struct huff_table *huff_c_ac = get_huffman_table(jpeg, DC, id_cb);
+
+    uint8_t id_cb = 0;
+    uint8_t id_cr = 0;
+    uint8_t id_huff_c_dc = 0;
+    uint8_t id_huff_c_ac = 0;
+
+    struct huff_table *huff_c_dc = NULL;
+    struct huff_table *huff_c_ac = NULL;
+
+    if (mcu->nb_cbs > 0){
+        id_cb = get_frame_component_id(jpeg, 1);
+        id_cr = get_frame_component_id(jpeg, 2);
+        id_huff_c_dc = get_scan_component_huffman_index(jpeg, DC, 1);
+        id_huff_c_ac = get_scan_component_huffman_index(jpeg, AC, 1);
+        huff_c_dc = get_huffman_table(jpeg, DC, id_huff_c_dc);
+        huff_c_ac = get_huffman_table(jpeg, DC, id_huff_c_ac);
+    }
+
 
     for (size_t i = 0; i < get_nb_components(jpeg); i++) {
         int16_t previous_dc = 0;
@@ -119,15 +135,16 @@ void extract_component(struct bitstream *bitstream,
     uint8_t magnitude = (uint8_t) next_huffman_value(huff_dc, bitstream);
     uint32_t indice = 0;
     read_bitstream(bitstream, magnitude, &indice, false);
-    uint8_t signe = indice % (int32_t) pow(2, magnitude); // Attention : vaut 0 si valeur negative, 1 si positive
-    indice /= pow(2, magnitude);
-    component[0] = previous_dc + indice + pow(2, magnitude - 1) * (2 * signe - 1); // Petite magouille
+    uint8_t signe = (indice >> (magnitude - 1)); // Attention : vaut 0 si valeur negative, 1 si positive
+    indice %= (uint32_t) pow(2, magnitude - 1);
+    if(signe == 0) component[0] = previous_dc + indice - pow(2, magnitude) + 1;
+    else component[0] = previous_dc + indice + pow(2, magnitude - 1);
 
     /* Extraction des coefficients AC */
     for (uint8_t i = 1; i < 64; i++) {
         int8_t symbole = next_huffman_value(huff_ac, bitstream);
-        if (!(symbole % 16)) {
-            perror("ERREUR FATALE : Symbole invalide !");
+        if (!(symbole % 16) && symbole != 0) {
+            perror("ERREUR FATALE : symbole invalide !");
             exit(EXIT_FAILURE);
         }
         switch (symbole) {
@@ -142,9 +159,10 @@ void extract_component(struct bitstream *bitstream,
                 uint8_t magnitude = (symbole & 0x0f);
                 uint32_t indice = 0;
                 read_bitstream(bitstream, magnitude, &indice, true); //Peu sûr...
-                uint8_t signe = indice % (int32_t) pow(2, magnitude); // Attention : vaut 0 si valeur negative, 1 si positive
-                indice /= pow(2, magnitude);
-                component[i] = indice + pow(2, magnitude - 1) * (2 * signe - 1); // Petite magouille
+                uint8_t signe = (indice >> (magnitude - 1)); // Attention : vaut 0 si valeur negative, 1 si positive
+                indice %= (uint32_t) pow(2, magnitude - 1);
+                if(signe == 0) component[i] = indice - pow(2, magnitude) + 1;
+                else component[i] = indice + pow(2, magnitude - 1);
         }
     }
 }

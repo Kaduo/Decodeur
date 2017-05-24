@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <inttypes.h>
 
 #include "jpeg_reader.h"
 #include "bitstream.h"
@@ -51,7 +52,7 @@ int main(int argc, char **argv)
     }
 
     // H1 V1
-    printf("H1 : %hhu, V1 : %hhu\n", sampling_factors[1][0], sampling_factors[1][1]);
+    printf("H1 : %hhu, V1 : %hhu\n", sampling_factors[0][0], sampling_factors[0][1]);
 
     //Nombre de composantes par MCU
     uint8_t nb_components_y = sampling_factors[0][0]*sampling_factors[0][1];
@@ -94,7 +95,7 @@ int main(int argc, char **argv)
     // Pour debug : Affiche un composant mcu 1, Y ! OK!
     printf("Debug : mcu 0, composante Y : \n");
     for(uint8_t j=0; j<64;j++){
-            printf("%d ", mcus[0]->components_y[j]);
+            printf("%d ", mcus[0]->components_y[0][j]);
          } //end for
          printf("\n");
 
