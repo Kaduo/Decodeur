@@ -117,7 +117,33 @@ int16_t *idct(int16_t *component){
     return transformee;
 }
 
-void reconstruct_mcu(struct mcu *mcu, const struct jpeg_desc *jpeg){
-    /*bouchon*/
-    return;
+void reconstruct_component(int16_t *component, uint8_t *quant_table)
+{
+    inverse_quant(component, quant_table);
+    int16_t *temp = zag_zig(component);
+    int16_t *temp2 = idct(temp);
+    free(temp);
+    for (size_t i = 0; i < 64; i++) {
+        component[i] = temp2[i];
+    }
+    free(temp2);
+}
+
+void reconstruct_mcu(struct mcu *mcu, const struct jpeg_desc *jpeg)
+{
+    uint8_t *quant_table_y = get_quantization_table(jpeg, 0);
+
+    for (size_t y = 0; y < mcu->nb_ys; ++y) {
+        reconstruct_component(mcu->components_y[y], quant_table_y);
+    }
+
+    if (get_nb_quantization_tables(jpeg) > 1){
+        uint8_t *quant_table_c = get_quantization_table(jpeg, 1);
+        for (size_t cb = 0; cb < mcu->nb_cbs; cb++) {
+            reconstruct_component(mcu->components_cb[cb], quant_table_c);
+        }
+        for (size_t cr = 0; cr < mcu->nb_crs; cr++) {
+            reconstruct_component(mcu->components_cr[cr], quant_table_c);
+        }
+    }
 }
