@@ -22,11 +22,9 @@ void free_mcu(struct mcu *mcu, uint8_t nb_components){
 extern struct mcu *extract_mcu(const struct bitstream *bitstream, const uint8_t nb_components, const struct jpeg_desc *jpeg) {
     /*bouchon*/
     struct mcu *mcu = create_mcu(nb_components);
-<<<<<<< HEAD
     mcu->components[0][0] = 0;
     mcu->components[0][1] = 1;
     mcu->components[0][2] = 2;
-=======
 
     uint8_t h1 = get_frame_component_sampling_factor(jdesc, DIR_H, 0);
     uint8_t v1 = get_frame_component_sampling_factor(jdesc, DIR_V, 0);
@@ -34,12 +32,11 @@ extern struct mcu *extract_mcu(const struct bitstream *bitstream, const uint8_t 
     uint8_t h2 = get_frame_component_sampling_factor(jdesc, DIR_H, 1);
     uint8_t v2 = get_frame_component_sampling_factor(jdesc, DIR_V, 1);
 
->>>>>>> 8eb42a4c687f9d466f5f91760bfd479a0c711851
     return mcu;
 }
 
 /* Extrait un type de composante d'un bitstream donné */
-extern int16_t *extract_component(const struct bitstream *bitstream,
+extern void *extract_component(const struct bitstream *bitstream,
                                     const struct huff_table *y_dc,
                                     const struct huff_table *y_ac,
                                     const struct huff_table *c_dc,
