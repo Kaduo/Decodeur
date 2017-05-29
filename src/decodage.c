@@ -1,7 +1,7 @@
 /*******************************************************************************
 Nom ......... : decodage.c
 Role ........ : Fonctions de decodage de MCUs
-Auteurs .... : A. He - M. Nebra - B. Potet (Ensimag 1A 2016/2017 - G6)
+Auteurs .... : A. He - M. Barbe - B. Potet (Ensimag 1A 2016/2017 - G6)
 *******************************************************************************/
 
 #include "decodage.h"
