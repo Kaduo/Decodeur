@@ -1,7 +1,7 @@
 /*******************************************************************************
 Nom ......... : format.h
 Role ........ : Prototypes des fonctions de formats d'image
-Auteurs .... : A. He - M. Barbe - B. Potet (Ensimag 1A 2016/2017 - G6)
+Auteurs .... : A. He - M. Nebra - B. Potet (Ensimag 1A 2016/2017 - G6)
 *******************************************************************************/
 
 #ifndef __FORMAT_H__

@@ -1,14 +1,12 @@
 /*******************************************************************************
 Nom ......... : block.c
 Role ........ : Fonctions de reconstruction de blocs
-Auteurs .... : A. He - M. Barbe - B. Potet (Ensimag 1A 2016/2017 - G6)
+Auteurs .... : A. He - M. Nebra - B. Potet (Ensimag 1A 2016/2017 - G6)
 *******************************************************************************/
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "jpeg_reader.h"
-#include "huffman.h"
 #include "block.h"
 #include "zigzag.h"
 
