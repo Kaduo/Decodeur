@@ -1,6 +1,6 @@
 /*******************************************************************************
-Nom ......... : reconstruction.h
-Role ........ : Prototypes des fonctions de reconstruction de blocs
+Nom ......... : component.h
+Role ........ : Prototypes des fonctions des composantes
 Auteurs .... : A. He - M. Barbe - B. Potet (Ensimag 1A 2016/2017 - G6)
 *******************************************************************************/
 
@@ -48,5 +48,13 @@ extern float coeff_idct(size_t x);
 
 /* Retourne l'IDCT d'un tableau de coefficients donne */
 extern int16_t *idct(const int16_t *coefficients, size_t size);
+
+/* Reconstruit une composante */
+extern int16_t *get_component(struct huff_table *dc_table,
+                                struct huff_table *ac_table,
+                                struct bitstream *stream,
+                                uint8_t *quantization_table,
+                                int16_t previous_dc,
+                                size_t size);
 
 #endif

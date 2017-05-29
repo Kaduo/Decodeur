@@ -1,19 +1,28 @@
 /*******************************************************************************
-Nom ......... : reconstruction.c
-Role ........ : Fonctions de reconstruction de blocs
-Auteurs .... : A. He - M. Barbe - B. Potet (Ensimag 1A 2016/2017 - G6)
+Nom ......... : component.c
+Role ........ : Fonctions des composantes
+Auteurs .... : A. He - M. Nebra - B. Potet (Ensimag 1A 2016/2017 - G6)
 *******************************************************************************/
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "reconstruction.h"
+#include "block.h"
 #include "zigzag.h"
 
 /* Valeur minimale d'un coefficient */
 const float MIN_COEFF = 0.0;
 /* Valeur maximale d'un coefficient */
 const float MAX_COEFF = 255.0;
+
+/* Cree un bloc a partir d'une largeur et hauteur donnes */
+struct block *create_block(size_t size)
+{
+    struct block *block = malloc(sizeof(struct block));
+    block->size = size;
+    block->coefficients = NULL;
+    return block;
+}
 
 /* Retourne le coefficient a partir d'un bitstream et d'une magnitude donnes */
 int16_t get_coefficient(struct bitstream *stream, uint8_t magnitude)
@@ -65,8 +74,8 @@ void get_acs(struct huff_table *ac_table,
     }
 }
 
-/* Extrait une composante */
-int16_t *extract(struct huff_table *dc_table,
+/* Decompresse un bloc frequentiel */
+int16_t *decompress(struct huff_table *dc_table,
                         struct huff_table *ac_table,
                         struct bitstream *stream,
                         int16_t previous_dc,
@@ -143,4 +152,33 @@ int16_t *idct(const int16_t *coefficients, size_t size)
         }
     }
     return inverse;
+}
+
+/* Reconstruit une composante */
+int16_t *get_component(struct huff_table *dc_table,
+                            struct huff_table *ac_table,
+                            struct bitstream *stream,
+                            uint8_t *quantization_table,
+                            int16_t previous_dc,
+                            size_t size)
+{
+    /* 1. Extraction - decompression */
+    int16_t *extracted = extract(dc_table,
+                                  ac_table,
+                                  stream,
+                                  previous_dc,
+                                  length);
+    /* 2. Quantification inverse */
+    int16_t *quantization = inverse_quantization(extracted,
+                                                  quantization_table,
+                                                  length);
+    free(extracted);
+    /* 3. Reorganisation zigzag */
+    int16_t *zigzag = inverse_zigzag(quantization, size);
+    free(quantization);
+    /* 4. Transformee en cosinus discrete inverse (iDCT) */
+    int16_t *component = idct(zigzag, size);
+    free(zigzag);
+    /* Retour de la composante */
+    return component;
 }
