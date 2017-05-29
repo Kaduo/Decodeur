@@ -1,26 +1,16 @@
 #include <stdio.h>
 #include <math.h>
-#include "extraction.h"
+#include "component.h"
 
-/* Extrait un MCU d'un bitstream et d'une description donnés */
-
-int16_t **create_components(uint8_t nb_components)
-{
-    int16_t **components = calloc(nb_components, sizeof(int16_t *));
-    for (uint8_t i = 0; i < nb_components; i++) {
-        components[i] = calloc(64, sizeof(int16_t));
-    }
-    return components;
-}
 
 struct mcu *create_mcu(uint8_t nb_components_y, uint8_t nb_components_cb, uint8_t nb_components_cr)
 {
 
     struct mcu *mcu = malloc(sizeof(struct mcu));
 
-    mcu->components_y = create_components(nb_components_y);
-    mcu->components_cb = create_components(nb_components_cb);
-    mcu->components_cr = create_components(nb_components_cr);
+    mcu->components_y = NULL;
+    mcu->components_cb = NULL;
+    mcu->components_cr = NULL;
     mcu->nb_ys = nb_components_y;
     mcu->nb_cbs = nb_components_cb;
     mcu->nb_crs = nb_components_cr;
@@ -84,18 +74,18 @@ struct mcu *extract_mcu(struct bitstream *bitstream,
 
         if (get_scan_component_id(jpeg, i) == id_y){
             for (size_t j = 0; j < mcu->nb_ys; j++) {
-                extract_component(bitstream,
-                                    huff_y_dc,
-                                    huff_y_ac,
-                                    previous_dc,
-                                    mcu->components_y[j]);
-                previous_dc = mcu->components_y[j][0];
+                get_component(bitstream,
+                                huff_y_dc,
+                                huff_y_ac,
+                                previous_dc,
+                                mcu->components_y[j]);
+                                previous_dc = mcu->components_y[j][0];
             }
         }
 
         else if (get_scan_component_id(jpeg, i) == id_cb){
             for (size_t j = 0; j < mcu->nb_cbs; j++) {
-                extract_component(bitstream,
+                get_component(bitstream,
                                     huff_c_dc,
                                     huff_c_ac,
                                     previous_dc,
@@ -106,7 +96,7 @@ struct mcu *extract_mcu(struct bitstream *bitstream,
 
         else if (get_scan_component_id(jpeg, i) == id_cr){
             for (size_t j = 0; j < mcu->nb_crs; j++) {
-                extract_component(bitstream,
+                get_component(bitstream,
                                     huff_c_dc,
                                     huff_c_ac,
                                     previous_dc,
@@ -122,47 +112,4 @@ struct mcu *extract_mcu(struct bitstream *bitstream,
     }
 
     return mcu;
-}
-
-/* Extrait un type de composante d'un bitstream donné */
-void extract_component(struct bitstream *bitstream,
-                        struct huff_table *huff_dc,
-                        struct huff_table *huff_ac,
-                        int16_t previous_dc,
-                        int16_t *component)
-{
-    /* Extraction de DC */
-    uint8_t magnitude = (uint8_t) next_huffman_value(huff_dc, bitstream);
-    uint32_t indice = 0;
-    read_bitstream(bitstream, magnitude, &indice, false);
-    uint8_t signe = (indice >> (magnitude - 1)); // Attention : vaut 0 si valeur negative, 1 si positive
-    indice %= (uint32_t) pow(2, magnitude - 1);
-    if(signe == 0) component[0] = previous_dc + indice - pow(2, magnitude) + 1;
-    else component[0] = previous_dc + indice + pow(2, magnitude - 1);
-
-    /* Extraction des coefficients AC */
-    for (uint8_t i = 1; i < 64; i++) {
-        int8_t symbole = next_huffman_value(huff_ac, bitstream);
-        if (!(symbole % 16) && symbole != 0) {
-            perror("ERREUR FATALE : symbole invalide !");
-            exit(EXIT_FAILURE);
-        }
-        switch (symbole) {
-            case 0x00:
-                return;
-                break;
-            case 0xf0:
-                i += 16;
-                break;
-            default:
-                i += (symbole >> 4);
-                uint8_t magnitude = (symbole & 0x0f);
-                uint32_t indice = 0;
-                read_bitstream(bitstream, magnitude, &indice, true); //Peu sûr...
-                uint8_t signe = (indice >> (magnitude - 1)); // Attention : vaut 0 si valeur negative, 1 si positive
-                indice %= (uint32_t) pow(2, magnitude - 1);
-                if(signe == 0) component[i] = + indice - pow(2, magnitude) + 1;
-                else component[i] = indice + pow(2, magnitude - 1);
-        }
-    }
 }
