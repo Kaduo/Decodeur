@@ -1,23 +1,14 @@
 /*******************************************************************************
-Nom ......... : block.h
+Nom ......... : reconstruction.h
 Role ........ : Prototypes des fonctions de reconstruction de blocs
 Auteurs .... : A. He - M. Nebra - B. Potet (Ensimag 1A 2016/2017 - G6)
 *******************************************************************************/
 
-#ifndef __BLOCK_H__
-#define __BLOCK_H__
+#ifndef __RECONSTRUCTION_H__
+#define __RECONSTRUCTION_H__
 
 #include "jpeg_reader.h"
 #include "huffman.h"
-
-/* Structure representant un bloc vectoriel */
-struct block {
-    size_t size;
-    int16_t *coefficients;
-};
-
-/* Cree un bloc a partir d'une taille donnee */
-extern struct block *create_block(size_t size);
 
 /* Retourne le coefficient a partir d'un bitstream et d'une magnitude donnes */
 extern int16_t get_coefficient(struct bitstream *stream, uint8_t magnitude);
@@ -36,8 +27,8 @@ extern void get_acs(struct huff_table *ac_table,
                         int16_t *coefficients,
                         size_t length);
 
-/* Decompresse un bloc frequentiel */
-extern int16_t *decompress(struct huff_table *dc_table,
+/* Extrait une composante */
+extern int16_t *extract(struct huff_table *dc_table,
                                     struct huff_table *ac_table,
                                     struct bitstream *stream,
                                     int16_t previous_dc,
@@ -57,16 +48,5 @@ extern float coeff_idct(size_t x);
 
 /* Retourne l'IDCT d'un tableau de coefficients donne */
 extern int16_t *idct(const int16_t *coefficients, size_t size);
-
-/* Reconstruit entierement un bloc */
-extern struct block *get_block(struct huff_table *dc_table,
-                                    struct huff_table *ac_table,
-                                    struct bitstream *stream,
-                                    uint8_t *quantization_table,
-                                    int16_t previous_dc,
-                                    size_t size);
-
-/* Libere en memoire l'espace occupe par un bloc donne */
-extern void free_block(struct block *block);
 
 #endif
