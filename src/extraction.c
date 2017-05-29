@@ -74,33 +74,30 @@ struct mcu *extract_mcu(struct bitstream *bitstream,
 
         if (get_scan_component_id(jpeg, i) == id_y){
             for (size_t j = 0; j < mcu->nb_ys; j++) {
-                get_component(bitstream,
-                                huff_y_dc,
-                                huff_y_ac,
-                                previous_dc,
-                                mcu->components_y[j]);
-                                previous_dc = mcu->components_y[j][0];
+                mcu->components_y[j] = get_component(bitstream,
+                                                        huff_y_dc,
+                                                        huff_y_ac,
+                                                        previous_dc);
+                previous_dc = mcu->components_y[j][0];
             }
         }
 
         else if (get_scan_component_id(jpeg, i) == id_cb){
             for (size_t j = 0; j < mcu->nb_cbs; j++) {
-                get_component(bitstream,
-                                    huff_c_dc,
-                                    huff_c_ac,
-                                    previous_dc,
-                                    mcu->components_cb[j]);
+                mcu->components_cb[j] = get_component(bitstream,
+                                                        huff_c_dc,
+                                                        huff_c_ac,
+                                                        previous_dc);
                 previous_dc = mcu->components_cb[j][0];
             }
         }
 
         else if (get_scan_component_id(jpeg, i) == id_cr){
             for (size_t j = 0; j < mcu->nb_crs; j++) {
-                get_component(bitstream,
-                                    huff_c_dc,
-                                    huff_c_ac,
-                                    previous_dc,
-                                    mcu->components_cr[j]);
+                mcu->components_cr[j] = get_component(bitstream,
+                                                        huff_c_dc,
+                                                        huff_c_ac,
+                                                        previous_dc);
                 previous_dc = mcu->components_cr[j][0];
             }
         }
