@@ -13,7 +13,7 @@ LD = clang
 INC = -I$(INC_DIR)
 
 CFLAGS += $(INC) -Wall -std=c99 -O0 -g  -Wextra
-LDFLAGS += -lm
+LDFLAGS = -lm
 
 # Liste des fichiers objet
 
@@ -21,38 +21,32 @@ LDFLAGS += -lm
 OBJPROF_FILES =  $(OBJPROF_DIR)/huffman.o  $(OBJPROF_DIR)/jpeg_reader.o $(OBJPROF_DIR)/bitstream.o
 
 # et les votres!
-OBJ_FILES = $(OBJ_DIR)/extraction.o $(OBJ_DIR)/ppm.o $(OBJ_DIR)/reconstruction.o $(OBJ_DIR)/rgb.o $(OBJ_DIR)/upsampling.o $(OBJ_DIR)/jpeg2ppm.o
+OBJ_FILES = $(OBJ_DIR)/example.o $(OBJ_DIR)/block.o $(OBJ_DIR)/zigzag.o $(OBJ_DIR)/format.o $(OBJ_DIR)/picture.o	
 
 # cible par défaut
 
-TARGET = $(BIN_DIR)/jpeg2ppm
+TARGET = $(BIN_DIR)/example
 
 all: $(TARGET)
 
 $(TARGET): $(OBJPROF_FILES) $(OBJ_FILES)
 	$(LD) $(LDFLAGS) $(OBJPROF_FILES) $(OBJ_FILES) -o $(TARGET)
 
-#$(OBJ_DIR)/example.o: $(SRC_DIR)/example.c $(INC_DIR)/jpeg_reader.h $(INC_DIR)/bitstream.h
-#	$(CC) $(CFLAGS) -c $(SRC_DIR)/example.c -o $(OBJ_DIR)/example.o
+$(OBJ_DIR)/example.o: $(SRC_DIR)/example.c $(INC_DIR)/jpeg_reader.h $(INC_DIR)/bitstream.h
+	$(CC) $(CFLAGS) -c $(SRC_DIR)/example.c -o $(OBJ_DIR)/example.o
 
-$(OBJ_DIR)/extraction.o: $(SRC_DIR)/extraction.c $(INC_DIR)/extraction.h
-	$(CC) $(CFLAGS) -c $(SRC_DIR)/extraction.c -o $(OBJ_DIR)/extraction.o
+$(OBJ_DIR)/block.o: $(SRC_DIR)/block.c $(INC_DIR)/block.h
+	$(CC) $(CFLAGS) -c $(SRC_DIR)/block.c -o $(OBJ_DIR)/block.o
 
-$(OBJ_DIR)/ppm.o: $(SRC_DIR)/ppm.c $(INC_DIR)/ppm.h
-	$(CC) $(CFLAGS) -c $(SRC_DIR)/ppm.c -o $(OBJ_DIR)/ppm.o
+$(OBJ_DIR)/zigzag.o: $(SRC_DIR)/zigzag.c $(INC_DIR)/zigzag.h
+	$(CC) $(CFLAGS) -c $(SRC_DIR)/zigzag.c -o $(OBJ_DIR)/zigzag.o
 
-$(OBJ_DIR)/reconstruction.o: $(SRC_DIR)/reconstruction.c $(INC_DIR)/reconstruction.h
-	$(CC) $(CFLAGS) -c $(SRC_DIR)/reconstruction.c -o $(OBJ_DIR)/reconstruction.o
+$(OBJ_DIR)/format.o: $(SRC_DIR)/format.c $(INC_DIR)/format.h
+	$(CC) $(CFLAGS) -c $(SRC_DIR)/format.c -o $(OBJ_DIR)/format.o
 
-$(OBJ_DIR)/rgb.o: $(SRC_DIR)/rgb.c $(INC_DIR)/rgb.h
-	$(CC) $(CFLAGS) -c $(SRC_DIR)/rgb.c -o $(OBJ_DIR)/rgb.o
 
-$(OBJ_DIR)/upsampling.o: $(SRC_DIR)/upsampling.c $(INC_DIR)/upsampling.h
-	$(CC) $(CFLAGS) -c $(SRC_DIR)/upsampling.c -o $(OBJ_DIR)/upsampling.o
-
-$(OBJ_DIR)/jpeg2ppm.o: $(SRC_DIR)/jpeg2ppm.c $(INC_DIR)/extraction.h $(INC_DIR)/reconstruction.h $(INC_DIR)/ppm.h $(INC_DIR)/rgb.h $(INC_DIR)/upsampling.h
-	$(CC) $(CFLAGS) -c $(SRC_DIR)/jpeg2ppm.c -o $(OBJ_DIR)/jpeg2ppm.o
-
+$(OBJ_DIR)/picture.o: $(SRC_DIR)/picture.c $(INC_DIR)/picture.h
+	$(CC) $(CFLAGS) -c $(SRC_DIR)/picture.c -o $(OBJ_DIR)/picture.o
 
 .PHONY: clean
 
