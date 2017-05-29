@@ -1,7 +1,7 @@
 /*******************************************************************************
 Nom ......... : zigzag.c
 Role ........ : Fonctions de zigzag
-Auteurs .... : A. He - M. Nebra - B. Potet (Ensimag 1A 2016/2017 - G6)
+Auteurs .... : A. He - M. Barbe - B. Potet (Ensimag 1A 2016/2017 - G6)
 *******************************************************************************/
 
 #include <stdlib.h>
