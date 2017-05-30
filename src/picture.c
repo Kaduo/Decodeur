@@ -6,13 +6,6 @@ Auteurs .... : A. He - M. Barbe - B. Potet (Ensimag 1A 2016/2017 - G6)
 
 #include "picture.h"
 
-/* Valeur maximale d'une composante RGB */
-const uint8_t MAX_COLOR_VALUE = 255;
-/* Nombre magique du format PPM (couleur) */
-const uint8_t PPM_MAGIC_NUMBER = 6;
-/* Nombre magique du format PGM (noir et blanc) */
-const uint8_t PGM_MAGIC_NUMBER = 5;
-
 /* Cree une image a partir de dimensions donnes */
 struct picture *create_picture(size_t width, size_t height, bool colored)
 {
