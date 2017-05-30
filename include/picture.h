@@ -23,7 +23,7 @@ struct picture {
 extern struct picture *create_picture(size_t width, size_t height, bool colored);
 
 // Convertir l'image sous forme de bloc rangé en MCU en tableau de pixel.
-extern struct picture *blocs2pixels(
+extern struct picture *blocks2pixels(
     block *blocks,
     size_t width,
     size_t height,

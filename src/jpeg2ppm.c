@@ -193,7 +193,6 @@ int main(int argc, char **argv)
     }
 
     if (est_couleur(jdesc)) {
-        printf("PROBLEME");
         for (size_t i = 0; i < nb_blocks; i++) {
             convert_to_rgb(liste_blocks[i]);
         }
