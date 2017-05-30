@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <math.h>
+#include "mcu.h"
 #include "component.h"
+#include "jpeg_reader.h"
 
 
 struct mcu *create_mcu(uint8_t nb_components_y, uint8_t nb_components_cb, uint8_t nb_components_cr)
@@ -36,21 +38,31 @@ void free_mcu(struct mcu *mcu)
     mcu = NULL;
 }
 
+
+/*
+Extrait une mcu complète (s'occupe de l'allocation mémoire).
+
+ordre_des_composantes est un tableau indiquant l'ordre des composantes dans la mcu.
+
+huff_tables est un tableau de couples de tables de Huffman, de forme : [[Y_dc, Y_ac], [C_dc, C_ac]]
+*/
 struct mcu *extract_mcu(struct bitstream *bitstream,
                         uint8_t nb_components_y,
                         uint8_t nb_components_cb,
                         uint8_t nb_components_cr,
-                        struct huff_table *huff_tables,
-                        uint8_t **quantization_table,
-                        const struct jpeg_desc *jpeg)
+                        enum component *ordre_des_composantes,
+                        struct huff_table **huff_tables,
+                        uint8_t **quantization_table)
 {
     struct mcu *mcu = create_mcu(nb_components_y, nb_components_cb, nb_components_cr);
 
+    // Le code ci-dessous sert à récupérer les tables de quantification et les tables de Huffman
+    // Il faut le mettre dans une autre fonction.
     /* uint8_t id_y = get_frame_component_id(jpeg, 0);
     uint8_t id_huff_y_dc = get_scan_component_huffman_index(jpeg, DC, 0);
     uint8_t id_huff_y_ac = get_scan_component_huffman_index(jpeg, AC, 0);
     struct huff_table *huff_y_dc = get_huffman_table(jpeg, DC, id_huff_y_dc);
-    struct huff_table *huff_y_ac = get_huffman_table(jpeg, AC, id_huff_y_ac); */
+    struct huff_table *huff_y_ac = get_huffman_table(jpeg, AC, id_huff_y_ac);
 
 
     uint8_t id_cb = 0;
@@ -68,37 +80,41 @@ struct mcu *extract_mcu(struct bitstream *bitstream,
         id_huff_c_ac = get_scan_component_huffman_index(jpeg, AC, 1);
         huff_c_dc = get_huffman_table(jpeg, DC, id_huff_c_dc);
         huff_c_ac = get_huffman_table(jpeg, DC, id_huff_c_ac);
-    }
+    } */
 
+    nb_components = nb_components_y + nb_components_cb + nb_components_cr;
 
     for (size_t i = 0; i < get_nb_components(jpeg); i++) {
         int16_t previous_dc = 0;
 
-        if (get_scan_component_id(jpeg, i) == id_y){
+        if (ordre_des_composantes[i] == COMP_Y){
             for (size_t j = 0; j < mcu->nb_ys; j++) {
                 mcu->components_y[j] = get_component(bitstream,
-                                                        huff_y_dc,
-                                                        huff_y_ac,
+                                                        huff_tables[0][0],
+                                                        huff_tables[0][1],
+                                                        quant_tables[0],
                                                         previous_dc);
                 previous_dc = mcu->components_y[j][0];
             }
         }
 
-        else if (get_scan_component_id(jpeg, i) == id_cb){
+        else if (ordre_des_composantes[i] == COMP_Cb){
             for (size_t j = 0; j < mcu->nb_cbs; j++) {
                 mcu->components_cb[j] = get_component(bitstream,
-                                                        huff_c_dc,
-                                                        huff_c_ac,
+                                                        huff_tables[1][0],
+                                                        huff_tables[1][1],
+                                                        quant_tables[1],
                                                         previous_dc);
                 previous_dc = mcu->components_cb[j][0];
             }
         }
 
-        else if (get_scan_component_id(jpeg, i) == id_cr){
+        else if (ordre_des_composantes[i] == COMP_Cr){
             for (size_t j = 0; j < mcu->nb_crs; j++) {
                 mcu->components_cr[j] = get_component(bitstream,
-                                                        huff_c_dc,
-                                                        huff_c_ac,
+                                                        huff_tables[1][0],
+                                                        huff_tables[1][1],
+                                                        quant_tables[1],
                                                         previous_dc);
                 previous_dc = mcu->components_cr[j][0];
             }
