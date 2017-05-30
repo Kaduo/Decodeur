@@ -14,11 +14,10 @@ const size_t TAILLE_BLOC = 8;
 /* Cree une structure block a partir d'une taille donne */
 block create_block()
 {
-    block bloc = malloc(COMP_NB*sizeof(int16_t));
+    block bloc = malloc(COMP_NB*sizeof(int16_t *));
     for (uint8_t i = 0; i < COMP_NB; ++i) {
         bloc[i] = NULL;
     }
-    printf("helo");
     return bloc;
 }
 

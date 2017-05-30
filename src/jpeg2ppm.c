@@ -180,6 +180,7 @@ int main(int argc, char **argv)
      for (size_t i = 0; i < 64; i++) {
          printf("%d ", mcus[0]->components_y[0][i]);
      }
+     printf("\n");
 
      /* Reconstruction des blocs */
      uint8_t nb_blocks = nb_components_y*nb_mcus;
