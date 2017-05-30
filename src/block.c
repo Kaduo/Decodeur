@@ -5,15 +5,18 @@ Auteurs .... : A. He - M. Barbe - B. Potet (Ensimag 1A 2016/2017 - G6)
 *******************************************************************************/
 
 #include "block.h"
-#include "jpeg_reader.h"
+#include "rgb.h"
+
+/* Taille d'un bloc */
+const size_t TAILLE_BLOC = 8;
 
 /* Cree une structure block a partir d'une taille donne */
 struct block *create_block()
 {
     struct block *block = malloc(sizeof(struct block));
-    block->y = NULL;
-    block->cb = NULL;
-    block->cr = NULL;
+    for (uint8_t i = 0; i < COMP_NB; ++i) {
+        block[i] = NULL;
+    }
     return block;
 }
 
@@ -25,9 +28,9 @@ extern struct block *extract_blocks(struct mcu *mcu, uint8_t **factors)
     /* Creation des blocs et initialisation des composantes Y */
     for (uint8_t i = 0; i < nb_blocks; ++i) {
         blocks[i] = create_block();
-        blocks[i]->y = mcu->components_y[i];
-        blocks[i]->cb = mcu->components_cb[i];
-        blocks[i]->cr = mcu->components_cr[i];
+        (blocks[i])[COMP_Y] = mcu->components_y[i];
+        (blocks[i])[COMP_CB] = mcu->components_cb[i];
+        (blocks[i])[COMP_CR] = mcu->components_cr[i];
     }
     return blocks;
 }
@@ -98,12 +101,22 @@ int16_t **upsample_to_two(const struct component *component);
 /* Sur-echantillonne un composant donne sous-echantillonne en quatre */
 int16_t **upsample_to_four(const struct component *component);
 
+/* Convertit un bloc YCbCr en bloc RGB */
+void convert_to_rgb(struct block *block) {
+    int16_t y, cb, cr;
+    for (uint8_t i = 0; i < TAILLE_BLOC * TAILLE_BLOC; ++i) {
+        y = block[i][COMP_Y];
+        cb = block[i][COMP_Cb];
+        cr = block[i][COMP_Cr];
+        block[RGB_R][i] = get_red(y, cb, cr);
+        block[RGB_B][i] = get_blue(y, cb, cr);
+        block[RGB_G][i] = get_green(y, cb, cr);
+    }
+}
+
 /* Libere de la memoire la place occupee par un bloc */
 void free_block(struct block *block)
 {
-  //free(block->y);
-  //free(block->cb);
-  //free(block->cr);
   free(block);
   block = NULL;
 }
