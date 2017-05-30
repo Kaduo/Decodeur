@@ -53,6 +53,11 @@ $(OBJ_DIR)/mcu.o: $(SRC_DIR)/mcu.c $(INC_DIR)/mcu.h
 $(OBJ_DIR)/component.o: $(SRC_DIR)/component.c $(INC_DIR)/component.h
 	$(CC) $(CFLAGS) -c $(SRC_DIR)/component.c -o $(OBJ_DIR)/component.o
 
+$(OBJ_DIR)/ppm.o: $(SRC_DIR)/ppm.c $(INC_DIR)/ppm.h
+	$(CC) $(CFLAGS) -c $(SRC_DIR)/component.c -o $(OBJ_DIR)/ppm.o
+
+
+
 $(OBJ_DIR)/jpeg2ppm.o: $(SRC_DIR)/jpeg2ppm.c $(INC_DIR)/jpeg2ppm.h
 	$(CC) $(CFLAGS) -c $(SRC_DIR)/jpeg2ppm.c -o $(OBJ_DIR)/jpeg2ppm.o
 
