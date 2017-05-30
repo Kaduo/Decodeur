@@ -7,7 +7,11 @@ Auteurs .... : A. He - M. Barbe - B. Potet (Ensimag 1A 2016/2017 - G6)
 #ifndef __PICTURE_H__
 #define __PICTURE_H__
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
 #include <stdbool.h>
+
 #include "pixel.h"
 #include "block.h"
 
@@ -23,7 +27,7 @@ struct picture {
 extern struct picture *create_picture(size_t width, size_t height, bool colored);
 
 // Convertir l'image sous forme de bloc rangé en MCU en tableau de pixel.
-extern struct image *blocks2pixels(
+struct picture *blocks2pixels(
     block *blocks,
     size_t width,
     size_t height,

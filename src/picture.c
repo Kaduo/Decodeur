@@ -4,9 +4,6 @@ Role ........ : Fonctions de gestion d'image
 Auteurs .... : A. He - M. Barbe - B. Potet (Ensimag 1A 2016/2017 - G6)
 *******************************************************************************/
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
 #include "picture.h"
 
 /* Valeur maximale d'une composante RGB */
