@@ -7,6 +7,8 @@ Auteurs .... : A. He - M. Barbe - B. Potet (Ensimag 1A 2016/2017 - G6)
 #ifndef __RGB_H__
 #define __RGB_H__
 
+#include <stdint.h>
+
 /* Structure representant un pixel RGB */
 struct pixel {
     uint8_t red;
