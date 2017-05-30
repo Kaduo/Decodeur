@@ -38,7 +38,6 @@ void free_mcu(struct mcu *mcu)
     mcu = NULL;
 }
 
-
 /*
 Extrait une mcu complète (s'occupe de l'allocation mémoire).
 
@@ -51,7 +50,7 @@ struct mcu *extract_mcu(struct bitstream *bitstream,
                         uint8_t nb_components_cb,
                         uint8_t nb_components_cr,
                         enum component *ordre_des_composantes,
-                        struct huff_table **huff_tables,
+                        struct huff_table ***huff_tables,
                         uint8_t **quantization_table)
 {
     struct mcu *mcu = create_mcu(nb_components_y, nb_components_cb, nb_components_cr);
