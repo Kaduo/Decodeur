@@ -10,7 +10,6 @@
 
 #include "ppm.h"
 #include "rgb.h"
-#include "upsampling.h"
 
 bool est_couleur(const struct jpeg_desc *jpeg);
 
