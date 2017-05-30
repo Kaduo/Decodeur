@@ -209,20 +209,23 @@ int main(int argc, char **argv)
     * Conversion en pixel *
     *******/
 
-    struct picture *pic = blocks2pixels(
-        liste_blocks,
-        width,
-        height,
-        width_ext,
-        height_ext,
-        sampling_factors[COMP_Y][DIR_H], // H1
-        sampling_factors[COMP_Y][DIR_V]);
-
+    struct picture *pic = blocks2pixels(liste_blocks,
+                                        width,
+                                        height,
+                                        width_ext,
+                                        height_ext,
+                                        sampling_factors[COMP_Y][DIR_H], // H1
+                                        sampling_factors[COMP_Y][DIR_V]);
+    printf("\n");
+    for (size_t i = 0; i < 64; i++) {
+        printf("%d ", pic->pixels[i]->y);
+    }
+    printf("\n");
     /*******
     * Création de l'image PPM ou PGM *
     *****/
 
-    // write_ppm(pic, filename);
+    write_ppm(pic, "invader.pgm");
 
 
 
