@@ -1,52 +1,35 @@
 /*******************************************************************************
-Nom ......... : reconstruction.h
+Nom ......... : block.h
 Role ........ : Prototypes des fonctions de reconstruction de blocs
 Auteurs .... : A. He - M. Barbe - B. Potet (Ensimag 1A 2016/2017 - G6)
 *******************************************************************************/
 
-#ifndef __RECONSTRUCTION_H__
-#define __RECONSTRUCTION_H__
+#ifndef __BLOCK_H__
+#define __BLOCK_H__
 
-#include "jpeg_reader.h"
-#include "huffman.h"
+#include <stdlib.h>
+#include <stdint.h>
 
-/* Retourne le coefficient a partir d'un bitstream et d'une magnitude donnes */
-extern int16_t get_coefficient(struct bitstream *stream, uint8_t magnitude);
+/* Structure representant un bloc */
+struct block {
+    int16_t *y;
+    int16_t *cb;
+    int16_t *cr;
+}
 
-/* Definit la valeur DC d'un tableau de coefficients donne a partir d'une
-table Huffman DC, d'un bitstream et de la valeur DC du predicateur */
-extern void get_dc(struct huff_table *dc_table,
-                    struct bitstream *stream,
-                    int16_t previous_dc,
-                    int16_t *coefficients);
+/* Cree une structure block vide */
+extern struct block *create_block();
 
-/* Definit les valeurs ACs d'un tableau de coefficients donne a partir d'une
-table Huffman AC et d'un bitstream */
-extern void get_acs(struct huff_table *ac_table,
-                        struct bitstream *stream,
-                        int16_t *coefficients,
-                        size_t length);
+/* Extrait les blocs d'une MCU */
+extern struct block *extract_blocks(struct mcu *mcu, uint8_t **factors);
 
-/* Extrait une composante */
-extern int16_t *extract(struct huff_table *dc_table,
-                                    struct huff_table *ac_table,
-                                    struct bitstream *stream,
-                                    int16_t previous_dc,
-                                    size_t length);
+/* Sur-echantillonne un composant donne sous-echantillonne en deux */
+extern int16_t **upsample_to_two(const struct component *component);
 
-/* Retourne la quantification inverse d'un tableau de coefficients donne par
-une table de quantification inverse donnee */
-extern int16_t *inverse_quantization(const int16_t *coefficients,
-                                            uint8_t *quantization_table,
-                                            size_t length);
+/* Sur-echantillonne un composant donne sous-echantillonne en quatre */
+extern int16_t **upsample_to_four(const struct component *component);
 
-/* Retourne le tableau zigzag inverse d'un tableau donne */
-extern int16_t *inverse_zigzag(const int16_t *coefficients, size_t size);
-
-/* Retourne le coefficient de la formule de l'IDCT */
-extern float coeff_idct(size_t x);
-
-/* Retourne l'IDCT d'un tableau de coefficients donne */
-extern int16_t *idct(const int16_t *coefficients, size_t size);
+/* Libere de la memoire la place occupee par un bloc */
+extern void free_block(struct block *block);
 
 #endif
