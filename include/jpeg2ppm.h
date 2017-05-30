@@ -8,7 +8,6 @@
 #include "jpeg_reader.h"
 #include "bitstream.h"
 
-#include "reconstruction.h"
 #include "ppm.h"
 #include "rgb.h"
 #include "upsampling.h"
