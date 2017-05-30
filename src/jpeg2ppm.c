@@ -193,11 +193,11 @@ int main(int argc, char **argv)
      for (uint8_t i = 0; i < nb_mcus; i++) {
          block *blocks_temp = extract_blocks(mcus[i], sampling_factors);
          for (size_t j = 0; j < nb_components_y; j++) {
-             block[i*nb_components_y+j] = blocks_temp[j];
+             liste_blocks[i*nb_components_y+j] = blocks_temp[j];
          }
      }
 
-     if (est_couleur(jpeg)) {
+     if (est_couleur(jdesc)) {
          for (size_t i = 0; i < nb_blocks; i++) {
              convert_to_rgb(liste_blocks[i]);
          }
