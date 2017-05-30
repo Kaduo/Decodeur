@@ -9,13 +9,14 @@ Auteurs .... : A. He - M. Barbe - B. Potet (Ensimag 1A 2016/2017 - G6)
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "mcu.h"
 
 /* Structure representant un bloc */
 struct block {
     int16_t *y;
     int16_t *cb;
     int16_t *cr;
-}
+};
 
 /* Cree une structure block vide */
 extern struct block *create_block();

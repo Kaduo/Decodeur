@@ -5,6 +5,7 @@ Auteurs .... : A. He - M. Barbe - B. Potet (Ensimag 1A 2016/2017 - G6)
 *******************************************************************************/
 
 #include "block.h"
+#include "jpeg_reader.h"
 
 /* Cree une structure block a partir d'une taille donne */
 struct block *create_block()
@@ -17,12 +18,12 @@ struct block *create_block()
 }
 
 /* Extrait les blocs d'une MCU */
-struct block *extract_blocks(struct mcu *mcu, uint8_t **factors)
+extern struct block *extract_blocks(struct mcu *mcu, uint8_t **factors)
 {
     uint8_t nb_blocks = factors[COMP_Y][DIR_H] * factors[COMP_Y][DIR_V];
-    struct block *blocks = malloc(nb_blocks * sizeof(struct block*));
+    struct block **blocks = malloc(nb_blocks * sizeof(struct block*));
     /* Creation des blocs et initialisation des composantes Y */
-    for (uint8_t i = 0; i < nb_blocks) {
+    for (uint8_t i = 0; i < nb_blocks; ++i) {
         blocks[i] = create_block();
         blocks[i]->y = mcu->components_y[i];
         blocks[i]->cb = mcu->components_cb[i];
