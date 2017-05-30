@@ -158,35 +158,35 @@ int main(int argc, char **argv)
     struct huff_table ***huff_tables = get_huff_tables(jdesc);
     enum component *ordre_des_composantes = get_components_order(jdesc);
 
-     // Debug
-     printf("Table de quantification index 0 : \n");
-     for(uint8_t i=0; i<64; i++){
-         printf("%hhu ", quant_tables[0][i]);
-     } // end for
-     printf("\n");
+    // Debug
+    printf("Table de quantification index 0 : \n");
+    for(uint8_t i=0; i<64; i++){
+        printf("%hhu ", quant_tables[0][i]);
+    } // end for
+    printf("\n");
 
-     // On extrait les mcus
-     for (size_t i = 0; i < nb_mcus; ++i) {
-         mcus[i] = extract_mcu(stream,
+    // On extrait les mcus
+    for (size_t i = 0; i < nb_mcus; ++i) {
+        mcus[i] = extract_mcu(stream,
                                 nb_components_y,
                                 nb_components_cb,
                                 nb_components_cr,
                                 ordre_des_composantes,
                                 huff_tables,
                                 quant_tables);
-     }
+    }
 
-     printf("\nPremière composante Y :\n");
-     for (size_t i = 0; i < 64; i++) {
-         printf("%"PRId16 " ", mcus[0]->components_y[0][i]);
-     }
-     printf("\n");
+    printf("\nPremière composante Y :\n");
+    for (size_t i = 0; i < 64; i++) {
+        printf("%"PRId16 " ", mcus[0]->components_y[0][i]);
+    }
+    printf("\n");
 
-     /* Reconstruction des blocs */
-     uint8_t nb_blocks = nb_components_y*nb_mcus;
-     block *liste_blocks = malloc(nb_blocks*sizeof(block));
-     for (uint8_t i = 0; i < nb_mcus; i++) {
-         block *blocks_temp = extract_blocks(mcus[i], sampling_factors);
+    /* Reconstruction des blocs */
+    uint8_t nb_blocks = nb_components_y*nb_mcus;
+    block *liste_blocks = malloc(nb_blocks*sizeof(block));
+    for (uint8_t i = 0; i < nb_mcus; i++) {
+        block *blocks_temp = extract_blocks(mcus[i], sampling_factors);
          for (size_t j = 0; j < nb_components_y; j++) {
              liste_blocks[i*nb_components_y+j] = blocks_temp[j];
          }
