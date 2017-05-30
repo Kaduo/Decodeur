@@ -205,6 +205,28 @@ int main(int argc, char **argv)
      }
      printf("\n");
 
+
+    /*******
+    * Conversion en pixel *
+    *******/
+
+    struct picture *pic = blocks2pixels(
+        liste_blocks,
+        width,
+        height,
+        width_ext,
+        height_ext,
+        sampling_factors[COMP_Y][DIR_H], // H1
+        sampling_factors[COMP_Y][DIR_V]);
+
+    /*******
+    * Création de l'image PPM ou PGM *
+    *****/
+    
+    write_ppm(pic, filename);
+    
+    
+    
     // Libération mémoire du tableau de MCU
     for(uint16_t i=0; i< nb_mcus; i++){
          free_mcu(mcus[i]);
