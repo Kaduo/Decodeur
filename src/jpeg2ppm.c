@@ -223,7 +223,7 @@ int main(int argc, char **argv)
     * Création de l'image PPM ou PGM *
     *****/
     
-    create_image_ppm(liste_blocks, width, height, filename);
+    write_ppm(pic, filename);
     
     
     
