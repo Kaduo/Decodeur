@@ -23,8 +23,8 @@ struct picture *create_picture(size_t width, size_t height, bool colored)
     picture->width = width;
     picture->height = height;
     picture->colored = colored;
-    return picture;
     picture->pixels = malloc(width * height * sizeof(union pixel));
+    return picture;
 }
 
 // Convertir l'image sous forme de bloc rangé en MCU en tableau de pixel.
