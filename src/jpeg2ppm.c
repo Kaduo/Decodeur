@@ -198,6 +198,12 @@ int main(int argc, char **argv)
          }
      }
 
+     printf("\nComposante R si couleur, niveau de gris sinon\n");
+     for (size_t i = 0; i < 64; i++) {
+         printf("%04x", liste_blocks[0][i]);
+     }
+     printf("\n");
+
     // Libération mémoire du tableau de MCU
     for(uint16_t i=0; i< nb_mcus; i++){
          free_mcu(mcus[i]);
