@@ -11,11 +11,7 @@ Auteurs .... : A. He - M. Barbe - B. Potet (Ensimag 1A 2016/2017 - G6)
 #include <stdint.h>
 
 /* Structure representant un bloc */
-struct block {
-    int16_t *y;
-    int16_t *cb;
-    int16_t *cr;
-}
+typedef int16_t *block[COMP_NB];
 
 /* Cree une structure block vide */
 extern struct block *create_block();
@@ -28,6 +24,9 @@ extern int16_t **upsample_to_two(const struct component *component);
 
 /* Sur-echantillonne un composant donne sous-echantillonne en quatre */
 extern int16_t **upsample_to_four(const struct component *component);
+
+/* Convertit un bloc YCbCr en bloc RGB */
+extern void to_rgb(struct block *block);
 
 /* Libere de la memoire la place occupee par un bloc */
 extern void free_block(struct block *block);
