@@ -62,7 +62,7 @@ enum move next_move(const struct point *point, enum move move, size_t size)
 {
     switch(move) {
         case MOVE_RIGHT:
-            return (first_line(point) ? MOVE_UP_DIAG : MOVE_DOWN_DIAG);
+            return (last_line(point, size) ? MOVE_UP_DIAG : MOVE_DOWN_DIAG);
         case MOVE_DOWN:
             return (last_column(point, size) ? MOVE_DOWN_DIAG : MOVE_UP_DIAG);
         case MOVE_UP_DIAG:
