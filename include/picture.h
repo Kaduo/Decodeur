@@ -21,6 +21,16 @@ struct picture {
 /* Cree une image a partir de dimensions donnes */
 extern struct picture *create_picture(size_t width, size_t height, bool colored);
 
+// Convertir l'image sous forme de bloc rangé en MCU en tableau de pixel.
+extern struct image *blocs2pixels(
+    block *blocks,
+    size_t width,
+    size_t height,
+    size_t width_ext,
+    size_t height_ext,
+    uint8_t h1,
+    uint8_t v1);
+
 /* Genere un fichier PPM binaire correspondant a une image donnee */
 extern void write_ppm(const struct picture *picture, const char *filename);
 
