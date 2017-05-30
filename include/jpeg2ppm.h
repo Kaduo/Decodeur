@@ -10,6 +10,7 @@
 
 #include "rgb.h"
 #include "picture.h"
+
 bool est_couleur(const struct jpeg_desc *jpeg);
 
 extern struct huff_table ***get_huff_tables(const struct jpeg_desc *jpeg);
