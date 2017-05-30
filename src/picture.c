@@ -72,66 +72,6 @@ return pic;
 } // end def
 
 
-/* Genere un fichier PPM binaire correspondant a une image donnee */
-void write_ppm(const struct picture *picture, const char *filename)
-{
-    /* Ecriture de l'entete */
-    write_ppm_header(picture, filename);
-    /* Ecriture des donnees */
-    write_ppm_data(picture, filename);
-}
-
-/* Genere l'entete d'un fichier PPM */
-void write_ppm_header(const struct picture *picture, const char *filename)
-{
-    FILE* outfile = NULL;
-    /* Ouverture du fichier */
-    secured_open_file(&outfile, filename, "w");
-    /* Ecriture de l'entete PPM */
-    fprintf(outfile, "P%hhu\n", get_magic_number(picture->colored));
-    fprintf(outfile, "%zd %zd\n", picture->width, picture->height);
-    fprintf(outfile, "%hhu\n", MAX_COLOR_VALUE);
-    /* Fermeture du fichier */
-    secured_close_file(&outfile, filename);
-}
-
-/* Genere les donnees d'un fichier PPM */
-void write_ppm_data(const struct picture *picture, const char *filename)
-{
-    FILE* outfile = NULL;
-    /* Ouverture du fichier */
-    secured_open_file(&outfile, filename, "ab");
-    /* Ecriture des donnees */
-    for (size_t i = 0; i < picture->width * picture->height; ++i) {
-        fwrite(&((picture->pixels)[i]), sizeof((picture->pixels)[i]), 1, outfile);
-    }
-    /* Fermeture du fichier */
-    secured_close_file(&outfile, filename);
-}
-
-/* Ouvre un fichier de maniere securisee */
-void secured_open_file(FILE **file, const char *filename, const char *mode)
-{
-    if ((*file = fopen(filename, mode)) == NULL) {
-        fprintf(stderr, "Impossible d'ouvrir le fichier %s.\n", filename);
-        exit(EXIT_FAILURE);
-    }
-}
-
-/* Ferme un fichier de maniere securisee */
-void secured_close_file(FILE **file, const char *filename)
-{
-    if (fclose(*file) != 0) {
-        fprintf(stderr, "Impossible de fermer le fichier %s.\n", filename);
-        exit(EXIT_FAILURE);
-    }
-}
-
-/* Retourne le nombre magique correspondant au format */
-uint8_t get_magic_number(bool colored)
-{
-    return colored ? PPM_MAGIC_NUMBER : PGM_MAGIC_NUMBER;
-}
 
 /* Libere en memoire l'espace occupe par une image donnee */
 void free_picture(struct picture *picture)
