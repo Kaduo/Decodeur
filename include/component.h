@@ -9,9 +9,10 @@ Auteurs .... : A. He - M. Barbe - B. Potet (Ensimag 1A 2016/2017 - G6)
 
 #include "jpeg_reader.h"
 #include "huffman.h"
+#include "bitstream.h"
 
 /* Retourne le coefficient a partir d'un bitstream et d'une magnitude donnes */
-extern int16_t get_coefficient(struct bitstream *stream, uint8_t magnitude);
+extern int16_t get_coefficient(struct bitstream *stream, uint8_t magnitude, bool discard_byte_stuffing);
 
 /* Definit la valeur DC d'un tableau de coefficients donne a partir d'une
 table Huffman DC, d'un bitstream et de la valeur DC du predicateur */

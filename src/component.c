@@ -16,10 +16,10 @@ const float MIN_COEFF = 0.0;
 const float MAX_COEFF = 255.0;
 
 /* Retourne le coefficient a partir d'un bitstream et d'une magnitude donnes */
-int16_t get_coefficient(struct bitstream *stream, uint8_t magnitude)
+int16_t get_coefficient(struct bitstream *stream, uint8_t magnitude, bool discard_byte_stuffing)
 {
     uint32_t indice = 0;
-    read_bitstream(stream, magnitude, &indice, true);
+    read_bitstream(stream, magnitude, &indice, discard_byte_stuffing);
     /* Memorisation du signe de la valeur (1 => positif, 0 => negatif) */
     uint8_t signe = indice >> (magnitude - 1);
     /* Memorisation du rang de la valeur, en partant de la plus petite valeur
@@ -37,7 +37,7 @@ void get_dc(struct huff_table *dc_table,
                     int16_t *coefficients)
 {
     uint8_t magnitude = (uint8_t) next_huffman_value(dc_table, stream);
-    coefficients[0] = previous_dc - get_coefficient(stream, magnitude);
+    coefficients[0] = previous_dc - get_coefficient(stream, magnitude, false);
 }
 
 /* Definit les valeurs ACs d'un tableau de coefficients donne a partir d'une
@@ -60,7 +60,7 @@ void get_acs(struct huff_table *ac_table,
         } else {
             i += (symbole >> 4);
             uint8_t magnitude = symbole & 0x0F;
-            coefficients[i] = get_coefficient(stream, magnitude);
+            coefficients[i] = get_coefficient(stream, magnitude, true);
         }
     }
 }

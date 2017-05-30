@@ -152,12 +152,6 @@ int main(int argc, char **argv)
     // Création du tableau de mcus
     struct mcu **mcus = calloc(nb_mcus, sizeof(struct mcu *));
 
-    // Pour debug : Affiche un composant mcu 1, Y ! OK!
-    printf("Debug : mcu 0, composante Y : \n");
-    for(uint8_t j=0; j<64;j++){
-            printf("%d ", mcus[0]->components_y[0][j]);
-    } //end for
-    printf("\n");
 
     // Récupération des tables et des informations utiles à l'extraction des mcus
     uint8_t **quant_tables = get_quant_tables(jdesc);
