@@ -2,3 +2,4 @@
 /images/*.pgm
 /images/*.blabla
 /images/*.ppm
+/bin/jpeg2ppm
