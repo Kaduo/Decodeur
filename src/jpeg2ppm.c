@@ -227,8 +227,6 @@ int main(int argc, char **argv)
 
     write_ppm(pic, "invader.pgm");
 
-
-
     // Libération mémoire du tableau de MCU
     for(uint16_t i=0; i< nb_mcus; i++){
          free_mcu(mcus[i]);
