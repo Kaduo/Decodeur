@@ -218,6 +218,12 @@ int main(int argc, char **argv)
         height_ext,
         sampling_factors[COMP_Y][DIR_H], // H1
         sampling_factors[COMP_Y][DIR_V]);
+
+    /*******
+    * Création de l'image PPM ou PGM *
+    *****/
+    
+    create_image_ppm(liste_blocks, width, height, filename);
     
     
     
