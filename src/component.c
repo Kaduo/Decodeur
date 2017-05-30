@@ -74,8 +74,8 @@ void get_acs(struct huff_table *ac_table,
     }
 }
 
-/* Decompresse un bloc frequentiel */
-int16_t *decompress(struct huff_table *dc_table,
+/* extracte un bloc frequentiel */
+int16_t *extract(struct huff_table *dc_table,
                         struct huff_table *ac_table,
                         struct bitstream *stream,
                         int16_t previous_dc,
@@ -155,14 +155,14 @@ int16_t *idct(const int16_t *coefficients, size_t size)
 }
 
 /* Reconstruit une composante */
-int16_t *get_component(struct huff_table *dc_table,
-                            struct huff_table *ac_table,
-                            struct bitstream *stream,
-                            uint8_t *quantization_table,
-                            int16_t previous_dc,
-                            size_t size)
+int16_t *get_component(struct bitstream *stream,
+                        struct huff_table *dc_table,
+                        struct huff_table *ac_table,
+                        uint8_t *quantization_table,
+                        int16_t previous_dc,
+                        size_t size)
 {
-    /* 1. Extraction - decompression */
+    /* 1. Extraction - extraction */
     int16_t *extracted = extract(dc_table,
                                   ac_table,
                                   stream,

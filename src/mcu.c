@@ -41,6 +41,7 @@ struct mcu *extract_mcu(struct bitstream *bitstream,
                         uint8_t nb_components_cb,
                         uint8_t nb_components_cr,
                         struct huff_table *huff_tables,
+                        uint8_t **quantization_table,
                         const struct jpeg_desc *jpeg)
 {
     struct mcu *mcu = create_mcu(nb_components_y, nb_components_cb, nb_components_cr);
