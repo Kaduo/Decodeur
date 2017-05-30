@@ -187,23 +187,23 @@ int main(int argc, char **argv)
     block *liste_blocks = malloc(nb_blocks*sizeof(block));
     for (uint8_t i = 0; i < nb_mcus; i++) {
         block *blocks_temp = extract_blocks(mcus[i], sampling_factors);
-         for (size_t j = 0; j < nb_components_y; j++) {
-             liste_blocks[i*nb_components_y+j] = blocks_temp[j];
-         }
-     }
+        for (size_t j = 0; j < nb_components_y; j++) {
+            liste_blocks[i*nb_components_y+j] = blocks_temp[j];
+        }
+    }
 
-     if (est_couleur(jdesc)) {
-         printf("PROBLEME");
-         for (size_t i = 0; i < nb_blocks; i++) {
-             convert_to_rgb(liste_blocks[i]);
-         }
-     }
+    if (est_couleur(jdesc)) {
+        printf("PROBLEME");
+        for (size_t i = 0; i < nb_blocks; i++) {
+            convert_to_rgb(liste_blocks[i]);
+        }
+    }
 
-     printf("\nComposante R si couleur, niveau de gris sinon\n");
-     for (size_t i = 0; i < 64; i++) {
-         printf("%d ", liste_blocks[0][0][i]);
-     }
-     printf("\n");
+    printf("\nComposante R si couleur, niveau de gris sinon\n");
+    for (size_t i = 0; i < 64; i++) {
+        printf("%d ", liste_blocks[0][0][i]);
+    }
+    printf("\n");
 
 
     /*******
@@ -222,11 +222,11 @@ int main(int argc, char **argv)
     /*******
     * Création de l'image PPM ou PGM *
     *****/
-    
+
     write_ppm(pic, filename);
-    
-    
-    
+
+
+
     // Libération mémoire du tableau de MCU
     for(uint16_t i=0; i< nb_mcus; i++){
          free_mcu(mcus[i]);
