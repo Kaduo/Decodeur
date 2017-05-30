@@ -4,8 +4,8 @@ Role ........ : Prototypes des fonctions des composantes
 Auteurs .... : A. He - M. Barbe - B. Potet (Ensimag 1A 2016/2017 - G6)
 *******************************************************************************/
 
-#ifndef __RECONSTRUCTION_H__
-#define __RECONSTRUCTION_H__
+#ifndef __COMPONENT_H__
+#define __COMPONENT_H__
 
 #include "jpeg_reader.h"
 #include "huffman.h"

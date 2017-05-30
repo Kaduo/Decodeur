@@ -4,7 +4,6 @@ Role ........ : Fonctions de reconstruction de blocs
 Auteurs .... : A. He - M. Barbe - B. Potet (Ensimag 1A 2016/2017 - G6)
 *******************************************************************************/
 
-#include "jpeg_reader.h"
 #include "block.h"
 #include "rgb.h"
 
@@ -22,7 +21,7 @@ block create_block()
 }
 
 /* Extrait les blocs d'une MCU */
-extern block *extract_blocks(struct mcu *mcu, uint8_t **factors)
+extern block *extract_blocks(struct mcu *mcu, uint8_t factors[COMP_NB][DIR_NB])
 {
     uint8_t nb_blocks = factors[COMP_Y][DIR_H] * factors[COMP_Y][DIR_V];
     block *blocks = malloc(nb_blocks * sizeof(block));

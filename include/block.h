@@ -10,6 +10,8 @@ Auteurs .... : A. He - M. Barbe - B. Potet (Ensimag 1A 2016/2017 - G6)
 #include <stdlib.h>
 #include <stdint.h>
 #include "mcu.h"
+#include "jpeg_reader.h"
+
 
 /* Structure representant un bloc */
 
@@ -19,7 +21,7 @@ typedef int16_t **block;
 extern block create_block();
 
 /* Extrait les blocs d'une MCU */
-extern block *extract_blocks(struct mcu *mcu, uint8_t **factors);
+extern block *extract_blocks(struct mcu *mcu, uint8_t factors[COMP_NB][DIR_NB]);
 
 /* Sur-echantillonne un composant donne sous-echantillonne en deux */
 // extern int16_t **upsample_to_two(const struct component *component);
