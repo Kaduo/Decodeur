@@ -6,7 +6,7 @@ bool est_couleur(const struct jpeg_desc *jpeg){
 
 
 /* Récupère les tables de Huffman dans l'ordre Y_dc, Y_ac, puis C_dc et C_ac (si elles existent) */
-struct huff_table ***get_huff_tables(const struct jpeg_reader *jpeg) {
+extern struct huff_table **get_huff_tables(const struct jpeg_desc *jpeg) {
 
     nb_huffman_tables = get_nb_huffman_tables(jpeg);
 
@@ -36,7 +36,7 @@ struct huff_table ***get_huff_tables(const struct jpeg_reader *jpeg) {
 }
 
 /* Récupère les tables de quantification dans l'ordre Y puis C (si elle existe) */
-uint8_t **get_quant_tables(const struct jpeg_reader *jpeg) {
+uint8_t **get_quant_tables(const struct jpeg_desc *jpeg) {
 
     uint8_t nb_quant_tables = get_nb_quantization_tables(jpeg);
     uint8_t **quant_tables;
