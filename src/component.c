@@ -163,12 +163,12 @@ int16_t *get_component(struct bitstream *stream,
     int16_t *quantization = inverse_quantization(extracted,
                                                   quantization_table,
                                                   size*size);
-    free(extracted);
     /* 3. Reorganisation zigzag */
     int16_t *zigzag = inverse_zigzag(quantization, size);
-    free(quantization);
     /* 4. Transformee en cosinus discrete inverse (iDCT) */
     int16_t *component = idct(zigzag, size);
+    free(extracted);
+    free(quantization);
     free(zigzag);
     /* Retour de la composante */
     return component;

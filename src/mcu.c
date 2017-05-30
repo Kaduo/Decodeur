@@ -96,7 +96,7 @@ struct mcu *extract_mcu(struct bitstream *bitstream,
                                                         huff_tables[0][1],
                                                         quant_tables[0],
                                                         previous_dc,
-                                                        8);
+                                                        (size_t) 8);
                 previous_dc = mcu->components_y[j][0];
             }
         }
@@ -108,7 +108,7 @@ struct mcu *extract_mcu(struct bitstream *bitstream,
                                                         huff_tables[1][1],
                                                         quant_tables[1],
                                                         previous_dc,
-                                                        8);
+                                                        (size_t) 8);
                 previous_dc = mcu->components_cb[j][0];
             }
         }
@@ -120,7 +120,7 @@ struct mcu *extract_mcu(struct bitstream *bitstream,
                                                         huff_tables[1][1],
                                                         quant_tables[1],
                                                         previous_dc,
-                                                        8);
+                                                        (size_t) 8);
                 previous_dc = mcu->components_cr[j][0];
             }
         }

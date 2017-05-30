@@ -23,12 +23,12 @@ struct picture *create_picture(size_t width, size_t height, bool colored)
     picture->width = width;
     picture->height = height;
     picture->colored = colored;
-    picture->pixels = NULL;
     return picture;
+    picture->pixels = malloc(width * height * sizeof(union pixel));
 }
 
 // Convertir l'image sous forme de bloc rangé en MCU en tableau de pixel.
-struct image *blocks2pixels(
+struct picture *blocks2pixels(
     block *blocks,
     size_t width,
     size_t height,
@@ -37,33 +37,33 @@ struct image *blocks2pixels(
     uint8_t h1,
     uint8_t v1)
     {
-    
-    bool_t is_bw = blocs[0][0] == NULL;
-    struct picture *pic = create_image(width, height, !is_bw);
-    size_t nb_blocs_h = width_ext : 8;
+
+    bool is_bw = blocks[0][0] == NULL;
+    struct picture *pic = create_picture(width, height, !is_bw);
+    size_t nb_blocs_h = width_ext % 8;
     size_t nb_blocs_v = height_ext / 8;
     uint16_t l_bloc = 0;
     uint16_t l_in_bloc = 0;
-    
+
     // Boucle sur les lignes de pixels.
      for(uint16_t l=0; l < height; l++){
          l_bloc = l/8;
          l_in_bloc = l%8;
-         
+
          // Boucle sur les blocs de la ligne l.
          for(uint16_t b=0; b<nb_blocs_h; b++){
              // Boucle sur les pixels de la ligne l%8 du bloc b.
              for(uint8_t i=0; i < 8; i++){
                  if(is_bw){
-                     pic[l*width + b*8 +i] = create_pixel_bw(
-                         blocks[l_bloc*nb_blocs_h +b][0][l_in_bloc*8 + i]);   b
+                     pic->pixels[l*width + b*8 +i] = create_pixel_bw(
+                         blocks[l_bloc*nb_blocs_h +b][0][l_in_bloc*8 + i]);
                  } // end if
                  else{
-                     pic[l*width + b*8 +i] = create_pixel_rgb(
+                     pic->pixels[l*width + b*8 +i] = create_pixel_rgb(
                          blocks[l_bloc*nb_blocs_h +b][0][l_in_bloc*8 + i],
                          blocks[l_bloc*nb_blocs_h +b][1][l_in_bloc*8 + i],
                          blocks[l_bloc*nb_blocs_h +b][2][l_in_bloc*8 + i]);
-                         
+
                  } // end else
              } // end for i.
          } // end for b.

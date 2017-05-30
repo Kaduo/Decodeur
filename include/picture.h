@@ -9,13 +9,14 @@ Auteurs .... : A. He - M. Barbe - B. Potet (Ensimag 1A 2016/2017 - G6)
 
 #include <stdbool.h>
 #include "pixel.h"
+#include "block.h"
 
 /* Structure reprensant une image RGB */
 struct picture {
     size_t width;
     size_t height;
     bool colored;
-    union pixel *pixels;
+    union pixel **pixels;
 };
 
 /* Cree une image a partir de dimensions donnes */
