@@ -13,7 +13,7 @@
 
 bool est_couleur(const struct jpeg_desc *jpeg);
 
-extern struct huff_table **get_huff_tables(const struct jpeg_desc *jpeg);
+extern struct huff_table ***get_huff_tables(const struct jpeg_desc *jpeg);
 
 uint8_t **get_quant_tables(const struct jpeg_desc *jpeg);
 

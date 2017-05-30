@@ -5,27 +5,25 @@ bool est_couleur(const struct jpeg_desc *jpeg){
 }
 
 
-/* Récupère les tables de Huffman dans l'ordre Y_dc, Y_ac, puis C_dc et C_ac (si elles existent) */
-extern struct huff_table **get_huff_tables(const struct jpeg_desc *jpeg) {
+/* Récupère les tables de Huffman dans l'ordre Y_dc, Y_ac, puis C_dc et C_ac (si elles existent).
+Pour Antoine : ce code est irrécupérable, inutile d'essayer de le nettoyer. De même pour les fonctions suivantes.*/
+extern struct huff_table ***get_huff_tables(const struct jpeg_desc *jpeg) {
 
-    nb_huffman_tables = get_nb_huffman_tables(jpeg);
+    uint8_t nb_huffman_tables = get_nb_huffman_tables(jpeg, AC);
 
     struct huff_table ***huff_tables;
-    huff_table = malloc(nb_huffman_tables*sizeof(huff_table **));
-    huff_table[0] = malloc(2*sizeof(huff_table *))
+    huff_tables = malloc(nb_huffman_tables*sizeof(struct huff_table **));
+    huff_tables[0] = malloc(2*sizeof(struct huff_table *));
 
-    uint8_t id_y = get_frame_component_id(jpeg, 0);
     uint8_t id_huff_y_dc = get_scan_component_huffman_index(jpeg, DC, 0);
     uint8_t id_huff_y_ac = get_scan_component_huffman_index(jpeg, AC, 0);
-    huff_table[0][DC] = get_huffman_table(jpeg, DC, id_huff_y_dc);
-    huff_table[0][AC] = get_huffman_table(jpeg, AC, id_huff_y_ac);
+    huff_tables[0][DC] = get_huffman_table(jpeg, DC, id_huff_y_dc);
+    huff_tables[0][AC] = get_huffman_table(jpeg, AC, id_huff_y_ac);
 
     if (nb_huffman_tables > 2) {
 
-        huff_table[1] = malloc(2*sizeof(huff_table *));
+        huff_tables[1] = malloc(2*sizeof(struct huff_table *));
 
-        uint8_t id_cb = get_frame_component_id(jpeg, 1);
-        uint8_t id_cr = get_frame_component_id(jpeg, 2);
         uint8_t id_huff_c_dc = get_scan_component_huffman_index(jpeg, DC, 1);
         uint8_t id_huff_c_ac = get_scan_component_huffman_index(jpeg, AC, 1);
         huff_tables[1][DC] = get_huffman_table(jpeg, DC, id_huff_c_dc);
@@ -39,12 +37,10 @@ extern struct huff_table **get_huff_tables(const struct jpeg_desc *jpeg) {
 uint8_t **get_quant_tables(const struct jpeg_desc *jpeg) {
 
     uint8_t nb_quant_tables = get_nb_quantization_tables(jpeg);
-    uint8_t **quant_tables;
-    quant_tables = malloc(nb_quant_tables*sizeof(uint8_t *))
+    uint8_t **quant_tables = malloc(nb_quant_tables*sizeof(uint8_t *));
     for (uint8_t i = 0; i < nb_quant_tables; i++) {
         quant_tables[0] = get_quantization_table(jpeg, i);
     }
-
 
     return quant_tables;
 }
