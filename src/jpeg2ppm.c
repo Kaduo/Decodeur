@@ -45,6 +45,39 @@ uint8_t **get_quant_tables(const struct jpeg_desc *jpeg) {
     return quant_tables;
 }
 
+/* Renvoie un tableau donnant l'ordre des composantes dans les mcus */
+enum component *components_order(const struct jpeg_desc *jpeg) {
+
+    uint8_t nb_components = get_nb_components(jpeg);
+
+    enum component *order = malloc(nb_components*sizeof(enum component));
+
+    uint8_t id_y = get_frame_component_id(jpeg, 0);
+    uint8_t id_cb = id_y + 1;
+    uint8_t id_cr = id_y + 2;
+
+    if (nb_components > 1) {
+        id_cb = get_frame_component_id(jpeg, 1);
+        id_cr = get_frame_component_id(jpeg, 2);
+    }
+
+    for (uint8_t i = 0; i < nb_components; i++) {
+        uint8_t scan_id = get_scan_component_id(jpeg, i);
+        if (scan_id == id_y) {
+            order[i] = COMP_Y;
+        }
+        else if (scan_id == id_cb) {
+            order[i] = COMP_Cb;
+        }
+        else if (scan_id == id_cr) {
+            order[i] = COMP_Cr;
+        }
+    }
+
+    return order;
+
+}
+
 int main(int argc, char **argv)
 {
     if (argc != 2) {
