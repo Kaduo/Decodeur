@@ -13,9 +13,9 @@ struct mcu *create_mcu(uint8_t nb_components_y, uint8_t nb_components_cb, uint8_
 
     struct mcu *mcu = malloc(sizeof(struct mcu));
 
-    mcu->components_y = NULL;
-    mcu->components_cb = NULL;
-    mcu->components_cr = NULL;
+    mcu->components_y = malloc(nb_components_y*sizeof(int16_t *));
+    mcu->components_cb = malloc(nb_components_cb*sizeof(int16_t *));
+    mcu->components_cr = malloc(nb_components_cr*sizeof(int16_t *));
     mcu->nb_ys = nb_components_y;
     mcu->nb_cbs = nb_components_cb;
     mcu->nb_crs = nb_components_cr;

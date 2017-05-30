@@ -6,6 +6,7 @@ Auteurs .... : A. He - M. Barbe - B. Potet (Ensimag 1A 2016/2017 - G6)
 
 #include "block.h"
 #include "rgb.h"
+#include <stdio.h>
 
 /* Taille d'un bloc */
 const size_t TAILLE_BLOC = 8;
@@ -17,6 +18,7 @@ block create_block()
     for (uint8_t i = 0; i < COMP_NB; ++i) {
         bloc[i] = NULL;
     }
+    printf("helo");
     return bloc;
 }
 
