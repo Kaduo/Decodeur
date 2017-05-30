@@ -46,7 +46,7 @@ uint8_t **get_quant_tables(const struct jpeg_desc *jpeg) {
 }
 
 /* Renvoie un tableau donnant l'ordre des composantes dans les mcus */
-enum component *components_order(const struct jpeg_desc *jpeg) {
+enum component *get_components_order(const struct jpeg_desc *jpeg) {
 
     uint8_t nb_components = get_nb_components(jpeg);
 
@@ -136,7 +136,7 @@ int main(int argc, char **argv)
         width_ext = width;
     }
     if(height%8){
-        width_ext = width + 8 - width % 8;
+        height_ext = height + 8 - height % 8;
     }
     else{
         height_ext = height;
@@ -149,29 +149,20 @@ int main(int argc, char **argv)
     uint16_t nb_mcus = nb_mcus_h * nb_mcus_v;
     printf("Nombre de MCU : %d\n", nb_mcus);
 
-    // Extraction des MCU
+    // Création du tableau de mcus
     struct mcu **mcus = calloc(nb_mcus, sizeof(struct mcu *));
-    for(uint16_t i=0; i< nb_mcus; i++){
-        mcus[i] = extract_mcu(stream, nb_components_y, nb_components_cb, nb_components_cr, jdesc);
-    } // end for
 
     // Pour debug : Affiche un composant mcu 1, Y ! OK!
     printf("Debug : mcu 0, composante Y : \n");
     for(uint8_t j=0; j<64;j++){
             printf("%d ", mcus[0]->components_y[0][j]);
-         } //end for
-         printf("\n");
+    } //end for
+    printf("\n");
 
-     /************
-     *   Quantification inverse  *
-     *********/
-
-     uint8_t nb_quant_tables = get_nb_quantization_tables(jdesc);
-     printf("Nombre de table de quantification : %hhu\n", nb_quant_tables);
-     uint8_t **quant_tables = calloc(nb_quant_tables, sizeof(uint8_t *));
-     for(uint8_t j=0; j < nb_quant_tables; j++){
-         quant_tables[j] = get_quantization_table(jdesc, j);
-     } // end for
+    // Récupération des tables et des informations utiles à l'extraction des mcus
+    uint8_t **quant_tables = get_quant_tables(jdesc);
+    struct huff_table ***huff_tables = get_huff_tables(jdesc);
+    enum component *ordre_des_composantes = get_components_order(jdesc);
 
      // Debug
      printf("Table de quantification index 0 : \n");
@@ -180,9 +171,20 @@ int main(int argc, char **argv)
      } // end for
      printf("\n");
 
-     // On reconstruit les mcus
-     for (size_t m = 0; m < nb_mcus; m++) {
-         reconstruct_mcu(mcus[m], jdesc);
+     // On extrait les mcus
+     for (size_t i = 0; i < nb_mcus; ++i) {
+         mcus[i] = extract_mcu(stream,
+                                nb_components_y,
+                                nb_components_cb,
+                                nb_components_cr,
+                                ordre_des_composantes,
+                                huff_tables,
+                                quant_tables);
+     }
+
+     printf("\nPremière composante Y :\n");
+     for (size_t i = 0; i < 64; i++) {
+         printf("%d ", mcus[0]->components_y[0][i]);
      }
 
     // Libération mémoire du tableau de MCU

@@ -1,3 +1,9 @@
+/*******************************************************************************
+Nom ......... : mcu.h
+Role ........ : Prototypes des fonctions de la structure MCU
+Auteurs .... : A. He - M. Barbe - B. Potet (Ensimag 1A 2016/2017 - G6)
+*******************************************************************************/
+
 #ifndef __MCU_H__
 #define __MCU_H__
 
@@ -7,6 +13,7 @@
 #include "bitstream.h"
 #include "jpeg_reader.h"
 #include "huffman.h"
+#include "component.h"
 
 /* Structure représentant un MCU */
 struct mcu {

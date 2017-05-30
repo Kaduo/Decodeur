@@ -50,7 +50,7 @@ extern float coeff_idct(size_t x);
 extern int16_t *idct(const int16_t *coefficients, size_t size);
 
 /* Reconstruit une composante */
-int16_t *get_component(struct bitstream *stream,
+extern int16_t *get_component(struct bitstream *stream,
                         struct huff_table *dc_table,
                         struct huff_table *ac_table,
                         uint8_t *quantization_table,

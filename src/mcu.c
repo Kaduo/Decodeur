@@ -1,11 +1,12 @@
+/*******************************************************************************
+Nom ......... : mcu.c
+Role ........ : Fonctions d'extraction et de traitement de la structure mcu
+Auteurs .... : A. He - M. Barbe - B. Potet (Ensimag 1A 2016/2017 - G6)
+*******************************************************************************/
+
 #include <stdio.h>
 #include <math.h>
 #include "mcu.h"
-#include "component.h"
-#include "jpeg_reader.h"
-
-/* Taille d'un bloc */
-const size_t TAILLE_BLOC = 8;
 
 struct mcu *create_mcu(uint8_t nb_components_y, uint8_t nb_components_cb, uint8_t nb_components_cr)
 {
@@ -95,7 +96,7 @@ struct mcu *extract_mcu(struct bitstream *bitstream,
                                                         huff_tables[0][1],
                                                         quant_tables[0],
                                                         previous_dc,
-                                                        TAILLE_BLOC);
+                                                        8);
                 previous_dc = mcu->components_y[j][0];
             }
         }
@@ -107,7 +108,7 @@ struct mcu *extract_mcu(struct bitstream *bitstream,
                                                         huff_tables[1][1],
                                                         quant_tables[1],
                                                         previous_dc,
-                                                        TAILLE_BLOC);
+                                                        8);
                 previous_dc = mcu->components_cb[j][0];
             }
         }
@@ -119,7 +120,7 @@ struct mcu *extract_mcu(struct bitstream *bitstream,
                                                         huff_tables[1][1],
                                                         quant_tables[1],
                                                         previous_dc,
-                                                        TAILLE_BLOC);
+                                                        8);
                 previous_dc = mcu->components_cr[j][0];
             }
         }

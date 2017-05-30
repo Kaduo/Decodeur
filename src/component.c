@@ -1,7 +1,7 @@
 /*******************************************************************************
 Nom ......... : component.c
 Role ........ : Fonctions des composantes
-Auteurs .... : A. He - M. Nebra - B. Potet (Ensimag 1A 2016/2017 - G6)
+Auteurs .... : A. He - M. Barbe - B. Potet (Ensimag 1A 2016/2017 - G6)
 *******************************************************************************/
 
 #include <stdio.h>
