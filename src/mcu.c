@@ -40,15 +40,16 @@ struct mcu *extract_mcu(struct bitstream *bitstream,
                         uint8_t nb_components_y,
                         uint8_t nb_components_cb,
                         uint8_t nb_components_cr,
+                        struct huff_table *huff_tables,
                         const struct jpeg_desc *jpeg)
 {
     struct mcu *mcu = create_mcu(nb_components_y, nb_components_cb, nb_components_cr);
 
-    uint8_t id_y = get_frame_component_id(jpeg, 0);
+    /* uint8_t id_y = get_frame_component_id(jpeg, 0);
     uint8_t id_huff_y_dc = get_scan_component_huffman_index(jpeg, DC, 0);
     uint8_t id_huff_y_ac = get_scan_component_huffman_index(jpeg, AC, 0);
     struct huff_table *huff_y_dc = get_huffman_table(jpeg, DC, id_huff_y_dc);
-    struct huff_table *huff_y_ac = get_huffman_table(jpeg, AC, id_huff_y_ac);
+    struct huff_table *huff_y_ac = get_huffman_table(jpeg, AC, id_huff_y_ac); */
 
 
     uint8_t id_cb = 0;
