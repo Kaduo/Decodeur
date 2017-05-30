@@ -16,9 +16,9 @@ const float MIN_COEFF = 0.0;
 const float MAX_COEFF = 255.0;
 
 /* Cree un bloc a partir d'une largeur et hauteur donnes */
-struct block *create_block(size_t size)
+block *create_block(size_t size)
 {
-    struct block *block = malloc(sizeof(struct block));
+    block *block = malloc(sizeof(block));
     block->size = size;
     block->coefficients = NULL;
     return block;
