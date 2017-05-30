@@ -1,15 +1,4 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <inttypes.h>
-
-#include "jpeg_reader.h"
-#include "bitstream.h"
-
-#include "extraction.h"
-#include "reconstruction.h"
-#include "ppm.h"
-#include "rgb.h"
-#include "upsampling.h"
+#include "jpeg2ppm.h"
 
 bool est_couleur(const struct jpeg_desc *jpeg){
     return get_nb_components(jpeg) > 1;
@@ -56,8 +45,8 @@ uint8_t **get_quant_tables(const struct jpeg_reader *jpeg) {
         quant_tables[0] = get_quantization_table(jpeg, i);
     }
 
-    return quant_tables;
 
+    return quant_tables;
 }
 
 int main(int argc, char **argv)

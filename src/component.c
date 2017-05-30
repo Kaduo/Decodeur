@@ -167,11 +167,11 @@ int16_t *get_component(struct bitstream *stream,
                                   ac_table,
                                   stream,
                                   previous_dc,
-                                  length);
+                                  size*size);
     /* 2. Quantification inverse */
     int16_t *quantization = inverse_quantization(extracted,
                                                   quantization_table,
-                                                  length);
+                                                  size*size);
     free(extracted);
     /* 3. Reorganisation zigzag */
     int16_t *zigzag = inverse_zigzag(quantization, size);

@@ -4,6 +4,8 @@
 #include "component.h"
 #include "jpeg_reader.h"
 
+/* Taille d'un bloc */
+const size_t TAILLE_BLOC = 8;
 
 struct mcu *create_mcu(uint8_t nb_components_y, uint8_t nb_components_cb, uint8_t nb_components_cr)
 {
@@ -51,7 +53,7 @@ struct mcu *extract_mcu(struct bitstream *bitstream,
                         uint8_t nb_components_cr,
                         enum component *ordre_des_composantes,
                         struct huff_table ***huff_tables,
-                        uint8_t **quantization_table)
+                        uint8_t **quant_tables)
 {
     struct mcu *mcu = create_mcu(nb_components_y, nb_components_cb, nb_components_cr);
 
@@ -81,9 +83,9 @@ struct mcu *extract_mcu(struct bitstream *bitstream,
         huff_c_ac = get_huffman_table(jpeg, DC, id_huff_c_ac);
     } */
 
-    nb_components = nb_components_y + nb_components_cb + nb_components_cr;
+    uint8_t nb_components = nb_components_y + nb_components_cb + nb_components_cr;
 
-    for (size_t i = 0; i < get_nb_components(jpeg); i++) {
+    for (size_t i = 0; i < nb_components; i++) {
         int16_t previous_dc = 0;
 
         if (ordre_des_composantes[i] == COMP_Y){
@@ -92,7 +94,8 @@ struct mcu *extract_mcu(struct bitstream *bitstream,
                                                         huff_tables[0][0],
                                                         huff_tables[0][1],
                                                         quant_tables[0],
-                                                        previous_dc);
+                                                        previous_dc,
+                                                        TAILLE_BLOC);
                 previous_dc = mcu->components_y[j][0];
             }
         }
@@ -103,7 +106,8 @@ struct mcu *extract_mcu(struct bitstream *bitstream,
                                                         huff_tables[1][0],
                                                         huff_tables[1][1],
                                                         quant_tables[1],
-                                                        previous_dc);
+                                                        previous_dc,
+                                                        TAILLE_BLOC);
                 previous_dc = mcu->components_cb[j][0];
             }
         }
@@ -114,7 +118,8 @@ struct mcu *extract_mcu(struct bitstream *bitstream,
                                                         huff_tables[1][0],
                                                         huff_tables[1][1],
                                                         quant_tables[1],
-                                                        previous_dc);
+                                                        previous_dc,
+                                                        TAILLE_BLOC);
                 previous_dc = mcu->components_cr[j][0];
             }
         }
