@@ -185,12 +185,14 @@ int main(int argc, char **argv)
     /* Reconstruction des blocs */
     uint8_t nb_blocks = nb_components_y*nb_mcus;
     block *liste_blocks = malloc(nb_blocks*sizeof(block));
-    for (uint8_t i = 0; i < nb_mcus; i++) {
+    for (uint16_t i = 0; i < nb_mcus; i++) {
         block *blocks_temp = extract_blocks(mcus[i], sampling_factors);
         for (size_t j = 0; j < nb_components_y; j++) {
             liste_blocks[i*nb_components_y+j] = blocks_temp[j];
         }
+        free(blocks_temp);
     }
+
 
     if (est_couleur(jdesc)) {
         for (size_t i = 0; i < nb_blocks; i++) {
@@ -200,7 +202,8 @@ int main(int argc, char **argv)
 
     printf("\nComposante R si couleur, niveau de gris sinon\n");
     for (size_t i = 0; i < 64; i++) {
-        printf("%d ", liste_blocks[0][0][i]);
+        printf("i : %d\n",i);
+        printf("%"PRId16"\n", liste_blocks[0][0][i]);
     }
     printf("\n");
 
