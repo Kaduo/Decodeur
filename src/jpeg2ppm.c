@@ -193,6 +193,7 @@ int main(int argc, char **argv)
      }
 
      if (est_couleur(jdesc)) {
+         printf("PROBLEME");
          for (size_t i = 0; i < nb_blocks; i++) {
              convert_to_rgb(liste_blocks[i]);
          }
@@ -200,7 +201,7 @@ int main(int argc, char **argv)
 
      printf("\nComposante R si couleur, niveau de gris sinon\n");
      for (size_t i = 0; i < 64; i++) {
-         printf("%04x", liste_blocks[0][i]);
+         printf("%d ", liste_blocks[0][0][i]);
      }
      printf("\n");
 

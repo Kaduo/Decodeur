@@ -30,8 +30,11 @@ extern block *extract_blocks(struct mcu *mcu, uint8_t factors[COMP_NB][DIR_NB])
     for (uint8_t i = 0; i < nb_blocks; ++i) {
         blocks[i] = create_block();
         blocks[i][COMP_Y] = mcu->components_y[i];
-        blocks[i][COMP_Cb] = mcu->components_cb[i];
-        blocks[i][COMP_Cr] = mcu->components_cr[i];
+
+        if (mcu->components_cb != NULL) {
+            blocks[i][COMP_Cb] = mcu->components_cb[i];
+            blocks[i][COMP_Cr] = mcu->components_cr[i];
+        }
     }
     return blocks;
 }
