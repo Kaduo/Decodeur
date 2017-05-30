@@ -1,18 +1,81 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <inttypes.h>
-
-#include "jpeg_reader.h"
-#include "bitstream.h"
-
-#include "extraction.h"
-#include "reconstruction.h"
-#include "ppm.h"
-#include "rgb.h"
-#include "upsampling.h"
+#include "jpeg2ppm.h"
 
 bool est_couleur(const struct jpeg_desc *jpeg){
     return get_nb_components(jpeg) > 1;
+}
+
+
+/* Récupère les tables de Huffman dans l'ordre Y_dc, Y_ac, puis C_dc et C_ac (si elles existent).
+Pour Antoine : ce code est irrécupérable, inutile d'essayer de le nettoyer. De même pour les fonctions suivantes.*/
+extern struct huff_table ***get_huff_tables(const struct jpeg_desc *jpeg) {
+
+    uint8_t nb_huffman_tables = get_nb_huffman_tables(jpeg, AC);
+
+    struct huff_table ***huff_tables;
+    huff_tables = malloc(nb_huffman_tables*sizeof(struct huff_table **));
+    huff_tables[0] = malloc(2*sizeof(struct huff_table *));
+
+    uint8_t id_huff_y_dc = get_scan_component_huffman_index(jpeg, DC, 0);
+    uint8_t id_huff_y_ac = get_scan_component_huffman_index(jpeg, AC, 0);
+    huff_tables[0][DC] = get_huffman_table(jpeg, DC, id_huff_y_dc);
+    huff_tables[0][AC] = get_huffman_table(jpeg, AC, id_huff_y_ac);
+
+    if (nb_huffman_tables > 2) {
+
+        huff_tables[1] = malloc(2*sizeof(struct huff_table *));
+
+        uint8_t id_huff_c_dc = get_scan_component_huffman_index(jpeg, DC, 1);
+        uint8_t id_huff_c_ac = get_scan_component_huffman_index(jpeg, AC, 1);
+        huff_tables[1][DC] = get_huffman_table(jpeg, DC, id_huff_c_dc);
+        huff_tables[1][AC] = get_huffman_table(jpeg, AC, id_huff_c_ac);
+    }
+
+    return huff_tables;
+}
+
+/* Récupère les tables de quantification dans l'ordre Y puis C (si elle existe) */
+uint8_t **get_quant_tables(const struct jpeg_desc *jpeg) {
+
+    uint8_t nb_quant_tables = get_nb_quantization_tables(jpeg);
+    uint8_t **quant_tables = malloc(nb_quant_tables*sizeof(uint8_t *));
+    for (uint8_t i = 0; i < nb_quant_tables; i++) {
+        quant_tables[0] = get_quantization_table(jpeg, i);
+    }
+
+    return quant_tables;
+}
+
+/* Renvoie un tableau donnant l'ordre des composantes dans les mcus */
+enum component *get_components_order(const struct jpeg_desc *jpeg) {
+
+    uint8_t nb_components = get_nb_components(jpeg);
+
+    enum component *order = malloc(nb_components*sizeof(enum component));
+
+    uint8_t id_y = get_frame_component_id(jpeg, 0);
+    uint8_t id_cb = id_y + 1;
+    uint8_t id_cr = id_y + 2;
+
+    if (nb_components > 1) {
+        id_cb = get_frame_component_id(jpeg, 1);
+        id_cr = get_frame_component_id(jpeg, 2);
+    }
+
+    for (uint8_t i = 0; i < nb_components; i++) {
+        uint8_t scan_id = get_scan_component_id(jpeg, i);
+        if (scan_id == id_y) {
+            order[i] = COMP_Y;
+        }
+        else if (scan_id == id_cb) {
+            order[i] = COMP_Cb;
+        }
+        else if (scan_id == id_cr) {
+            order[i] = COMP_Cr;
+        }
+    }
+
+    return order;
+
 }
 
 int main(int argc, char **argv)
@@ -73,7 +136,7 @@ int main(int argc, char **argv)
         width_ext = width;
     }
     if(height%8){
-        width_ext = width + 8 - width % 8;
+        height_ext = height + 8 - height % 8;
     }
     else{
         height_ext = height;
@@ -86,29 +149,20 @@ int main(int argc, char **argv)
     uint16_t nb_mcus = nb_mcus_h * nb_mcus_v;
     printf("Nombre de MCU : %d\n", nb_mcus);
 
-    // Extraction des MCU
+    // Création du tableau de mcus
     struct mcu **mcus = calloc(nb_mcus, sizeof(struct mcu *));
-    for(uint16_t i=0; i< nb_mcus; i++){
-        mcus[i] = extract_mcu(stream, nb_components_y, nb_components_cb, nb_components_cr, jdesc);
-    } // end for
 
     // Pour debug : Affiche un composant mcu 1, Y ! OK!
     printf("Debug : mcu 0, composante Y : \n");
     for(uint8_t j=0; j<64;j++){
             printf("%d ", mcus[0]->components_y[0][j]);
-         } //end for
-         printf("\n");
+    } //end for
+    printf("\n");
 
-     /************
-     *   Quantification inverse  *
-     *********/
-
-     uint8_t nb_quant_tables = get_nb_quantization_tables(jdesc);
-     printf("Nombre de table de quantification : %hhu\n", nb_quant_tables);
-     uint8_t **quant_tables = calloc(nb_quant_tables, sizeof(uint8_t *));
-     for(uint8_t j=0; j < nb_quant_tables; j++){
-         quant_tables[j] = get_quantization_table(jdesc, j);
-     } // end for
+    // Récupération des tables et des informations utiles à l'extraction des mcus
+    uint8_t **quant_tables = get_quant_tables(jdesc);
+    struct huff_table ***huff_tables = get_huff_tables(jdesc);
+    enum component *ordre_des_composantes = get_components_order(jdesc);
 
      // Debug
      printf("Table de quantification index 0 : \n");
@@ -117,9 +171,20 @@ int main(int argc, char **argv)
      } // end for
      printf("\n");
 
-     // On reconstruit les mcus
-     for (size_t m = 0; m < nb_mcus; m++) {
-         reconstruct_mcu(mcus[m], jdesc);
+     // On extrait les mcus
+     for (size_t i = 0; i < nb_mcus; ++i) {
+         mcus[i] = extract_mcu(stream,
+                                nb_components_y,
+                                nb_components_cb,
+                                nb_components_cr,
+                                ordre_des_composantes,
+                                huff_tables,
+                                quant_tables);
+     }
+
+     printf("\nPremière composante Y :\n");
+     for (size_t i = 0; i < 64; i++) {
+         printf("%d ", mcus[0]->components_y[0][i]);
      }
 
     // Libération mémoire du tableau de MCU

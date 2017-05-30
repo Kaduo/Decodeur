@@ -13,7 +13,7 @@ const char BINARY_PPM_MAGIC_NUMBER = '6';
 const uint8_t MAX_COLOR_VALUE = 255;
 
 /* Cree un fichier PPM a partir d'une image (tableau uint32_t) */
-void create_image_ppm(const struct block *blocks,
+void create_image_ppm(const block *blocks,
                         uint32_t width,
                         uint32_t height,
                         char *filename)
@@ -40,7 +40,7 @@ void write_ppm_header(uint32_t width, uint32_t height, char *filename)
 }
 
 /* Ecrit les données d'un fichier PPM */
-void write_ppm_data(const struct block *blocks,
+void write_ppm_data(const block *blocks,
                       uint32_t width,
                       uint32_t height,
                       char *filename)

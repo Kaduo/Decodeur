@@ -4,29 +4,34 @@ Role ........ : Fonctions de reconstruction de blocs
 Auteurs .... : A. He - M. Barbe - B. Potet (Ensimag 1A 2016/2017 - G6)
 *******************************************************************************/
 
+#include "jpeg_reader.h"
 #include "block.h"
+#include "rgb.h"
+
+/* Taille d'un bloc */
+const size_t TAILLE_BLOC = 8;
 
 /* Cree une structure block a partir d'une taille donne */
-struct block *create_block()
+block create_block()
 {
-    struct block *block = malloc(sizeof(struct block));
-    block->y = NULL;
-    block->cb = NULL;
-    block->cr = NULL;
-    return block;
+    block bloc = malloc(COMP_NB*sizeof(int16_t));
+    for (uint8_t i = 0; i < COMP_NB; ++i) {
+        bloc[i] = NULL;
+    }
+    return bloc;
 }
 
 /* Extrait les blocs d'une MCU */
-struct block *extract_blocks(struct mcu *mcu, uint8_t **factors)
+extern block *extract_blocks(struct mcu *mcu, uint8_t **factors)
 {
     uint8_t nb_blocks = factors[COMP_Y][DIR_H] * factors[COMP_Y][DIR_V];
-    struct block *blocks = malloc(nb_blocks * sizeof(struct block*));
+    block *blocks = malloc(nb_blocks * sizeof(block));
     /* Creation des blocs et initialisation des composantes Y */
-    for (uint8_t i = 0; i < nb_blocks) {
+    for (uint8_t i = 0; i < nb_blocks; ++i) {
         blocks[i] = create_block();
-        blocks[i]->y = mcu->components_y[i];
-        blocks[i]->cb = mcu->components_cb[i];
-        blocks[i]->cr = mcu->components_cr[i];
+        blocks[i][COMP_Y] = mcu->components_y[i];
+        blocks[i][COMP_Cb] = mcu->components_cb[i];
+        blocks[i][COMP_Cr] = mcu->components_cr[i];
     }
     return blocks;
 }
@@ -92,17 +97,27 @@ void test(const struct component *component, int16_t *tab, uint8_t indice, uint8
 */
 
 /* Sur-echantillonne un composant donne sous-echantillonne en deux */
-int16_t **upsample_to_two(const struct component *component);
+// int16_t **upsample_to_two(const struct component *component);
 
 /* Sur-echantillonne un composant donne sous-echantillonne en quatre */
-int16_t **upsample_to_four(const struct component *component);
+// int16_t **upsample_to_four(const struct component *component);
+
+/* Convertit un bloc YCbCr en bloc RGB */
+void convert_to_rgb(block block) {
+    int16_t y, cb, cr;
+    for (uint8_t i = 0; i < TAILLE_BLOC * TAILLE_BLOC; ++i) {
+        y = block[i][COMP_Y];
+        cb = block[i][COMP_Cb];
+        cr = block[i][COMP_Cr];
+        block[RGB_R][i] = get_red(y, cb, cr);
+        block[RGB_B][i] = get_blue(y, cb, cr);
+        block[RGB_G][i] = get_green(y, cb, cr);
+    }
+}
 
 /* Libere de la memoire la place occupee par un bloc */
-void free_block(struct block *block)
+void free_block(block block)
 {
-  //free(block->y);
-  //free(block->cb);
-  //free(block->cr);
   free(block);
   block = NULL;
 }

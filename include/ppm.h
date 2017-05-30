@@ -4,10 +4,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "upsampling.h"
+#include "block.h"
 
 /* Cree un fichier PPM a partir d'une image (tableau uint32_t) */
-extern void create_image_ppm(const struct block *blocks,
+extern void create_image_ppm(const block *blocks,
                         uint32_t width,
                         uint32_t height,
                         char *filename);
@@ -16,7 +16,7 @@ extern void create_image_ppm(const struct block *blocks,
 extern void write_ppm_header(uint32_t width, uint32_t height, char *filename);
 
 /* Ecrit les données d'un fichier PPM */
-extern void write_ppm_data(const struct block *blocks,
+extern void write_ppm_data(const block *blocks,
                       uint32_t width,
                       uint32_t height,
                       char *filename);

@@ -1,5 +1,11 @@
-#ifndef __EXTRACTION_H__
-#define __EXTRACTION_H__
+/*******************************************************************************
+Nom ......... : mcu.h
+Role ........ : Prototypes des fonctions de la structure MCU
+Auteurs .... : A. He - M. Barbe - B. Potet (Ensimag 1A 2016/2017 - G6)
+*******************************************************************************/
+
+#ifndef __MCU_H__
+#define __MCU_H__
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -7,6 +13,7 @@
 #include "bitstream.h"
 #include "jpeg_reader.h"
 #include "huffman.h"
+#include "component.h"
 
 /* Structure représentant un MCU */
 struct mcu {
@@ -18,26 +25,18 @@ struct mcu {
   uint8_t nb_crs;
 };
 
-int16_t **create_components(uint8_t nb_components);
+struct mcu *create_mcu(uint8_t nb_components_y, uint8_t nb_components_cb, uint8_t nb_components_cr);
 
-extern struct mcu *create_mcu(uint8_t nb_components_y,
-                                uint8_t nb_components_cb,
-                                uint8_t nb_components_cr);
+extern struct mcu *extract_mcu(struct bitstream *bitstream,
+                        uint8_t nb_components_y,
+                        uint8_t nb_components_cb,
+                        uint8_t nb_components_cr,
+                        enum component *ordre_des_composantes,
+                        struct huff_table ***huff_tables,
+                        uint8_t **quant_tables);
+
+void free_components(int16_t **components, uint8_t size_components);
 
 void free_mcu(struct mcu *mcu);
-
-/* Extrait un MCU d'un bitstream et d'une description donnés */
-extern struct mcu *extract_mcu(struct bitstream *bitstream,
-                                uint8_t nb_components_y,
-                                uint8_t nb_components_cb,
-                                uint8_t nb_components_cr,
-                                const struct jpeg_desc *jpeg);
-
-/* Extrait un type de composante d'un bitstream donné */
-void extract_component(struct bitstream *bitstream,
-                        struct huff_table *huff_dc,
-                        struct huff_table *huff_ac,
-                        int16_t previous_dc,
-                        int16_t *component);
 
 #endif

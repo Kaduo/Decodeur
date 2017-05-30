@@ -21,19 +21,22 @@ LDFLAGS = -lm
 OBJPROF_FILES =  $(OBJPROF_DIR)/huffman.o  $(OBJPROF_DIR)/jpeg_reader.o $(OBJPROF_DIR)/bitstream.o
 
 # et les votres!
-OBJ_FILES = $(OBJ_DIR)/example.o $(OBJ_DIR)/block.o $(OBJ_DIR)/zigzag.o $(OBJ_DIR)/format.o $(OBJ_DIR)/picture.o	
+OBJ_FILES = $(OBJ_DIR)/block.o $(OBJ_DIR)/zigzag.o $(OBJ_DIR)/rgb.o $(OBJ_DIR)/pixel.o $(OBJ_DIR)/picture.o $(OBJ_DIR)/mcu.o $(OBJ_DIR)/jpeg2ppm.o
 
 # cible par défaut
 
-TARGET = $(BIN_DIR)/example
+TARGET = $(BIN_DIR)/jpeg2ppm
 
 all: $(TARGET)
 
 $(TARGET): $(OBJPROF_FILES) $(OBJ_FILES)
 	$(LD) $(LDFLAGS) $(OBJPROF_FILES) $(OBJ_FILES) -o $(TARGET)
 
-$(OBJ_DIR)/example.o: $(SRC_DIR)/example.c $(INC_DIR)/jpeg_reader.h $(INC_DIR)/bitstream.h
-	$(CC) $(CFLAGS) -c $(SRC_DIR)/example.c -o $(OBJ_DIR)/example.o
+$(OBJ_DIR)/rgb.o: $(SRC_DIR)/rgb.c $(INC_DIR)/rgb.h
+	$(CC) $(CFLAGS) -c $(SRC_DIR)/rgb.c -o $(OBJ_DIR)/rgb.o
+
+$(OBJ_DIR)/pixel.o: $(SRC_DIR)/pixel.c $(INC_DIR)/pixel.h
+	$(CC) $(CFLAGS) -c $(SRC_DIR)/pixel.c -o $(OBJ_DIR)/pixel.o
 
 $(OBJ_DIR)/block.o: $(SRC_DIR)/block.c $(INC_DIR)/block.h
 	$(CC) $(CFLAGS) -c $(SRC_DIR)/block.c -o $(OBJ_DIR)/block.o
@@ -41,12 +44,16 @@ $(OBJ_DIR)/block.o: $(SRC_DIR)/block.c $(INC_DIR)/block.h
 $(OBJ_DIR)/zigzag.o: $(SRC_DIR)/zigzag.c $(INC_DIR)/zigzag.h
 	$(CC) $(CFLAGS) -c $(SRC_DIR)/zigzag.c -o $(OBJ_DIR)/zigzag.o
 
-$(OBJ_DIR)/format.o: $(SRC_DIR)/format.c $(INC_DIR)/format.h
-	$(CC) $(CFLAGS) -c $(SRC_DIR)/format.c -o $(OBJ_DIR)/format.o
-
-
 $(OBJ_DIR)/picture.o: $(SRC_DIR)/picture.c $(INC_DIR)/picture.h
 	$(CC) $(CFLAGS) -c $(SRC_DIR)/picture.c -o $(OBJ_DIR)/picture.o
+
+$(OBJ_DIR)/mcu.o: $(SRC_DIR)/mcu.c $(INC_DIR)/mcu.h
+	$(CC) $(CFLAGS) -c $(SRC_DIR)/mcu.c -o $(OBJ_DIR)/mcu.o
+
+$(OBJ_DIR)/jpeg2ppm.o: $(SRC_DIR)/jpeg2ppm.c $(INC_DIR)/jpeg2ppm.h
+	$(CC) $(CFLAGS) -c $(SRC_DIR)/jpeg2ppm.c -o $(OBJ_DIR)/jpeg2ppm.o
+
+
 
 .PHONY: clean
 

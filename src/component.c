@@ -1,7 +1,7 @@
 /*******************************************************************************
 Nom ......... : component.c
 Role ........ : Fonctions des composantes
-Auteurs .... : A. He - M. Nebra - B. Potet (Ensimag 1A 2016/2017 - G6)
+Auteurs .... : A. He - M. Barbe - B. Potet (Ensimag 1A 2016/2017 - G6)
 *******************************************************************************/
 
 #include <stdio.h>
@@ -16,9 +16,9 @@ const float MIN_COEFF = 0.0;
 const float MAX_COEFF = 255.0;
 
 /* Cree un bloc a partir d'une largeur et hauteur donnes */
-struct block *create_block(size_t size)
+block *create_block(size_t size)
 {
-    struct block *block = malloc(sizeof(struct block));
+    block *block = malloc(sizeof(block));
     block->size = size;
     block->coefficients = NULL;
     return block;
@@ -74,8 +74,8 @@ void get_acs(struct huff_table *ac_table,
     }
 }
 
-/* Decompresse un bloc frequentiel */
-int16_t *decompress(struct huff_table *dc_table,
+/* extracte un bloc frequentiel */
+int16_t *extract(struct huff_table *dc_table,
                         struct huff_table *ac_table,
                         struct bitstream *stream,
                         int16_t previous_dc,
@@ -155,23 +155,23 @@ int16_t *idct(const int16_t *coefficients, size_t size)
 }
 
 /* Reconstruit une composante */
-int16_t *get_component(struct huff_table *dc_table,
-                            struct huff_table *ac_table,
-                            struct bitstream *stream,
-                            uint8_t *quantization_table,
-                            int16_t previous_dc,
-                            size_t size)
+int16_t *get_component(struct bitstream *stream,
+                        struct huff_table *dc_table,
+                        struct huff_table *ac_table,
+                        uint8_t *quantization_table,
+                        int16_t previous_dc,
+                        size_t size)
 {
-    /* 1. Extraction - decompression */
+    /* 1. Extraction - extraction */
     int16_t *extracted = extract(dc_table,
                                   ac_table,
                                   stream,
                                   previous_dc,
-                                  length);
+                                  size*size);
     /* 2. Quantification inverse */
     int16_t *quantization = inverse_quantization(extracted,
                                                   quantization_table,
-                                                  length);
+                                                  size*size);
     free(extracted);
     /* 3. Reorganisation zigzag */
     int16_t *zigzag = inverse_zigzag(quantization, size);
