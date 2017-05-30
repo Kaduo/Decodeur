@@ -15,15 +15,6 @@ const float MIN_COEFF = 0.0;
 /* Valeur maximale d'un coefficient */
 const float MAX_COEFF = 255.0;
 
-/* Cree un bloc a partir d'une largeur et hauteur donnes */
-block *create_block(size_t size)
-{
-    block *block = malloc(sizeof(block));
-    block->size = size;
-    block->coefficients = NULL;
-    return block;
-}
-
 /* Retourne le coefficient a partir d'un bitstream et d'une magnitude donnes */
 int16_t get_coefficient(struct bitstream *stream, uint8_t magnitude)
 {
