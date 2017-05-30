@@ -11,13 +11,18 @@ Auteurs .... : A. He - M. Barbe - B. Potet (Ensimag 1A 2016/2017 - G6)
 
 /* Valeur maximale d'une composante RGB */
 const uint8_t MAX_COLOR_VALUE = 255;
+/* Nombre magique du format PPM (couleur) */
+const uint8_t PPM_MAGIC_NUMBER = 6;
+/* Nombre magique du format PGM (noir et blanc) */
+const uint8_t PGM_MAGIC_NUMBER = 5;
 
 /* Cree une image a partir de dimensions donnes */
-struct picture *create_picture(size_t width, size_t height)
+struct picture *create_picture(size_t width, size_t height, bool colored)
 {
     struct picture *picture = malloc(sizeof(struct picture));
     picture->width = width;
     picture->height = height;
+    picture->colored = colored;
     picture->pixels = NULL;
     return picture;
 }
@@ -38,7 +43,7 @@ void write_ppm_header(const struct picture *picture, const char *filename)
     /* Ouverture du fichier */
     secured_open_file(&outfile, filename, "w");
     /* Ecriture de l'entete PPM */
-    fprintf(outfile, "P6\n");
+    fprintf(outfile, "P%hhu\n", get_magic_number(picture->colored));
     fprintf(outfile, "%zd %zd\n", picture->width, picture->height);
     fprintf(outfile, "%hhu\n", MAX_COLOR_VALUE);
     /* Fermeture du fichier */
@@ -53,7 +58,7 @@ void write_ppm_data(const struct picture *picture, const char *filename)
     secured_open_file(&outfile, filename, "ab");
     /* Ecriture des donnees */
     for (size_t i = 0; i < picture->width * picture->height; ++i) {
-        fwrite(&(picture->pixels[i]), sizeof(struct rgb), 1, outfile);
+        fwrite(&((picture->pixels)[i]), sizeof((picture->pixels)[i]), 1, outfile);
     }
     /* Fermeture du fichier */
     secured_close_file(&outfile, filename);
@@ -75,6 +80,12 @@ void secured_close_file(FILE **file, const char *filename)
         fprintf(stderr, "Impossible de fermer le fichier %s.\n", filename);
         exit(EXIT_FAILURE);
     }
+}
+
+/* Retourne le nombre magique correspondant au format */
+uint8_t get_magic_number(bool colored)
+{
+    return colored ? PPM_MAGIC_NUMBER : PGM_MAGIC_NUMBER;
 }
 
 /* Libere en memoire l'espace occupe par une image donnee */
