@@ -178,7 +178,7 @@ int main(int argc, char **argv)
 
      printf("\nPremière composante Y :\n");
      for (size_t i = 0; i < 64; i++) {
-         printf("%d ", mcus[0]->components_y[0][i]);
+         printf("%"PRId16 " ", mcus[0]->components_y[0][i]);
      }
      printf("\n");
 
