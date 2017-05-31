@@ -204,17 +204,18 @@ int main(int argc, char **argv)
     printf("\n");
 
     /* Reconstruction des blocs */
-    uint8_t nb_blocks = nb_components_y * nb_mcus;
-    block *liste_blocks = malloc(nb_blocks * COMP_NB * sizeof(int16_t*));
+
+    uint16_t nb_blocks = nb_components_y*nb_mcus;
+    block *liste_blocks = malloc(nb_blocks * sizeof(block));
+    block *blocks_temp = NULL;
     for (uint16_t i = 0; i < nb_mcus; i++) {
-        block *blocks_temp = extract_blocks(mcus[i], sampling_factors);
+        blocks_temp = extract_blocks(mcus[i], sampling_factors);
         for (size_t j = 0; j < nb_components_y; j++) {
             liste_blocks[i*nb_components_y+j] = blocks_temp[0];
         }
         free(blocks_temp);
         blocks_temp = NULL;
     }
-
 
     if (est_couleur(jdesc)) {
         for (size_t i = 0; i < nb_blocks; i++) {

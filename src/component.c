@@ -160,7 +160,7 @@ int16_t *get_component(struct bitstream *stream,
                                   previous_dc,
                                   size*size);
 
-    printf("extracted\n");
+    printf("\n\nextracted\n");
     for (size_t i = 0; i < 64; i++) {
         printf("%04x ", extracted[i]);
     }

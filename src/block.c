@@ -14,7 +14,7 @@ const size_t TAILLE_BLOC = 8;
 /* Cree une structure block a partir d'une taille donne */
 block create_block()
 {
-    block bloc = malloc(COMP_NB*sizeof(int16_t *));
+    block bloc = malloc(COMP_NB * sizeof(int16_t *));
     for (uint8_t i = 0; i < COMP_NB; ++i) {
         bloc[i] = NULL;
     }
@@ -32,6 +32,7 @@ extern block *extract_blocks(struct mcu *mcu, uint8_t factors[COMP_NB][DIR_NB])
         blocks[i][COMP_Y] = mcu->components_y[i];
 
         if (mcu->components_cb != NULL) {
+            // À modifier !!
             blocks[i][COMP_Cb] = mcu->components_cb[i];
             blocks[i][COMP_Cr] = mcu->components_cr[i];
         }
