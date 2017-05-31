@@ -45,7 +45,14 @@ struct bitstream *create_bitstream(const char *filename){
                               	                               	 byte = 0;
                               	                               	 nb_reads += fread(&byte, sizeof(uint8_t), 1, stream->pfile);
                               	                               	 stream->buffer |= byte;
-                              	 if(nb_reads != 4) perror("Erreur lors de la lecture des quatre premiers octets.");
+                              	                               	 
+                              	                               	 // 5, cur_byte
+                              	                               	 nb_reads += fread(&stream->cur_byte, sizeof(uint8_t), 1, stream->pfile);
+                              	                               	 
+                              	 if(nb_reads != 5){
+                              	                               perror("Erreur lors de la lecture des cinq premiers octets.");
+                              	                               exit(EXIT_FAILURE);
+                              	 } // end if error
                               return stream;
 } // end def
 

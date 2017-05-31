@@ -13,6 +13,7 @@ int main(int argc, char **argv)
     fputc(0x34, pf);
     fputc(0x56, pf);
     fputc(0xab, pf);
+    fputc(0xff, pf);
     fclose(pf);
     
     // TEste bitstream    
