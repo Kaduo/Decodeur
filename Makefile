@@ -21,7 +21,7 @@ LDFLAGS = -lm
 OBJPROF_FILES =  $(OBJPROF_DIR)/huffman.o  $(OBJPROF_DIR)/jpeg_reader.o $(OBJPROF_DIR)/bitstream.o
 
 # et les votres!
-OBJ_FILES = $(OBJ_DIR)/block.o $(OBJ_DIR)/zigzag.o $(OBJ_DIR)/rgb.o $(OBJ_DIR)/pixel.o $(OBJ_DIR)/picture.o $(OBJ_DIR)/mcu.o $(OBJ_DIR)/jpeg2ppm.o $(OBJ_DIR)/component.o
+OBJ_FILES = $(OBJ_DIR)/shared.o $(OBJ_DIR)/block.o $(OBJ_DIR)/zigzag.o $(OBJ_DIR)/rgb.o $(OBJ_DIR)/pixel.o $(OBJ_DIR)/picture.o $(OBJ_DIR)/mcu.o $(OBJ_DIR)/jpeg2ppm.o $(OBJ_DIR)/component.o
 
 # cible par défaut
 
@@ -31,6 +31,9 @@ all: $(TARGET)
 
 $(TARGET): $(OBJPROF_FILES) $(OBJ_FILES)
 	$(LD) $(LDFLAGS) $(OBJPROF_FILES) $(OBJ_FILES) -o $(TARGET)
+
+$(OBJ_DIR)/shared.o: $(SRC_DIR)/shared.c $(INC_DIR)/shared.h
+	$(CC) $(CFLAGS) -c $(SRC_DIR)/shared.c -o $(OBJ_DIR)/shared.o
 
 $(OBJ_DIR)/rgb.o: $(SRC_DIR)/rgb.c $(INC_DIR)/rgb.h
 	$(CC) $(CFLAGS) -c $(SRC_DIR)/rgb.c -o $(OBJ_DIR)/rgb.o

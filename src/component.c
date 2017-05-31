@@ -11,9 +11,9 @@ Auteurs .... : A. He - M. Barbe - B. Potet (Ensimag 1A 2016/2017 - G6)
 #include "zigzag.h"
 
 /* Valeur minimale d'un coefficient */
-const float MIN_COEFF = 0.0;
+static const float MIN_COEFF = 0.0;
 /* Valeur maximale d'un coefficient */
-const float MAX_COEFF = 255.0;
+static const float MAX_COEFF = 255.0;
 
 /* Retourne le coefficient a partir d'un bitstream et d'une magnitude donnes */
 int16_t get_coefficient(struct bitstream *stream, uint8_t magnitude, bool discard_byte_stuffing)
