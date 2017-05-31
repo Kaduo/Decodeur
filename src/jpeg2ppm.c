@@ -7,5 +7,8 @@ int main(int argc, char **argv)
     /* On recupere le nom du fichier JPEG sur la ligne de commande. */
     const char *filename = argv[1];
     
+    struct bitstream *stream = create_bitstream(filename);
+    
+    close_bitstream(stream);
 
 }
