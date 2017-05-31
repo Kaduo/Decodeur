@@ -6,7 +6,7 @@ struct bitstream{
                               uint32_t buffer;
                               uint8_t bits_in_buffer;
                               uint8_t cur_byte;
-                              uint8_t cur_byte_pos;
+                              uint8_t bits_in_cur_byte;
                               
                               bool end_of_stream;
 };
@@ -17,7 +17,7 @@ struct bitstream *create_bitstream(const char *filename){
                               stream->buffer = 0;
                               stream->bits_in_buffer = 32;
                               stream->cur_byte = 0;
-                              stream->cur_byte_pos = 0;
+                              stream->bits_in_cur_byte = 8;
                               stream->end_of_stream = false;
                               stream->filename = filename;
                               
@@ -65,18 +65,65 @@ void close_bitstream(struct bitstream *stream){
                               free(stream);
 } // end def
 
+void load_cur_byte(struct bitstream *stream){
+                              int16_t byte = fgetc(stream->pfile);
+                              if(byte == -1){
+                                                            stream->cur_byte = 0;
+                                                            stream->bits_in_cur_byte = 0;
+                              } // end if
+                              else{
+                                                            stream->cur_byte = byte;
+                                                            stream->bits_in_cur_byte = 8;
+                              } // end else
+} // end def
+
 uint8_t read_bitstream(struct bitstream *stream,
                               uint8_t nb_bits,
                               uint32_t *dest,
                               bool discard_byte_stuffing){
                               
-                              // Si fin de fichier.
-                              if(end_of_bitstream(stream)) return 0;
+                              discard_byte_stuffing = 0; // Stop warnig inused
                               
-                              // On regarde de bits on peut lire au max.
+                              
+                              // Si fin de fichier.
+                              if(end_of_bitstream(stream)){
+                                                            *dest = 0;
+                                                            return 0;
+                              } // end if
+                              
+                              // On regarde combien de bits on peut lire au max.
                               if( nb_bits> stream->bits_in_buffer) nb_bits = stream->bits_in_buffer;
+                              // On les lit, et on les décale si on ne lit pas tout.
                               *dest = stream->buffer >> (32-nb_bits);
-                              return nb_bits;
+                              uint8_t nb_bits_read = nb_bits;
+                              
+                              // Mise à jour du buffer.
+                              stream->buffer <<= nb_bits;
+                              if (nb_bits == 32) stream->buffer = 0;
+                              
+                              // Si on à épuisé les données dans cur_byte, on déplace le pointeur du buffer.
+                              if (stream->bits_in_cur_byte == 0){
+                                                            stream->bits_in_buffer -= nb_bits; 
+                                                            if (stream->bits_in_buffer == 0) stream->end_of_stream = true;
+                              } // end if
+                              
+                              else{ // On peut re-remplire le buffer
+                                                            while(nb_bits >0){
+                                                                                          // Si on est arrivé à la fin du fichier.
+                                                                                          if(stream->bits_in_cur_byte == 0){
+                                                                                                                        stream->bits_in_buffer -= nb_bits;
+                                                                                                                        nb_bits = 0;
+                                                                                          } // end if
+                                                                                          
+                                                                                          // Si on peut lire l'intégralité de cur_byte.
+                                                                                                      if(nb_bits >= stream->bits_in_cur_byte){
+                                                                                                                                    stream->buffer |= stream->cur_byte << (nb_bits - stream->bits_in_cur_byte);
+                                                                                                                                    nb_bits -= stream->bits_in_cur_byte;
+                                                                                                                                    load_cur_byte(stream);
+                                                                                                      } // end if
+                                                            } // end while
+                              } // end else
+                              return nb_bits_read;
                               
 } //end def
 
