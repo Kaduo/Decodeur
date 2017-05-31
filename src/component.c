@@ -61,7 +61,7 @@ void get_acs(struct huff_table *ac_table,
             return;
         /* 2e cas : code ZRL */
         } else if (symbole == 0xF0) {
-            i += 16;
+            i += 15;
         /* 3e cas : 0x?0 (symbole invalide) */
         } else if ((symbole << 4) == 0) {
             fprintf(stderr, "Symbole RLE '%04x' interdit.", symbole);
