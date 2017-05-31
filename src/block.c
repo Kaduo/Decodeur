@@ -78,7 +78,7 @@ void upsampling(const int16_t *component, int16_t **coeff, size_t BLOCK_SIZE, ui
 */
 
 /*
-void test(const struct component *component, int16_t *tab, uint8_t indice, uint8_t h1, uint8_t v1, uint8_t h, uint8_t v)
+void upsampling_recursif(const struct component *component, int16_t *tab, uint8_t indice, uint8_t h1, uint8_t v1, uint8_t h, uint8_t v)
 {
     if (h1 == h && v1 == v) {
         return component;
@@ -86,14 +86,14 @@ void test(const struct component *component, int16_t *tab, uint8_t indice, uint8
         v *= 2;
         uint8_t nb_elements = h * v;
 
-        test(component, tab, indice, h1, v1, h, v);
-        test(component, tab, indice + h1*v1/nb_elements, h1, v1, h, v);
+        upsampling_recursif(component, tab, indice, h1, v1, h, v);
+        upsampling_recursif(component, tab, indice + h1*v1/nb_elements, h1, v1, h, v);
     } else {
         h *= 2;
         uint8_t nb_elements = h * v;
 
-        test(component,tab,indice,h1,v1,h,v);
-        test(component, tab, indice + h2*v2/nb_elements, h1, v1, h, v);
+        upsampling_recursif(component,tab,indice,h1,v1,h,v);
+        upsampling_recursif(component, tab, indice + h2*v2/nb_elements, h1, v1, h, v);
     }
 }
 */
