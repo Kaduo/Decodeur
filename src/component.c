@@ -73,7 +73,6 @@ void get_acs(struct huff_table *ac_table,
             coefficients[i] = get_coefficient(stream, magnitude, true);
         }
     }
-    printf("\n"); // <- PRINT VITAL POUR LE DEBUG NE PAS EFFACER SVP (PAS UNE BLAGUE)
 }
 
 /* Extrait un bloc frequentiel */
@@ -172,7 +171,7 @@ int16_t *get_component(struct bitstream *stream,
                                   previous_dc,
                                   size*size);
 
-
+    printf("\n"); // <- PRINT VITAL POUR LE DEBUG NE PAS EFFACER SVP (PAS UNE BLAGUE)
     for (size_t i = 0; i < 64; i++) {
         printf("%04x ", extracted[i]);
     }
