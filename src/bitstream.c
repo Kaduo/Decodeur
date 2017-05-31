@@ -3,7 +3,10 @@
 struct bitstream{
                               const char *filename;
                               FILE *pfile;
-                              int32_t buffer;
+                              uint32_t buffer;
+                              uint8_t cur_byte;
+                              uint8_t cur_byte_pos;
+                              
                               bool end_of_stream;
 };
 
@@ -11,6 +14,8 @@ struct bitstream *create_bitstream(const char *filename){
                               
                               struct bitstream *stream = malloc(sizeof(struct bitstream));
                               stream->buffer = 0;
+                              stream->cur_byte = 0;
+                              stream->cur_byte_pos = 0;
                               stream->end_of_stream = false;
                               stream->filename = filename;
                               
@@ -20,9 +25,27 @@ struct bitstream *create_bitstream(const char *filename){
                               	                              perror("File not found\n");
                               	exit(EXIT_FAILURE);
                               	 } // end if error 
-                              
-                              
-                              
+                              	 
+                              	 // Chargement des 32 premiers bits.
+                              	 uint32_t byte = 0;
+                              	 // 1
+                              	 size_t nb_reads = fread(&byte, sizeof(uint8_t), 1, stream->pfile);
+                              	 stream->buffer = byte <<24;
+                              	 // 2
+                              	 byte = 0;
+                              	 nb_reads += fread(&byte, sizeof(uint8_t), 1, stream->pfile);
+                              	 byte <<= 16;
+                              	 stream->buffer |= byte;
+                              	 // 3
+                              	 byte = 0;
+                              	 nb_reads += fread(&byte, sizeof(uint8_t), 1, stream->pfile);
+                              	                               	 byte <<= 8;
+                              	                               	 stream->buffer |= byte;
+                              	                               	 // 4
+                              	                               	 byte = 0;
+                              	                               	 nb_reads += fread(&byte, sizeof(uint8_t), 1, stream->pfile);
+                              	                               	 stream->buffer |= byte;
+                              	 if(nb_reads != 4) perror("Erreur lors de la lecture des quatre premiers octets.");
                               return stream;
 } // end def
 

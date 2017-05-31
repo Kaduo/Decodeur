@@ -9,7 +9,10 @@ int main(int argc, char **argv)
 
 
     FILE *pf = fopen("test.jpeg", "wb");
-    fputc(0b10101010, pf);
+    fputc(0x12, pf);
+    fputc(0x34, pf);
+    fputc(0x56, pf);
+    fputc(0xab, pf);
     fclose(pf);
     
     // TEste bitstream    
