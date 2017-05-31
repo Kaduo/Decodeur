@@ -36,7 +36,9 @@ void get_dc(struct huff_table *dc_table,
                     int16_t previous_dc,
                     int16_t *coefficients)
 {
-    uint8_t magnitude = (uint8_t) next_huffman_value(dc_table, stream);
+    uint8_t nb_read;
+    uint8_t magnitude = (uint8_t) next_huffman_value_count(dc_table, stream, &nb_read);
+    printf("\n Magnitude DC : %02x(%hhu)", magnitude, nb_read);
     coefficients[0] = get_coefficient(stream, magnitude, false) - previous_dc;
 }
 
@@ -47,16 +49,22 @@ void get_acs(struct huff_table *ac_table,
                         int16_t *coefficients,
                         size_t length)
 {
+    printf("\nMagnitudes ACs : ");
     for (size_t i = 1; i < length; ++i) {
-        uint8_t symbole = (uint8_t) next_huffman_value(ac_table, stream);
+        uint8_t nb_read;
+        uint8_t symbole = (uint8_t) next_huffman_value_count(ac_table, stream, &nb_read);
+        printf("%02x(%hhu) ", symbole, nb_read);
         /* 1er cas : code EOB */
         if (symbole == 0x00) {
             return;
+        /* 2e cas : code ZRL */
         } else if (symbole == 0xF0) {
             i += 16;
+        /* 3e cas : 0x?0 (symbole invalide) */
         } else if ((symbole << 4) == 0) {
             fprintf(stderr, "Symbole RLE '%04x' interdit.", symbole);
             exit(EXIT_FAILURE);
+        /* 4e cas : 0xab */
         } else {
             i += (symbole >> 4);
             uint8_t magnitude = symbole & 0x0F;
@@ -65,7 +73,7 @@ void get_acs(struct huff_table *ac_table,
     }
 }
 
-/* extracte un bloc frequentiel */
+/* Extrait un bloc frequentiel */
 int16_t *extract(struct huff_table *dc_table,
                         struct huff_table *ac_table,
                         struct bitstream *stream,
@@ -160,7 +168,7 @@ int16_t *get_component(struct bitstream *stream,
                                   previous_dc,
                                   size*size);
 
-    printf("\n\nextracted\n");
+    printf("\n\nextracted : PREVIOUS_DC = %d\n", previous_dc);
     for (size_t i = 0; i < 64; i++) {
         printf("%04x ", extracted[i]);
     }

@@ -82,7 +82,7 @@ enum component *get_components_order(const struct jpeg_desc *jpeg) {
 
 char *get_outfile_name(const char *filename, bool colored)
 {
-    char *outfile = malloc(sizeof(char) * strlen(filename));
+    char *outfile = malloc(sizeof(char) * strlen(filename) + 1);
     /* Recherche la derniere occurence du caractere point '.' */
     char find = '.';
     const char *last = strchr(filename, find);
@@ -247,6 +247,7 @@ int main(int argc, char **argv)
         printf("%d ", pic->pixels[i]->y);
     }
     printf("\n");
+    
     /*******
     * Création de l'image PPM ou PGM *
     *****/

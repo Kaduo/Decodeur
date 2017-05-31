@@ -7,6 +7,7 @@ Auteurs .... : A. He - M. Barbe - B. Potet (Ensimag 1A 2016/2017 - G6)
 #include <stdio.h>
 #include <math.h>
 #include "mcu.h"
+#include "shared.h"
 
 struct mcu *create_mcu(uint8_t nb_components_y, uint8_t nb_components_cb, uint8_t nb_components_cr)
 {
@@ -64,7 +65,6 @@ struct mcu *extract_mcu(struct bitstream *bitstream,
 {
     struct mcu *mcu = create_mcu(nb_components_y, nb_components_cb, nb_components_cr);
 
-
     uint8_t nb_components = nb_components_y + nb_components_cb + nb_components_cr;
     uint8_t current_index_y = 0;
     uint8_t current_index_cb = 0;
@@ -73,49 +73,39 @@ struct mcu *extract_mcu(struct bitstream *bitstream,
     int16_t previous_dc_cb = 0;
     int16_t previous_dc_cr = 0;
 
-    for (size_t i = 0; i < nb_components; i++) {
-
-        if (ordre_des_composantes[i] == COMP_Y){
+    for (uint8_t i = 0; i < nb_components; i++) {
+        if (ordre_des_composantes[i] == COMP_Y) {
             mcu->components_y[current_index_y] = get_component(bitstream,
-                                                        huff_tables[0][0],
-                                                        huff_tables[0][1],
-                                                        quant_tables[0],
+                                                        huff_tables[COMP_Y][DC],
+                                                        huff_tables[COMP_Y][AC],
+                                                        quant_tables[COMP_Y],
                                                         previous_dc_y,
-                                                        (size_t) 8);
-
-            previous_dc_y = mcu->components_y[current_index_y][0];
+                                                        BLOCK_SIZE);
+            previous_dc_y = mcu->components_y[current_index_y][DC];
             current_index_y++;
-        }
-
-        else if (ordre_des_composantes[i] == COMP_Cb){
+        } else if (ordre_des_composantes[i] == COMP_Cb){
             mcu->components_cb[current_index_cb] = get_component(bitstream,
-                                                        huff_tables[1][0],
-                                                        huff_tables[1][1],
-                                                        quant_tables[1],
+                                                        huff_tables[COMP_Cb][DC],
+                                                        huff_tables[COMP_Cb][AC],
+                                                        quant_tables[COMP_Cb],
                                                         previous_dc_cb,
-                                                        (size_t) 8);
-
-            previous_dc_cb = mcu->components_y[current_index_cb][0];
+                                                        BLOCK_SIZE);
+            previous_dc_cb = mcu->components_cb[current_index_cb][DC];
             current_index_cb++;
-        }
-
-        else if (ordre_des_composantes[i] == COMP_Cr){
-                mcu->components_cr[current_index_cr] = get_component(bitstream,
-                                                        huff_tables[1][0],
-                                                        huff_tables[1][1],
-                                                        quant_tables[1],
+        } else if (ordre_des_composantes[i] == COMP_Cr){
+            /* Cb et Cr partagent les memes tables */
+            mcu->components_cr[current_index_cr] = get_component(bitstream,
+                                                        huff_tables[COMP_Cb][DC],
+                                                        huff_tables[COMP_Cb][AC],
+                                                        quant_tables[COMP_Cb],
                                                         previous_dc_cr,
-                                                        (size_t) 8);
-
-                previous_dc_cr = mcu->components_y[current_index_cr][0];
-                current_index_cr++;
-        }
-
-        else{
+                                                        BLOCK_SIZE);
+            previous_dc_cr = mcu->components_cr[current_index_cr][DC];
+            current_index_cr++;
+        } else {
             perror("ERRREUR FATALE : Si vous voyez ce message, c'est que j'ai rien compris au schmilblick");
             exit(EXIT_FAILURE);
         }
     }
-
     return mcu;
 }
