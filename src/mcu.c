@@ -59,6 +59,9 @@ struct mcu *extract_mcu(struct bitstream *bitstream,
                         uint8_t nb_components_y,
                         uint8_t nb_components_cb,
                         uint8_t nb_components_cr,
+                        int16_t *previous_dc_y,
+                        int16_t *previous_dc_cb,
+                        int16_t *previous_dc_cr,
                         enum component *ordre_des_composantes,
                         struct huff_table ***huff_tables,
                         uint8_t **quant_tables)
@@ -69,9 +72,6 @@ struct mcu *extract_mcu(struct bitstream *bitstream,
     uint8_t current_index_y = 0;
     uint8_t current_index_cb = 0;
     uint8_t current_index_cr = 0;
-    int16_t previous_dc_y = 0;
-    int16_t previous_dc_cb = 0;
-    int16_t previous_dc_cr = 0;
 
     for (uint8_t i = 0; i < nb_components; i++) {
         if (ordre_des_composantes[i] == COMP_Y) {
@@ -79,29 +79,35 @@ struct mcu *extract_mcu(struct bitstream *bitstream,
                                                         huff_tables[COMP_Y][DC],
                                                         huff_tables[COMP_Y][AC],
                                                         quant_tables[COMP_Y],
-                                                        previous_dc_y,
+                                                        *previous_dc_y,
                                                         BLOCK_SIZE);
-            previous_dc_y = mcu->components_y[current_index_y][DC];
+
+            *previous_dc_y = mcu->components_y[current_index_y][DC];
             current_index_y++;
+
         } else if (ordre_des_composantes[i] == COMP_Cb){
             mcu->components_cb[current_index_cb] = get_component(bitstream,
                                                         huff_tables[COMP_Cb][DC],
                                                         huff_tables[COMP_Cb][AC],
                                                         quant_tables[COMP_Cb],
-                                                        previous_dc_cb,
+                                                        *previous_dc_cb,
                                                         BLOCK_SIZE);
-            previous_dc_cb = mcu->components_cb[current_index_cb][DC];
+
+            *previous_dc_cb = mcu->components_cb[current_index_cb][DC];
             current_index_cb++;
+
         } else if (ordre_des_composantes[i] == COMP_Cr){
             /* Cb et Cr partagent les memes tables */
             mcu->components_cr[current_index_cr] = get_component(bitstream,
                                                         huff_tables[COMP_Cb][DC],
                                                         huff_tables[COMP_Cb][AC],
                                                         quant_tables[COMP_Cb],
-                                                        previous_dc_cr,
+                                                        *previous_dc_cr,
                                                         BLOCK_SIZE);
-            previous_dc_cr = mcu->components_cr[current_index_cr][DC];
+
+            *previous_dc_cr = mcu->components_cr[current_index_cr][DC];
             current_index_cr++;
+
         } else {
             perror("ERRREUR FATALE : Si vous voyez ce message, c'est que j'ai rien compris au schmilblick");
             exit(EXIT_FAILURE);

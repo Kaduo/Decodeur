@@ -187,11 +187,17 @@ int main(int argc, char **argv)
     printf("\n");
 
     // On extrait les mcus
+    int16_t previous_dc_y = 0;
+    int16_t previous_dc_cb = 0;
+    int16_t previous_dc_cr = 0;
     for (size_t i = 0; i < nb_mcus; ++i) {
         mcus[i] = extract_mcu(stream,
                                 nb_components_y,
                                 nb_components_cb,
                                 nb_components_cr,
+                                &previous_dc_y,
+                                &previous_dc_cb,
+                                &previous_dc_cr,
                                 ordre_des_composantes,
                                 huff_tables,
                                 quant_tables);
@@ -246,7 +252,7 @@ int main(int argc, char **argv)
         printf("%d ", pic->pixels[i]->y);
     }
     printf("\n");
-    
+
     /*******
     * Création de l'image PPM ou PGM *
     *****/

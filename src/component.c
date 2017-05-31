@@ -39,7 +39,7 @@ void get_dc(struct huff_table *dc_table,
     uint8_t nb_read;
     uint8_t magnitude = (uint8_t) next_huffman_value_count(dc_table, stream, &nb_read);
     printf("\n Magnitude DC : %02x(%hhu)", magnitude, nb_read);
-    coefficients[0] = get_coefficient(stream, magnitude, false) - previous_dc;
+    coefficients[0] = get_coefficient(stream, magnitude, false) + previous_dc;
 }
 
 /* Definit les valeurs ACs d'un tableau de coefficients donne a partir d'une
@@ -169,33 +169,32 @@ int16_t *get_component(struct bitstream *stream,
                                   size*size);
 
     printf("\n\nextracted : PREVIOUS_DC = %d\n", previous_dc);
-    /*printf("\n\nextracted\n");
     for (size_t i = 0; i < 64; i++) {
         printf("%04x ", extracted[i]);
-    }*/
+    }
 
     /* 2. Quantification inverse */
     int16_t *quantization = inverse_quantization(extracted,
                                                   quantization_table,
                                                   size*size);
-    /*printf("\n\nquantization\n");
+    printf("\n\nquantization\n");
      for (size_t i = 0; i < 64; i++) {
          printf("%04x ", quantization[i]);
-     }*/
+     }
     /* 3. Reorganisation zigzag */
     int16_t *zigzag = inverse_zigzag(quantization, size);
 
-    /*printf("\n\nzigzag\n");
+    printf("\n\nzigzag\n");
      for (size_t i = 0; i < 64; i++) {
          printf("%04x ", zigzag[i]);
-     }*/
+     }
     /* 4. Transformee en cosinus discrete inverse (iDCT) */
     int16_t *component = idct(zigzag, size);
 
-    /*printf("\n\ncomponent\n");
+    printf("\n\ncomponent\n");
      for (size_t i = 0; i < 64; i++) {
          printf("%04x ", component[i]);
-     }*/
+     }
     free(extracted);
     free(quantization);
     free(zigzag);
