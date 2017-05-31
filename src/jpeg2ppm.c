@@ -223,11 +223,11 @@ int main(int argc, char **argv)
         }
     }
 
-    printf("\nComposante R si couleur, niveau de gris sinon\n");
+    /*printf("\nComposante R si couleur, niveau de gris sinon\n");
     for (size_t i = 0; i < 64; i++) {
         printf("%"PRId16"\n", liste_blocks[0][0][i]);
     }
-    printf("\n");
+    printf("\n");*/
 
 
     /*******

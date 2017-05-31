@@ -56,13 +56,13 @@ struct picture *blocks2pixels(block *blocks,
 
                 if(is_bw){
                     pic->pixels[l*width + b*8 + i] = create_pixel_bw(
-                        blocks[l_bloc*nb_blocs_h + b][0][l_in_bloc*8 + i]);
+                        (uint8_t) blocks[l_bloc*nb_blocs_h + b][0][l_in_bloc*8 + i]);
                 } // end if
                 else{
                     pic->pixels[l*width + b*8 +i] = create_pixel_rgb(
-                        blocks[l_bloc*nb_blocs_h +b][0][l_in_bloc*8 + i],
-                        blocks[l_bloc*nb_blocs_h +b][1][l_in_bloc*8 + i],
-                        blocks[l_bloc*nb_blocs_h +b][2][l_in_bloc*8 + i]);
+                        (uint8_t) blocks[l_bloc*nb_blocs_h +b][0][l_in_bloc*8 + i],
+                        (uint8_t) blocks[l_bloc*nb_blocs_h +b][1][l_in_bloc*8 + i],
+                        (uint8_t) blocks[l_bloc*nb_blocs_h +b][2][l_in_bloc*8 + i]);
 
                 } // end else
             } // end for i.
