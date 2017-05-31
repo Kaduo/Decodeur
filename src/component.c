@@ -39,7 +39,7 @@ void get_dc(struct huff_table *dc_table,
     uint8_t nb_read;
     uint8_t magnitude = (uint8_t) next_huffman_value_count(dc_table, stream, &nb_read);
     printf("\n Magnitude DC : %02x(%hhu)", magnitude, nb_read);
-    coefficients[0] = get_coefficient(stream, magnitude, false) + previous_dc;
+    coefficients[0] = get_coefficient(stream, magnitude, true) + previous_dc;
 }
 
 /* Definit les valeurs ACs d'un tableau de coefficients donne a partir d'une
