@@ -4,6 +4,7 @@ struct bitstream{
                               const char *filename;
                               FILE *pfile;
                               uint32_t buffer;
+                              uint8_t bits_in_buffer;
                               uint8_t cur_byte;
                               uint8_t cur_byte_pos;
                               
@@ -14,6 +15,7 @@ struct bitstream *create_bitstream(const char *filename){
                               
                               struct bitstream *stream = malloc(sizeof(struct bitstream));
                               stream->buffer = 0;
+                              stream->bits_in_buffer = 32;
                               stream->cur_byte = 0;
                               stream->cur_byte_pos = 0;
                               stream->end_of_stream = false;
@@ -67,8 +69,15 @@ uint8_t read_bitstream(struct bitstream *stream,
                               uint8_t nb_bits,
                               uint32_t *dest,
                               bool discard_byte_stuffing){
-                              stream->buffer = 1;
-                              return 0;
+                              
+                              // Si fin de fichier.
+                              if(end_of_bitstream(stream)) return 0;
+                              
+                              // On regarde de bits on peut lire au max.
+                              if( nb_bits> stream->bits_in_buffer) nb_bits = stream->bits_in_buffer;
+                              *dest = stream->buffer >> (32-nb_bits);
+                              return nb_bits;
+                              
 } //end def
 
 // La fonction end_of_bitstream retourne true si le flux a été entièrement parcouru, false s’il reste des bits à lire. 
