@@ -33,13 +33,15 @@ int16_t get_coefficient(struct bitstream *stream, uint8_t magnitude, bool discar
 table Huffman DC, d'un bitstream et de la valeur DC du predicateur */
 void get_dc(struct huff_table *dc_table,
                     struct bitstream *stream,
-                    int16_t previous_dc,
+                    int16_t *previous_dc,
                     int16_t *coefficients)
 {
     uint8_t nb_read;
     uint8_t magnitude = (uint8_t) next_huffman_value_count(dc_table, stream, &nb_read);
     printf("\n Magnitude DC : %02x(%hhu)", magnitude, nb_read);
-    coefficients[0] = get_coefficient(stream, magnitude, true) + previous_dc;
+    int16_t new_value = *previous_dc + get_coefficient(stream, magnitude, true);
+    coefficients[0] = new_value;
+    *previous_dc = new_value;
 }
 
 /* Definit les valeurs ACs d'un tableau de coefficients donne a partir d'une
@@ -71,13 +73,14 @@ void get_acs(struct huff_table *ac_table,
             coefficients[i] = get_coefficient(stream, magnitude, true);
         }
     }
+    printf("\n"); // <- PRINT VITAL POUR LE DEBUG NE PAS EFFACER SVP (PAS UNE BLAGUE)
 }
 
 /* Extrait un bloc frequentiel */
 int16_t *extract(struct huff_table *dc_table,
                         struct huff_table *ac_table,
                         struct bitstream *stream,
-                        int16_t previous_dc,
+                        int16_t *previous_dc,
                         size_t length)
 {
     int16_t *coefficients = calloc(length, sizeof(int16_t));
@@ -158,17 +161,18 @@ int16_t *get_component(struct bitstream *stream,
                         struct huff_table *dc_table,
                         struct huff_table *ac_table,
                         uint8_t *quantization_table,
-                        int16_t previous_dc,
+                        int16_t *previous_dc,
                         size_t size)
 {
     /* 1. Extraction - extraction */
+    printf("\n\nextracted : PREVIOUS_DC = %04x\n", *previous_dc);
     int16_t *extracted = extract(dc_table,
                                   ac_table,
                                   stream,
                                   previous_dc,
                                   size*size);
 
-    printf("\n\nextracted : PREVIOUS_DC = %d\n", previous_dc);
+
     for (size_t i = 0; i < 64; i++) {
         printf("%04x ", extracted[i]);
     }

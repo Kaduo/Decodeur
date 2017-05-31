@@ -79,10 +79,9 @@ struct mcu *extract_mcu(struct bitstream *bitstream,
                                                         huff_tables[COMP_Y][DC],
                                                         huff_tables[COMP_Y][AC],
                                                         quant_tables[COMP_Y],
-                                                        *previous_dc_y,
+                                                        previous_dc_y,
                                                         BLOCK_SIZE);
 
-            *previous_dc_y = mcu->components_y[current_index_y][DC];
             current_index_y++;
 
         } else if (ordre_des_composantes[i] == COMP_Cb){
@@ -90,10 +89,9 @@ struct mcu *extract_mcu(struct bitstream *bitstream,
                                                         huff_tables[COMP_Cb][DC],
                                                         huff_tables[COMP_Cb][AC],
                                                         quant_tables[COMP_Cb],
-                                                        *previous_dc_cb,
+                                                        previous_dc_cb,
                                                         BLOCK_SIZE);
 
-            *previous_dc_cb = mcu->components_cb[current_index_cb][DC];
             current_index_cb++;
 
         } else if (ordre_des_composantes[i] == COMP_Cr){
@@ -102,10 +100,9 @@ struct mcu *extract_mcu(struct bitstream *bitstream,
                                                         huff_tables[COMP_Cb][DC],
                                                         huff_tables[COMP_Cb][AC],
                                                         quant_tables[COMP_Cb],
-                                                        *previous_dc_cr,
+                                                        previous_dc_cr,
                                                         BLOCK_SIZE);
 
-            *previous_dc_cr = mcu->components_cr[current_index_cr][DC];
             current_index_cr++;
 
         } else {
