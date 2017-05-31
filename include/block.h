@@ -15,7 +15,7 @@ Auteurs .... : A. He - M. Barbe - B. Potet (Ensimag 1A 2016/2017 - G6)
 
 /* Structure representant un bloc */
 
-typedef int16_t **block;
+typedef int16_t** block;
 
 /* Cree une structure block vide */
 extern block create_block();

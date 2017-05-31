@@ -1,4 +1,6 @@
 #include "jpeg2ppm.h"
+#include <stdbool.h>
+#include <string.h>
 
 bool est_couleur(const struct jpeg_desc *jpeg){
     return get_nb_components(jpeg) > 1;
@@ -76,6 +78,25 @@ enum component *get_components_order(const struct jpeg_desc *jpeg) {
 
     return order;
 
+}
+
+char *get_outfile_name(const char *filename, bool colored)
+{
+    char *outfile = malloc(sizeof(char) * strlen(filename));
+    /* Recherche la derniere occurence du caractere point '.' */
+    char find = '.';
+    const char *last = strchr(filename, find);
+    /* Si le caractere a ete trouve, on genere un nom, sinon NULL */
+    if (last) {
+        /* Recuperation de l'index du caractere trouve */
+        size_t index = last - filename;
+        /* Copie du filename dans l'outfile jusqu'au caractere trouve */
+        strncpy(outfile, filename, index + 1);
+        /* Concatenation de l'extension appropriee */
+        strcat(outfile, colored ? "ppm" : "pgm");
+        return outfile;
+    }
+    return NULL;
 }
 
 int main(int argc, char **argv)
@@ -183,14 +204,15 @@ int main(int argc, char **argv)
     printf("\n");
 
     /* Reconstruction des blocs */
-    uint8_t nb_blocks = nb_components_y*nb_mcus;
-    block *liste_blocks = malloc(nb_blocks*sizeof(block));
+    uint8_t nb_blocks = nb_components_y * nb_mcus;
+    block *liste_blocks = malloc(nb_blocks * COMP_NB * sizeof(int16_t*));
     for (uint16_t i = 0; i < nb_mcus; i++) {
         block *blocks_temp = extract_blocks(mcus[i], sampling_factors);
         for (size_t j = 0; j < nb_components_y; j++) {
-            liste_blocks[i*nb_components_y+j] = blocks_temp[j];
+            liste_blocks[i*nb_components_y+j] = blocks_temp[0];
         }
         free(blocks_temp);
+        blocks_temp = NULL;
     }
 
 
@@ -228,16 +250,13 @@ int main(int argc, char **argv)
     * Création de l'image PPM ou PGM *
     *****/
 
-    write_ppm(pic, "invader.pgm");
+    write_ppm(pic, get_outfile_name(filename, pic->colored));
 
     // Libération mémoire du tableau de MCU
     for(uint16_t i=0; i< nb_mcus; i++){
          free_mcu(mcus[i]);
      } // end for
     free(mcus);
-
-
-
 
     /* Nettoyage de printemps : close_jpeg ferme aussi le bitstream
      * (voir Annexe C du sujet). */
