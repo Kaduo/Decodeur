@@ -99,7 +99,9 @@ void fill_buffer(struct bitstream *stream, uint8_t nb_bits){
                                                                                                                                     uint8_t data = stream->cur_byte << (8-stream->bits_in_cur_byte);
                                                                                                                                     data >>= 8-nb_bits;
                                                                                                                                     //printf("byte : %04x, data : %04x\n", stream->cur_byte, data);
+                                                                                                                                    //printf("Avant t%04x\n", stream->buffer);
                                                                                                                                     stream->buffer |= data;
+                                                                                                                                    //printf("Après %04x\n", stream->buffer);
                                                                                                                                     stream->bits_in_cur_byte -= nb_bits;
                                                                                                                                     nb_bits=0;
                                                                                                       } // end else
@@ -112,10 +114,10 @@ uint8_t read_bitstream(struct bitstream *stream,
                               uint32_t *dest,
                               bool discard_byte_stuffing){
                               
-                              printf("\nnb_bits to read: %d\n", nb_bits); 
+                              /*printf("\nnb_bits to read: %d\n", nb_bits); 
                               printf("Buffer : %04x\n", stream->buffer);
                               printf("bits_in_buffer : %d\n", stream->bits_in_buffer);
-                              printf("Bits_in_cur_byte : %d\n", stream->bits_in_cur_byte);
+                              printf("Bits_in_cur_byte : %d\n", stream->bits_in_cur_byte);*/
                               
                               
                               // Si fin de fichier.
@@ -136,8 +138,11 @@ uint8_t read_bitstream(struct bitstream *stream,
                               
                               // Mise à jour du buffer.
                               // Supression des bits lu.
+                              //printf("Avant 1 : %04x\n", stream->buffer);
+                              //printf("nb_bits confirmation : %d", nb_bits);
                               stream->buffer <<= nb_bits;
                               if (nb_bits == 32) stream->buffer = 0;
+                              //printf("Après 1 : %04x\n", stream->buffer);
                               
                               // Si on à épuisé les données dans cur_byte, on déplace le pointeur du buffer.
                               if (stream->bits_in_cur_byte == 0){
