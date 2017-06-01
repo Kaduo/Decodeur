@@ -47,11 +47,16 @@ uint8_t **get_quant_tables(const struct jpeg_desc *jpeg) {
 }
 
 /* Renvoie un tableau donnant l'ordre des composantes dans les mcus */
-enum component *get_components_order(const struct jpeg_desc *jpeg) {
+enum component *get_components_order(const struct jpeg_desc *jpeg, uint8_t factors[COMP_NB][DIR_NB]) {
+
+    uint8_t nb_components_y = factors[COMP_Y][DIR_H] * factors[COMP_Y][DIR_V];
+    uint8_t nb_components_cb = factors[COMP_Cb][DIR_H] * factors[COMP_Cb][DIR_V];
+    uint8_t nb_components_cr = factors[COMP_Cr][DIR_H] * factors[COMP_Cr][DIR_V];
+    uint8_t nb_components_per_mcu = nb_components_y + nb_components_cb + nb_components_cr;
 
     uint8_t nb_components = get_nb_components(jpeg);
 
-    enum component *order = malloc(nb_components*sizeof(enum component));
+    enum component *order = malloc(nb_components_per_mcu*sizeof(enum component));
 
     uint8_t id_y = get_frame_component_id(jpeg, 0);
     uint8_t id_cb = id_y + 1;
@@ -62,18 +67,30 @@ enum component *get_components_order(const struct jpeg_desc *jpeg) {
         id_cr = get_frame_component_id(jpeg, 2);
     }
 
+    uint8_t j = 0;
     for (uint8_t i = 0; i < nb_components; i++) {
         uint8_t scan_id = get_scan_component_id(jpeg, i);
         if (scan_id == id_y) {
-            order[i] = COMP_Y;
+            for (size_t k = 0; k < nb_components_y; k++) {
+                order[j + k] = COMP_Y;
+                j++;
+            }
         }
         else if (scan_id == id_cb) {
-            order[i] = COMP_Cb;
+            for (size_t k = 0; k < nb_components_cb; k++) {
+                order[j + k] = COMP_Cb;
+                j++;
+            }
         }
         else if (scan_id == id_cr) {
-            order[i] = COMP_Cr;
+            for (size_t k = 0; k < nb_components_cr; k++) {
+                order[j + k] = COMP_Cr;
+                j++;
+            }
         }
     }
+
+    printf("HELLO");
 
     return order;
 
@@ -176,7 +193,7 @@ int main(int argc, char **argv)
     // Récupération des tables et des informations utiles à l'extraction des mcus
     uint8_t **quant_tables = get_quant_tables(jdesc);
     struct huff_table ***huff_tables = get_huff_tables(jdesc);
-    enum component *ordre_des_composantes = get_components_order(jdesc);
+    enum component *ordre_des_composantes = get_components_order(jdesc, sampling_factors);
 
     // Debug
     printf("Table de quantification index 0 : \n");

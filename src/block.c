@@ -42,6 +42,7 @@ extern block *extract_blocks(struct mcu *mcu, const uint8_t factors[COMP_NB][DIR
             }
         }
         else {
+            blocks[0][COMP_Cb] = mcu->components_cb[0];
             upsampling_recursif(blocks, COMP_Cb, 0, factors[COMP_Y][DIR_H], factors[COMP_Y][DIR_V], factors[COMP_Cb][DIR_H], factors[COMP_Cb][DIR_V]);
         }
 
@@ -51,6 +52,7 @@ extern block *extract_blocks(struct mcu *mcu, const uint8_t factors[COMP_NB][DIR
             }
         }
         else {
+            blocks[0][COMP_Cr] = mcu->components_cr[0];
             upsampling_recursif(blocks, COMP_Cr, 0, factors[COMP_Y][DIR_H], factors[COMP_Y][DIR_V], factors[COMP_Cr][DIR_H], factors[COMP_Cr][DIR_V]);
         }
     }
@@ -112,6 +114,7 @@ void upsampling_recursif(block *blocks, enum component comp, uint8_t indice, uin
         upsampling_recursif(blocks, comp, indice + h1*v1/nb_elements, h1, v1, h, v);
 
     } else {
+        printf("\n\nWHAT /§§§§ §§§§SDF ALERT ROUGES MLJDGKJGKJSKDHJDSG\n\n\n");
         h *= 2;
         uint8_t nb_elements = h * v;
 
@@ -124,12 +127,13 @@ void upsampling_recursif(block *blocks, enum component comp, uint8_t indice, uin
 void upsample_horizontal(block *blocks, enum component comp, uint8_t indice, uint8_t indice_cible)
 {
     if (blocks[indice][comp] == NULL) {
-        perror("Impossible de diviser un composante inexistante !");
+        perror("Impossible de diviser une composante inexistante !");
         exit(EXIT_FAILURE);
     }
 
     for (size_t i = 0; i < 64; i++) {
         // On complète la deuxième composante (celle de droite)
+        printf("%d\n", i);
         if (i%2) {
             blocks[indice_cible][comp][i] = blocks[indice][comp][32*(1 + i/8) + i/2];
         }

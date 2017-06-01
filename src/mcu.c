@@ -74,9 +74,11 @@ struct mcu *extract_mcu(struct bitstream *bitstream,
     uint8_t current_index_cb = 0;
     uint8_t current_index_cr = 0;
 
+    printf("\nTAILLE TAB : %f\n", (double) sizeof(ordre_des_composantes)/sizeof(enum component));
+    printf("\nnb components : %d\n", nb_components);
+
     for (uint8_t i = 0; i < nb_components; i++) {
         if (ordre_des_composantes[i] == COMP_Y) {
-            printf("\nWHAT\n");
             mcu->components_y[current_index_y] = get_component(bitstream,
                                                         huff_tables[COMP_Y][DC],
                                                         huff_tables[COMP_Y][AC],
@@ -87,8 +89,6 @@ struct mcu *extract_mcu(struct bitstream *bitstream,
             current_index_y++;
 
         } else if (ordre_des_composantes[i] == COMP_Cb) {
-            printf("\nHOW\n");
-            printf("ICI : %f LA : %d\n", (double) sizeof(mcu->components_cb)/sizeof(int16_t *), current_index_cb);
             mcu->components_cb[current_index_cb] = get_component(bitstream,
                                                         huff_tables[1][DC],
                                                         huff_tables[1][AC],
@@ -99,7 +99,6 @@ struct mcu *extract_mcu(struct bitstream *bitstream,
             current_index_cb++;
 
         } else if (ordre_des_composantes[i] == COMP_Cr){
-            printf("\nWHEN\n");
             /* Cb et Cr partagent les memes tables */
             mcu->components_cr[current_index_cr] = get_component(bitstream,
                                                         huff_tables[1][DC],

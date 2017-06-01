@@ -48,9 +48,9 @@ void get_dc(struct huff_table *dc_table,
 /* Definit les valeurs ACs d'un tableau de coefficients donne a partir d'une
 table Huffman AC et d'un bitstream */
 void get_acs(struct huff_table *ac_table,
-                        struct bitstream *stream,
-                        int16_t *coefficients,
-                        size_t length)
+                struct bitstream *stream,
+                int16_t *coefficients,
+                size_t length)
 {
     printf("\nMagnitudes ACs : ");
     for (size_t i = 1; i < length; ++i) {
@@ -78,10 +78,10 @@ void get_acs(struct huff_table *ac_table,
 
 /* Extrait un bloc frequentiel */
 int16_t *extract(struct huff_table *dc_table,
-                        struct huff_table *ac_table,
-                        struct bitstream *stream,
-                        int16_t *previous_dc,
-                        size_t length)
+                    struct huff_table *ac_table,
+                    struct bitstream *stream,
+                    int16_t *previous_dc,
+                    size_t length)
 {
     int16_t *coefficients = calloc(length, sizeof(int16_t));
     get_dc(dc_table, stream, previous_dc, coefficients);
