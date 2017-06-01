@@ -198,12 +198,12 @@ void upsample_horizontal(block *blocks, enum component comp, uint8_t indice, uin
 void convert_to_rgb(block block) {
     int16_t y, cb, cr;
     for (uint8_t i = 0; i < COMPONENT_SIZE; ++i) {
-        y = block[i][COMP_Y];
-        cb = block[i][COMP_Cb];
-        cr = block[i][COMP_Cr];
+        y = block[COMP_Y][i];
+        cb = block[COMP_Cb][i];
+        cr = block[COMP_Cr][i];
         block[RGB_R][i] = get_red(y, cb, cr);
-        block[RGB_B][i] = get_blue(y, cb, cr);
         block[RGB_G][i] = get_green(y, cb, cr);
+        block[RGB_B][i] = get_blue(y, cb, cr);
     }
 }
 

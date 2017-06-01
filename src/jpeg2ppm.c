@@ -22,7 +22,7 @@ extern struct huff_table ***get_huff_tables(const struct jpeg_desc *jpeg) {
     huff_tables[0][DC] = get_huffman_table(jpeg, DC, id_huff_y_dc);
     huff_tables[0][AC] = get_huffman_table(jpeg, AC, id_huff_y_ac);
 
-    if (nb_huffman_tables > 2) {
+    if (nb_huffman_tables > 1) {
 
         huff_tables[1] = malloc(2*sizeof(struct huff_table *));
 
@@ -41,9 +41,8 @@ uint8_t **get_quant_tables(const struct jpeg_desc *jpeg) {
     uint8_t nb_quant_tables = get_nb_quantization_tables(jpeg);
     uint8_t **quant_tables = malloc(nb_quant_tables*sizeof(uint8_t *));
     for (uint8_t i = 0; i < nb_quant_tables; i++) {
-        quant_tables[0] = get_quantization_table(jpeg, i);
+        quant_tables[i] = get_quantization_table(jpeg, i);
     }
-
     return quant_tables;
 }
 
@@ -191,7 +190,8 @@ int main(int argc, char **argv)
     int16_t previous_dc_cb = 0;
     int16_t previous_dc_cr = 0;
     for (size_t i = 0; i < nb_mcus; ++i) {
-        printf("\n\nMCU %d :", i);
+        printf("\n\n======================\n");
+        printf("\nMCU %d :", i);
         mcus[i] = extract_mcu(stream,
                                 nb_components_y,
                                 nb_components_cb,
