@@ -112,7 +112,6 @@ uint8_t read_bitstream(struct bitstream *stream,
                               uint32_t *dest,
                               bool discard_byte_stuffing){
                               
-                              discard_byte_stuffing = 0; // Stop warnig inused
                               //if(nb_bits >= 8) printf("nb_bits : %d\n", nb_bits); 
                               
                               
@@ -141,6 +140,17 @@ uint8_t read_bitstream(struct bitstream *stream,
                               else{ // On peut re-remplire le buffer
                                                             fill_buffer(stream, nb_bits);
                               } // end else
+
+                              // discard byte stuffing
+                              if(
+                                                            discard_byte_stuffing &&
+                                                            *dest == 0xFF &&
+                                                            nb_bits == 8 &&
+                                                            (stream->buffer & 0xFF000000) == 0){
+                                                                                          perror("applique byte stuffing\n");
+                                                            uint32_t tmp=0; 
+                                                            read_bitstream(stream, 8, &tmp, false);
+                              }
                               
                               return nb_bits;
 } // end def
