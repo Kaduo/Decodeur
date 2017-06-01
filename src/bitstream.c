@@ -124,6 +124,11 @@ uint8_t read_bitstream(struct bitstream *stream,
                                                             return 0;
                               } // end if
                               
+                              if(nb_bits == 0){
+                                                            *dest = 0;
+                                                            return 0;
+                              }
+                              
                               // On regarde combien de bits on peut lire au max.
                               if( nb_bits> stream->bits_in_buffer) nb_bits = stream->bits_in_buffer;
                               // On les lit, et on les décale si on ne lit pas tout.
