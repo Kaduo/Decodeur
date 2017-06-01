@@ -205,11 +205,11 @@ int main(int argc, char **argv)
 
     }
 
-    printf("\nPremière composante Y :\n");
+    /*printf("\nPremière composante Y :\n");
     for (size_t i = 0; i < 64; i++) {
         printf("%"PRId16 " ", mcus[0]->components_y[0][i]);
     }
-    printf("\n");
+    printf("\n");*/
 
     /* Reconstruction des blocs */
 
@@ -249,10 +249,10 @@ int main(int argc, char **argv)
                                         height_ext,
                                         sampling_factors[COMP_Y][DIR_H], // H1
                                         sampling_factors[COMP_Y][DIR_V]);
-    printf("\n");
+    /*printf("\n");
     for (size_t i = 0; i < 64; i++) {
         printf("%d ", pic->pixels[i]->y);
-    }
+    }*/
     printf("\n");
 
     /*******
