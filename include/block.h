@@ -21,13 +21,17 @@ typedef int16_t** block;
 extern block create_block();
 
 /* Extrait les blocs d'une MCU */
-extern block *extract_blocks(struct mcu *mcu, uint8_t factors[COMP_NB][DIR_NB]);
+extern block *extract_blocks(struct mcu *mcu, const uint8_t factors[COMP_NB][DIR_NB]);
 
-/* Sur-echantillonne un composant donne sous-echantillonne en deux */
-// extern int16_t **upsample_to_two(const struct component *component);
+void upsampling_recursif(block *blocks, enum component comp, uint8_t indice, uint8_t h1, uint8_t v1, uint8_t h, uint8_t v);
 
-/* Sur-echantillonne un composant donne sous-echantillonne en quatre */
-// extern int16_t **upsample_to_four(const struct component *component);
+void upsample_horizontal(block *blocks, enum component comp, uint8_t indice, uint8_t indice_cible);
+
+/* Sur-echantillonne un composant donné sous-echantillonné en deux */
+//extern int16_t **upsample_to_two(const struct component *component);
+
+/* Sur-echantillonne un composant donné sous-echantillonné en quatre */
+//extern int16_t **upsample_to_four(const struct component *component);
 
 /* Convertit un bloc YCbCr en bloc RGB */
 void convert_to_rgb(block block);
