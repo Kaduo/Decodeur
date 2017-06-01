@@ -33,11 +33,15 @@ int16_t get_coefficient(struct bitstream *stream, uint8_t magnitude, bool discar
 table Huffman DC, d'un bitstream et de la valeur DC du predicateur */
 void get_dc(struct huff_table *dc_table,
                     struct bitstream *stream,
-                    int16_t previous_dc,
+                    int16_t *previous_dc,
                     int16_t *coefficients)
 {
-    uint8_t magnitude = (uint8_t) next_huffman_value(dc_table, stream);
-    coefficients[0] = get_coefficient(stream, magnitude, false) - previous_dc;
+    uint8_t nb_read;
+    uint8_t magnitude = (uint8_t) next_huffman_value_count(dc_table, stream, &nb_read);
+    printf("\n Magnitude DC : %02x(%hhu)", magnitude, nb_read);
+    int16_t new_value = *previous_dc + get_coefficient(stream, magnitude, false);
+    coefficients[0] = new_value;
+    *previous_dc = new_value;
 }
 
 /* Definit les valeurs ACs d'un tableau de coefficients donne a partir d'une
@@ -47,16 +51,22 @@ void get_acs(struct huff_table *ac_table,
                         int16_t *coefficients,
                         size_t length)
 {
+    printf("\nMagnitudes ACs : ");
     for (size_t i = 1; i < length; ++i) {
-        uint8_t symbole = (uint8_t) next_huffman_value(ac_table, stream);
+        uint8_t nb_read;
+        uint8_t symbole = (uint8_t) next_huffman_value_count(ac_table, stream, &nb_read);
+        printf("%02x(%hhu) ", symbole, nb_read);
         /* 1er cas : code EOB */
         if (symbole == 0x00) {
             return;
+        /* 2e cas : code ZRL */
         } else if (symbole == 0xF0) {
-            i += 16;
+            i += 15;
+        /* 3e cas : 0x?0 (symbole invalide) */
         } else if ((symbole << 4) == 0) {
             fprintf(stderr, "Symbole RLE '%04x' interdit.", symbole);
             exit(EXIT_FAILURE);
+        /* 4e cas : 0xab */
         } else {
             i += (symbole >> 4);
             uint8_t magnitude = symbole & 0x0F;
@@ -65,11 +75,11 @@ void get_acs(struct huff_table *ac_table,
     }
 }
 
-/* extracte un bloc frequentiel */
+/* Extrait un bloc frequentiel */
 int16_t *extract(struct huff_table *dc_table,
                         struct huff_table *ac_table,
                         struct bitstream *stream,
-                        int16_t previous_dc,
+                        int16_t *previous_dc,
                         size_t length)
 {
     int16_t *coefficients = calloc(length, sizeof(int16_t));
@@ -150,43 +160,44 @@ int16_t *get_component(struct bitstream *stream,
                         struct huff_table *dc_table,
                         struct huff_table *ac_table,
                         uint8_t *quantization_table,
-                        int16_t previous_dc,
+                        int16_t *previous_dc,
                         size_t size)
 {
     /* 1. Extraction - extraction */
+    printf("\n\nextracted : PREVIOUS_DC = %04x\n", *previous_dc);
     int16_t *extracted = extract(dc_table,
                                   ac_table,
                                   stream,
                                   previous_dc,
                                   size*size);
 
-    /*printf("\n\nextracted\n");
+    printf("\n"); // <- PRINT VITAL POUR LE DEBUG NE PAS EFFACER SVP (PAS UNE BLAGUE)
     for (size_t i = 0; i < 64; i++) {
         printf("%04x ", extracted[i]);
-    }*/
+    }
 
     /* 2. Quantification inverse */
     int16_t *quantization = inverse_quantization(extracted,
                                                   quantization_table,
                                                   size*size);
-    /*printf("\n\nquantization\n");
+    printf("\n\nquantization\n");
      for (size_t i = 0; i < 64; i++) {
          printf("%04x ", quantization[i]);
-     }*/
+     }
     /* 3. Reorganisation zigzag */
     int16_t *zigzag = inverse_zigzag(quantization, size);
 
-    /*printf("\n\nzigzag\n");
+    printf("\n\nzigzag\n");
      for (size_t i = 0; i < 64; i++) {
          printf("%04x ", zigzag[i]);
-     }*/
+     }
     /* 4. Transformee en cosinus discrete inverse (iDCT) */
     int16_t *component = idct(zigzag, size);
 
-    /*printf("\n\ncomponent\n");
+    printf("\n\ncomponent\n");
      for (size_t i = 0; i < 64; i++) {
          printf("%04x ", component[i]);
-     }*/
+     }
     free(extracted);
     free(quantization);
     free(zigzag);

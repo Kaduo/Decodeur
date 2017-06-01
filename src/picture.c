@@ -118,7 +118,11 @@ void write_ppm_data(const struct picture *picture, const char *filename)
     secured_open_file(&outfile, filename, "ab");
     /* Ecriture des donnees */
     for (size_t i = 0; i < picture->width * picture->height; ++i) {
-        fwrite(&picture->pixels[i]->y, sizeof(uint8_t), 1, outfile);
+        if (picture->colored) {
+            fwrite(&(picture->pixels[i]->rgb), sizeof(struct rgb), 1, outfile);
+        } else {
+            fwrite(&picture->pixels[i]->y, sizeof(uint8_t), 1, outfile);
+        }
     }
     /* Fermeture du fichier */
     secured_close_file(&outfile, filename);

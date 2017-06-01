@@ -18,7 +18,7 @@ extern int16_t get_coefficient(struct bitstream *stream, uint8_t magnitude, bool
 table Huffman DC, d'un bitstream et de la valeur DC du predicateur */
 extern void get_dc(struct huff_table *dc_table,
                     struct bitstream *stream,
-                    int16_t previous_dc,
+                    int16_t *previous_dc,
                     int16_t *coefficients);
 
 /* Definit les valeurs ACs d'un tableau de coefficients donne a partir d'une
@@ -32,7 +32,7 @@ extern void get_acs(struct huff_table *ac_table,
 extern int16_t *extract(struct huff_table *dc_table,
                                     struct huff_table *ac_table,
                                     struct bitstream *stream,
-                                    int16_t previous_dc,
+                                    int16_t *previous_dc,
                                     size_t length);
 
 /* Retourne la quantification inverse d'un tableau de coefficients donne par
@@ -55,7 +55,7 @@ extern int16_t *get_component(struct bitstream *stream,
                         struct huff_table *dc_table,
                         struct huff_table *ac_table,
                         uint8_t *quantization_table,
-                        int16_t previous_dc,
+                        int16_t *previous_dc,
                         size_t size);
 
 #endif
