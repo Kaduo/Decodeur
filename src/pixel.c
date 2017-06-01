@@ -18,10 +18,16 @@ union pixel *create_pixel_bw(uint8_t y)
 /* Cree un pixel suivant des couleurs RGB donnes */
 union pixel *create_pixel_rgb(uint8_t red, uint8_t green, uint8_t blue)
 {
-    union pixel *pixel = malloc(sizeof(union pixel));
-    pixel->rgb->red = red;
-    pixel->rgb->green = green;
-    pixel->rgb->blue = blue;
+    // union pixel *pixel = malloc(sizeof(union pixel));
+    // pixel->rgb->red = red;
+    // pixel->rgb->green = green;
+    // pixel->rgb->blue = blue;
+    // return pixel;
+    struct rgb *rgb = malloc(sizeof(struct rgb));
+    rgb->red = red;
+    rgb->green = green;
+    rgb->blue = blue;
+    union pixel *pixel = rgb;
     return pixel;
 }
 
