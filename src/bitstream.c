@@ -95,10 +95,13 @@ void fill_buffer(struct bitstream *stream, uint8_t nb_bits){
                                                                                                       
                                                                                                       // On a besoin que de quelques bits de cur_byte:
                                                                                                       else{
-                                                                                                                                    for(; nb_bits >0; nb_bits--){
-                                                                                                                                                      stream->buffer |= stream->cur_byte >> (stream->bits_in_cur_byte -1) & 0x01;
-                                                                                                                                                                  stream->bits_in_cur_byte -= 1;
-                                                                                                                                    } // end for
+                                                                                                                                    //if(nb_bits >= 3) printf("cas 3, nb_bits : %d, bits in byte : %d\n", nb_bits, stream->bits_in_cur_byte);
+                                                                                                                                    uint8_t data = stream->cur_byte << (8-stream->bits_in_cur_byte);
+                                                                                                                                    data >>= 8-nb_bits;
+                                                                                                                                    //printf("byte : %04x, data : %04x\n", stream->cur_byte, data);
+                                                                                                                                    stream->buffer |= data;
+                                                                                                                                    stream->bits_in_cur_byte -= nb_bits;
+                                                                                                                                    nb_bits=0;
                                                                                                       } // end else
                                                             } // end while
 } //end def
@@ -110,6 +113,7 @@ uint8_t read_bitstream(struct bitstream *stream,
                               bool discard_byte_stuffing){
                               
                               discard_byte_stuffing = 0; // Stop warnig inused
+                              //if(nb_bits >= 8) printf("nb_bits : %d\n", nb_bits); 
                               
                               
                               // Si fin de fichier.
