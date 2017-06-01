@@ -77,6 +77,25 @@ void load_cur_byte(struct bitstream *stream){
                               } // end else
 } // end def
 
+// Rempli le buffer à partir de cur_byte.
+void fill_buffer(struct bitstream *stream, uint8_t nb_bits){
+                                                            while(nb_bits >0){
+                                                                                          // Si on est arrivé à la fin du fichier (cur_byte est vide.
+                                                                                          if(stream->bits_in_cur_byte == 0){
+                                                                                                                        stream->bits_in_buffer -= nb_bits;
+                                                                                                                        nb_bits = 0;
+                                                                                          } // end if
+                                                                                          
+                                                                                          // Si on demande l'ensemble des bits de cur_byte:
+                                                                                                      else if(nb_bits >= stream->bits_in_cur_byte){
+                                                                                                                                    stream->buffer |= stream->cur_byte << (nb_bits - stream->bits_in_cur_byte);
+                                                                                                                                    nb_bits -= stream->bits_in_cur_byte;
+                                                                                                                                    load_cur_byte(stream);
+                                                                                                      } // end if
+                                                            } // end while
+} //end def
+
+
 uint8_t read_bitstream(struct bitstream *stream,
                               uint8_t nb_bits,
                               uint32_t *dest,
@@ -95,37 +114,24 @@ uint8_t read_bitstream(struct bitstream *stream,
                               if( nb_bits> stream->bits_in_buffer) nb_bits = stream->bits_in_buffer;
                               // On les lit, et on les décale si on ne lit pas tout.
                               *dest = stream->buffer >> (32-nb_bits);
-                              uint8_t nb_bits_read = nb_bits;
                               
                               // Mise à jour du buffer.
+                              // Supression des bits lu.
                               stream->buffer <<= nb_bits;
                               if (nb_bits == 32) stream->buffer = 0;
                               
                               // Si on à épuisé les données dans cur_byte, on déplace le pointeur du buffer.
                               if (stream->bits_in_cur_byte == 0){
-                                                            stream->bits_in_buffer -= nb_bits; 
+                                                            stream->bits_in_buffer -= nb_bits;
+                                                            // Si bits_in_buffer est null, le fichier et cur byte sont vide également. 
                                                             if (stream->bits_in_buffer == 0) stream->end_of_stream = true;
                               } // end if
-                              
                               else{ // On peut re-remplire le buffer
-                                                            while(nb_bits >0){
-                                                                                          // Si on est arrivé à la fin du fichier.
-                                                                                          if(stream->bits_in_cur_byte == 0){
-                                                                                                                        stream->bits_in_buffer -= nb_bits;
-                                                                                                                        nb_bits = 0;
-                                                                                          } // end if
-                                                                                          
-                                                                                          // Si on peut lire l'intégralité de cur_byte.
-                                                                                                      if(nb_bits >= stream->bits_in_cur_byte){
-                                                                                                                                    stream->buffer |= stream->cur_byte << (nb_bits - stream->bits_in_cur_byte);
-                                                                                                                                    nb_bits -= stream->bits_in_cur_byte;
-                                                                                                                                    load_cur_byte(stream);
-                                                                                                      } // end if
-                                                            } // end while
+                                                            fill_buffer(stream, nb_bits);
                               } // end else
-                              return nb_bits_read;
                               
-} //end def
+                              return nb_bits;
+} // end def
 
 // La fonction end_of_bitstream retourne true si le flux a été entièrement parcouru, false s’il reste des bits à lire. 
 bool end_of_bitstream(struct bitstream *stream){
