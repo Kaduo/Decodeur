@@ -13,13 +13,13 @@ int main(int argc, char **argv)
     fputc(0x00, pf);
     fputc(0x00, pf);
     fputc(0x01, pf);
-    fputc(0xFF, pf);
+    fputc(0xbf, pf);
     fclose(pf);
     
     // TEste bitstream    
     struct bitstream *stream = create_bitstream(filename);
     uint32_t lecture = 0;
-    uint8_t nb_bits = 9;
+    uint8_t nb_bits = 2;
     uint8_t nb_lecture = 0;
     nb_lecture = read_bitstream(stream, nb_bits, &lecture, false);
     printf("Nombre de lecture : %d\n", nb_lecture);

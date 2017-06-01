@@ -92,6 +92,14 @@ void fill_buffer(struct bitstream *stream, uint8_t nb_bits){
                                                                                                                                     nb_bits -= stream->bits_in_cur_byte;
                                                                                                                                     load_cur_byte(stream);
                                                                                                       } // end if
+                                                                                                      
+                                                                                                      // On a besoin que de quelques bits de cur_byte:
+                                                                                                      else{
+                                                                                                                                    for(; nb_bits >0; nb_bits--){
+                                                                                                                                                      stream->buffer |= stream->cur_byte >> (stream->bits_in_cur_byte -1) & 0x01;
+                                                                                                                                                                  stream->bits_in_cur_byte -= 1;
+                                                                                                                                    } // end for
+                                                                                                      } // end else
                                                             } // end while
 } //end def
 
