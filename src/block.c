@@ -20,19 +20,38 @@ block create_block()
 }
 
 /* Extrait les blocs d'une MCU */
-extern block *extract_blocks(struct mcu *mcu, uint8_t factors[COMP_NB][DIR_NB])
+extern block *extract_blocks(struct mcu *mcu, const uint8_t factors[COMP_NB][DIR_NB])
 {
     uint8_t nb_blocks = factors[COMP_Y][DIR_H] * factors[COMP_Y][DIR_V];
     block *blocks = malloc(nb_blocks * sizeof(block));
+
+    bool no_upsampling_cb = (factors[COMP_Cb][DIR_H] == factors[COMP_Y][DIR_H] && factors[COMP_Cb][DIR_V] == factors[COMP_Y][DIR_V]);
+    bool no_upsampling_cr = (factors[COMP_Cr][DIR_H] == factors[COMP_Y][DIR_H] && factors[COMP_Cr][DIR_V] == factors[COMP_Y][DIR_V]);
+
     /* Creation des blocs et initialisation des composantes Y */
     for (uint8_t i = 0; i < nb_blocks; ++i) {
         blocks[i] = create_block();
         blocks[i][COMP_Y] = mcu->components_y[i];
+    }
 
-        if (mcu->components_cb != NULL) {
-            // À modifier !!
-            blocks[i][COMP_Cb] = mcu->components_cb[i];
-            blocks[i][COMP_Cr] = mcu->components_cr[i];
+    if (mcu->components_cb != NULL) {
+
+        if (no_upsampling_cb) {
+            for (size_t i = 0; i < nb_blocks; i++) {
+                blocks[i][COMP_Cb] = mcu->components_cb[i];
+            }
+        }
+        else {
+            upsampling_recursif(blocks, COMP_Cb, 0, factors[COMP_Y][DIR_H], factors[COMP_Y][DIR_V], factors[COMP_Cb][DIR_H], factors[COMP_Cb][DIR_V]);
+        }
+
+        if (no_upsampling_cr) {
+            for (size_t i = 0; i < nb_blocks; i++) {
+                blocks[i][COMP_Cr] = mcu->components_cr[i];
+            }
+        }
+        else {
+            upsampling_recursif(blocks, COMP_Cr, 0, factors[COMP_Y][DIR_H], factors[COMP_Y][DIR_V], factors[COMP_Cr][DIR_H], factors[COMP_Cr][DIR_V]);
         }
     }
     return blocks;
@@ -77,32 +96,103 @@ void upsampling(const int16_t *component, int16_t **coeff, size_t BLOCK_SIZE, ui
 
 */
 
-/*
-void upsampling_recursif(const struct component *component, int16_t *tab, uint8_t indice, uint8_t h1, uint8_t v1, uint8_t h, uint8_t v)
+
+void upsampling_recursif(block *blocks, enum component comp, uint8_t indice, uint8_t h1, uint8_t v1, uint8_t h, uint8_t v)
 {
+
     if (h1 == h && v1 == v) {
-        return component;
+        return;
+
     } else if (v1 != v) {
         v *= 2;
         uint8_t nb_elements = h * v;
 
-        upsampling_recursif(component, tab, indice, h1, v1, h, v);
-        upsampling_recursif(component, tab, indice + h1*v1/nb_elements, h1, v1, h, v);
+        upsample_horizontal(blocks, comp, indice, indice + h1*v1/nb_elements);
+        upsampling_recursif(blocks, comp, indice, h1, v1, h, v);
+        upsampling_recursif(blocks, comp, indice + h1*v1/nb_elements, h1, v1, h, v);
+
     } else {
         h *= 2;
         uint8_t nb_elements = h * v;
 
-        upsampling_recursif(component,tab,indice,h1,v1,h,v);
-        upsampling_recursif(component, tab, indice + h2*v2/nb_elements, h1, v1, h, v);
+        //upsample_vertical(blocks, comp, indice, indice + h1*v1/nb_elements);
+        upsampling_recursif(blocks, comp, indice,h1,v1,h,v);
+        upsampling_recursif(blocks, comp, indice + h1*v1/nb_elements, h1, v1, h, v);
     }
 }
-*/
 
-/* Sur-echantillonne un composant donne sous-echantillonne en deux */
-// int16_t **upsample_to_two(const struct component *component);
+void upsample_horizontal(block *blocks, enum component comp, uint8_t indice, uint8_t indice_cible)
+{
+    if (blocks[indice][comp] == NULL) {
+        perror("Impossible de diviser un composante inexistante !");
+        exit(EXIT_FAILURE);
+    }
 
-/* Sur-echantillonne un composant donne sous-echantillonne en quatre */
-// int16_t **upsample_to_four(const struct component *component);
+    for (size_t i = 0; i < 64; i++) {
+        // On complète la deuxième composante (celle de droite)
+        if (i%2) {
+            blocks[indice_cible][comp][i] = blocks[indice][comp][32*(1 + i/8) + i/2];
+        }
+        else {
+            blocks[indice_cible][comp][i] = (blocks[indice][comp][32*(1 + i/8) + i/2 - 1] + blocks[indice][comp][32*(1 + i/8) + i/2])/2;
+        }
+    }
+    for (size_t i = 0; i < 64; i++) {
+        // On complète la première composante en place (celle de gauche)
+        for (size_t i = 63; i > 0; i--) {
+            if (i%2) {
+                blocks[indice][comp][i] = blocks[indice][comp][i/2 + 32*(i/8)];
+            }
+            else {
+                blocks[indice][comp][i] = (blocks[indice][comp][i/2 + 32*(i/8)] + blocks[indice][comp][i/2 + 1 + 32*(i/8)])/2;
+            }
+        }
+    }
+}
+
+/*void upsample_horizontal(int16_t **blocks, uint8_t indice)
+{
+    if (blocks[indice][comp] == NULL) {
+        perror("Impossible de diviser un composante inexistante !");
+        exit(EXIT_FAILURE);
+    }
+
+    if (blocks[indice_cible][comp] == NULL) {
+        blocks[indice_cible][comp] = malloc(64*sizeof(int16_t));
+        for (size_t i = 0; i < 64; i++) {
+            // On complète la deuxième composante (celle du bas)
+            if ((i/8)%2) {
+                blocks[indice_cible][comp][i] = (blocks[indice][comp][32 + i/2 - 1] + blocks[indice][comp][32 + i/2])/2;
+            }
+            else {
+                blocks[indice_cible][comp][i] = blocks[indice][comp][32 + i/2];
+            }
+        }
+        for (size_t i = 0; i < 64; i++) {
+            // On complète la première composante en place (celle du haut)
+            for (size_t i = 63; i > 0; i--) {
+                if ((i/8)%2) {
+                    blocks[indice][comp][i] = blocks[indice][comp][i/2];
+                }
+                else {
+                    blocks[indice][comp][i] = (blocks[indice][comp][i/2] + blocks[indice][comp][i/2 + 1])/2;
+                }
+            }
+        }
+    }
+    else {
+        perror("Cette composante devrait être vide !");
+        exit(EXIT_FAILURE);
+    }
+
+}*/
+
+
+/* Sur-echantillonne un composant donné sous-echantillonné en deux */
+//int16_t **upsample_to_two(const struct component *component);
+
+/* Sur-echantillonne un composant donné sous-echantillonné en quatre */
+//int16_t **upsample_to_four(const struct component *component);
 
 /* Convertit un bloc YCbCr en bloc RGB */
 void convert_to_rgb(block block) {

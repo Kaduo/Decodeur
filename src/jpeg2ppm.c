@@ -191,7 +191,7 @@ int main(int argc, char **argv)
     int16_t previous_dc_cb = 0;
     int16_t previous_dc_cr = 0;
     for (size_t i = 0; i < nb_mcus; ++i) {
-        printf("\nMCU %d\n", i);
+        printf("\n\nMCU %d :", i);
         mcus[i] = extract_mcu(stream,
                                 nb_components_y,
                                 nb_components_cb,
