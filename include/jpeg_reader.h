@@ -42,7 +42,9 @@ enum marker {
     MARKER_SOI = 0xffd8,
     MARKER_EOI = 0xffd9,
     MARKER_APP0 = 0xffe0,
-    MARKER_COM = 0xfffe
+    MARKER_COM = 0xfffe,
+    MARKER_DQT = 0xffdb,
+    MARKER_SOF = 0xffc0
 };
 
 /* Structure representant un descripteur contenant toutes les informations lues
