@@ -20,6 +20,7 @@ int16_t get_coefficient(struct bitstream *stream, uint8_t magnitude, bool discar
 {
     uint32_t indice = 0;
     read_bitstream(stream, magnitude, &indice, discard_byte_stuffing);
+    printf("Data : %04x\n", indice);
     /* Memorisation du signe de la valeur (1 => positif, 0 => negatif) */
     uint16_t signe = indice >> (magnitude - 1);
     /* Memorisation du rang de la valeur, en partant de la plus petite valeur
