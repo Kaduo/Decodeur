@@ -114,6 +114,22 @@ uint8_t read_bitstream(struct bitstream *stream,
                               uint32_t *dest,
                               bool discard_byte_stuffing){
                               
+                              // Byte stuffing
+                              if( discard_byte_stuffing &&
+                              (stream->buffer & 0xFF000000) == 0xFF000000 &&
+                              (stream->buffer & 0x00FF0000) == 0x00000000 &&
+                              stream->bits_in_cur_byte == 8){
+                              //suppression du 0x00.
+                              printf("Buffer avant : %04x\n", stream->buffer);
+                              printf("Byte : %04x\n", stream->cur_byte);
+                              stream->buffer <<= 8;
+                              stream->buffer |= 0xFF000000;
+                              fill_buffer(stream, 8); 
+                              printf("Buffer après: %04x\n", stream->buffer);
+                              
+                              } // end byte stuffing
+                    
+                                        
                               /*printf("\nnb_bits to read: %d\n", nb_bits); 
                               printf("Buffer : %04x\n", stream->buffer);
                               printf("bits_in_buffer : %d\n", stream->bits_in_buffer);
@@ -153,17 +169,6 @@ uint8_t read_bitstream(struct bitstream *stream,
                               else{ // On peut re-remplire le buffer
                                                             fill_buffer(stream, nb_bits);
                               } // end else
-
-                              // discard byte stuffing
-                              if(
-                                                            discard_byte_stuffing &&
-                                                            *dest == 0xFF &&
-                                                            nb_bits == 8 &&
-                                                            (stream->buffer & 0xFF000000) == 0){
-                                                                                          perror("applique byte stuffing\n");
-                                                            uint32_t tmp=0; 
-                                                            read_bitstream(stream, 8, &tmp, false);
-                              }
                               
                               return nb_bits;
 } // end def

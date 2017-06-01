@@ -20,7 +20,7 @@ int16_t get_coefficient(struct bitstream *stream, uint8_t magnitude, bool discar
 {
     uint32_t indice = 0;
     read_bitstream(stream, magnitude, &indice, discard_byte_stuffing);
-    printf("Data : %04x\n", indice);
+    //printf("Data : %04x\n", indice);
     /* Memorisation du signe de la valeur (1 => positif, 0 => negatif) */
     uint16_t signe = indice >> (magnitude - 1);
     /* Memorisation du rang de la valeur, en partant de la plus petite valeur
@@ -39,7 +39,6 @@ void get_dc(struct huff_table *dc_table,
 {
     uint8_t nb_read;
     uint8_t magnitude = (uint8_t) next_huffman_value_count(dc_table, stream, &nb_read);
-    printf("valeur huf : %d", magnitude); 
     //printf("\nMagnitude DC : %02x(%hhu)", magnitude, nb_read);
     int16_t new_value = *previous_dc + get_coefficient(stream, magnitude, true);
     coefficients[0] = new_value;
@@ -58,7 +57,6 @@ void get_acs(struct huff_table *ac_table,
     for (size_t i = 1; i < length; ++i) {
         uint8_t nb_read;
         uint8_t symbole = (uint8_t) next_huffman_value_count(ac_table, stream, &nb_read);
-        printf("Hufman : %d", symbole); 
         //printf("%02x(%hhu) ", symbole, nb_read);
         /* 1er cas : code EOB */
         if (symbole == 0x00) {
