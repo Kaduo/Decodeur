@@ -21,10 +21,10 @@ int16_t get_coefficient(struct bitstream *stream, uint8_t magnitude, bool discar
     uint32_t indice = 0;
     read_bitstream(stream, magnitude, &indice, discard_byte_stuffing);
     /* Memorisation du signe de la valeur (1 => positif, 0 => negatif) */
-    uint8_t signe = indice >> (magnitude - 1);
+    uint16_t signe = indice >> (magnitude - 1);
     /* Memorisation du rang de la valeur, en partant de la plus petite valeur
     suivant son signe */
-    uint8_t rang = indice & ~(1 << (magnitude - 1));
+    uint16_t rang = indice & ~(1 << (magnitude - 1));
     /* Calcul du coefficient */
     return (signe ? pow(2, magnitude - 1) : (1 - pow(2, magnitude))) + rang;
 }
@@ -38,9 +38,10 @@ void get_dc(struct huff_table *dc_table,
 {
     uint8_t nb_read;
     uint8_t magnitude = (uint8_t) next_huffman_value_count(dc_table, stream, &nb_read);
-    printf("\n Magnitude DC : %02x(%hhu)", magnitude, nb_read);
-    int16_t new_value = *previous_dc + get_coefficient(stream, magnitude, false);
+    printf("\nMagnitude DC : %02x(%hhu)", magnitude, nb_read);
+    int16_t new_value = *previous_dc + get_coefficient(stream, magnitude, true);
     coefficients[0] = new_value;
+    printf("\nVALEUR DC : %04x \n", new_value);
     *previous_dc = new_value;
 }
 
