@@ -112,7 +112,10 @@ uint8_t read_bitstream(struct bitstream *stream,
                               uint32_t *dest,
                               bool discard_byte_stuffing){
                               
-                              //if(nb_bits >= 8) printf("nb_bits : %d\n", nb_bits); 
+                              printf("\nnb_bits to read: %d\n", nb_bits); 
+                              printf("Buffer : %04x\n", stream->buffer);
+                              printf("bits_in_buffer : %d\n", stream->bits_in_buffer);
+                              printf("Bits_in_cur_byte : %d\n", stream->bits_in_cur_byte);
                               
                               
                               // Si fin de fichier.
