@@ -16,7 +16,6 @@ struct mcu *create_mcu(uint8_t nb_components_y, uint8_t nb_components_cb, uint8_
 
     mcu->components_y = calloc(nb_components_y, sizeof(int16_t *));
     if (nb_components_cb > 0) {
-        printf("\nHELLO THERE !\n");
         mcu->components_cb = calloc(nb_components_cb, sizeof(int16_t *));
         mcu->components_cr = calloc(nb_components_cr, sizeof(int16_t *));
     }
@@ -73,9 +72,6 @@ struct mcu *extract_mcu(struct bitstream *bitstream,
     uint8_t current_index_y = 0;
     uint8_t current_index_cb = 0;
     uint8_t current_index_cr = 0;
-
-    printf("\nTAILLE TAB : %f\n", (double) sizeof(ordre_des_composantes)/sizeof(enum component));
-    printf("\nnb components : %d\n", nb_components);
 
     for (uint8_t i = 0; i < nb_components; i++) {
         if (ordre_des_composantes[i] == COMP_Y) {

@@ -90,8 +90,6 @@ enum component *get_components_order(const struct jpeg_desc *jpeg, uint8_t facto
         }
     }
 
-    printf("HELLO");
-
     return order;
 
 }
@@ -222,11 +220,11 @@ int main(int argc, char **argv)
 
     }
 
-    printf("\nPremière composante Y :\n");
+    /*printf("\nPremière composante Y :\n");
     for (size_t i = 0; i < 64; i++) {
         printf("%"PRId16 " ", mcus[0]->components_y[0][i]);
     }
-    printf("\n");
+    printf("\n");*/
 
     /* Reconstruction des blocs */
 
@@ -234,6 +232,7 @@ int main(int argc, char **argv)
     block *liste_blocks = malloc(nb_blocks * sizeof(block));
     block *blocks_temp = NULL;
     for (uint16_t i = 0; i < nb_mcus; i++) {
+        printf("%d\n", i);
         blocks_temp = extract_blocks(mcus[i], sampling_factors);
         for (size_t j = 0; j < nb_components_y; j++) {
             liste_blocks[i*nb_components_y+j] = blocks_temp[0];
