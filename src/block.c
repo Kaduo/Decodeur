@@ -126,18 +126,27 @@ void upsampling_recursif(block *blocks, enum component comp, uint8_t indice, uin
 
 void upsample_vertical(block *blocks, enum component comp, uint8_t indice, uint8_t indice_cible)
 {
+    printf("\ncible : %d\n", indice_cible);
+    printf("indice : %d\n", indice);
     if (blocks[indice][comp] == NULL) {
         perror("Impossible de diviser une composante inexistante !");
         exit(EXIT_FAILURE);
     }
 
+    if (blocks[indice_cible][comp] != NULL) {
+        perror("RAAAAAAAAAAAAAAH !!");
+        exit(EXIT_FAILURE);
+    }
+
+    blocks[indice_cible][comp] = calloc(64, sizeof(int16_t));
+
     for (size_t i = 0; i < 64; i++) {
         // On complète la deuxième composante (celle de droite)
-        printf("%d\n", i);
         if (i%2) {
             blocks[indice_cible][comp][i] = blocks[indice][comp][32*(1 + i/8) + i/2];
         }
         else {
+            printf("blocks[indice_cible][comp] : %p\n", blocks[indice_cible][comp]);
             blocks[indice_cible][comp][i] = (blocks[indice][comp][32*(1 + i/8) + i/2 - 1] + blocks[indice][comp][32*(1 + i/8) + i/2])/2;
         }
     }
