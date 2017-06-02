@@ -34,7 +34,7 @@ extern block *extract_blocks(struct mcu *mcu, const uint8_t factors[COMP_NB][DIR
         blocks[i][COMP_Y] = mcu->components_y[i];
     }
 
-    if (mcu->components_cb != NULL) {
+    if (mcu->nb_cbs > 0) {
 
         if (no_upsampling_cb) {
             for (size_t i = 0; i < nb_blocks; i++) {
@@ -117,16 +117,14 @@ void upsampling_recursif(block *blocks, enum component comp, uint8_t indice, uin
         h *= 2;
         uint8_t nb_elements = h * v;
 
-        //upsample_vertical(blocks, comp, indice, indice + h1*v1/nb_elements);
+        upsample_horizontal(blocks, comp, indice, indice + h1*v1/nb_elements);
         upsampling_recursif(blocks, comp, indice,h1,v1,h,v);
         upsampling_recursif(blocks, comp, indice + h1*v1/nb_elements, h1, v1, h, v);
     }
 }
 
-void upsample_vertical(block *blocks, enum component comp, uint8_t indice, uint8_t indice_cible)
+void upsample_horizontal(block *blocks, enum component comp, uint8_t indice, uint8_t indice_cible)
 {
-    printf("\ncible : %d\n", indice_cible);
-    printf("indice : %d\n", indice);
     if (blocks[indice][comp] == NULL) {
         perror("Impossible de diviser une composante inexistante !");
         exit(EXIT_FAILURE);
@@ -136,6 +134,15 @@ void upsample_vertical(block *blocks, enum component comp, uint8_t indice, uint8
         perror("RAAAAAAAAAAAAAAH !!");
         exit(EXIT_FAILURE);
     }
+
+    printf("\nBLOC 1\n");
+    for (size_t i = 0; i < 64; i++) {
+        if (i%8 == 0) {
+            printf("\n");
+        }
+        printf("%d ", blocks[indice][comp][i]);
+    }
+    printf("\n");
 
     blocks[indice_cible][comp] = calloc(64, sizeof(int16_t));
 
@@ -149,6 +156,23 @@ void upsample_vertical(block *blocks, enum component comp, uint8_t indice, uint8
         blocks[indice][comp][i] = blocks[indice][comp][8*(i/8) + (i%8)/2];
         blocks[indice][comp][i-1] = blocks[indice][comp][i];
     }
+
+    printf("\nBLOC GAUCHE\n");
+    for (size_t i = 0; i < 64; i++) {
+        if (i%8 == 0) {
+            printf("\n");
+        }
+        printf("%d ", blocks[indice][comp][i]);
+    }
+
+    printf("\n\nBLOC DROIT\n");
+    for (size_t i = 0; i < 64; i++) {
+        if (i%8 == 0) {
+            printf("\n");
+        }
+        printf("%d ", blocks[indice_cible][comp][i]);
+    }
+    printf("\n");
 }
 
 void upsample_vertical_avance(block *blocks, enum component comp, uint8_t indice, uint8_t indice_cible)

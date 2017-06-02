@@ -55,6 +55,7 @@ enum component *get_components_order(const struct jpeg_desc *jpeg, uint8_t facto
     uint8_t nb_components_per_mcu = nb_components_y + nb_components_cb + nb_components_cr;
 
     uint8_t nb_components = get_nb_components(jpeg);
+    printf("\nnb_components_per_mcu : %d\n", nb_components_per_mcu);
 
     enum component *order = malloc(nb_components_per_mcu*sizeof(enum component));
 
@@ -72,21 +73,27 @@ enum component *get_components_order(const struct jpeg_desc *jpeg, uint8_t facto
         uint8_t scan_id = get_scan_component_id(jpeg, i);
         if (scan_id == id_y) {
             for (size_t k = 0; k < nb_components_y; k++) {
-                order[j + k] = COMP_Y;
+                order[j] = COMP_Y;
+                printf("j : %d\n", j);
                 j++;
             }
         }
         else if (scan_id == id_cb) {
             for (size_t k = 0; k < nb_components_cb; k++) {
-                order[j + k] = COMP_Cb;
+                order[j] = COMP_Cb;
+                printf("j : %d\n", j);
                 j++;
             }
         }
         else if (scan_id == id_cr) {
             for (size_t k = 0; k < nb_components_cr; k++) {
-                order[j + k] = COMP_Cr;
+                order[j] = COMP_Cr;
+                printf("j : %d\n", j);
                 j++;
             }
+        }
+        else {
+            printf("WTF ERREUR FATALE");
         }
     }
 
@@ -144,18 +151,24 @@ int main(int argc, char **argv)
     uint8_t sampling_factors[3][2] = {{0}}; //Contient les sampling factors h1,v1,h2,...
 
 
-    for (size_t i = 0; i < nb_components; ++i) {
+    for (size_t i = 0; i < nb_components; i++) {
+        printf("huh");
         sampling_factors[i][0] = get_frame_component_sampling_factor(jdesc, DIR_H, i);
         sampling_factors[i][1] = get_frame_component_sampling_factor(jdesc, DIR_V, i);
     }
 
     // H1 V1
     printf("H1 : %hhu, V1 : %hhu\n", sampling_factors[0][0], sampling_factors[0][1]);
+    printf("H1 : %hhu, V1 : %hhu\n", sampling_factors[1][0], sampling_factors[1][1]);
+    printf("H1 : %hhu, V1 : %hhu\n", sampling_factors[2][0], sampling_factors[2][1]);
 
     //Nombre de composantes par MCU
     uint8_t nb_components_y = sampling_factors[0][0]*sampling_factors[0][1];
     uint8_t nb_components_cb = sampling_factors[1][0]*sampling_factors[1][1];
     uint8_t nb_components_cr = sampling_factors[2][0]*sampling_factors[2][1];
+    printf("\nnb_y : %hhu\n", nb_components_y);
+    printf("\nnb_cb : %hhu\n", nb_components_cb);
+    printf("\nnb_cr : %hhu\n", nb_components_cr);
 
     // Taille de l'image.
     uint16_t width = get_image_size(jdesc, DIR_H);
@@ -206,7 +219,7 @@ int main(int argc, char **argv)
     int16_t previous_dc_cr = 0;
     for (size_t i = 0; i < nb_mcus; ++i) {
         printf("\n\n======================\n");
-        printf("\nMCU %d :", i);
+        printf("\nMCU %d :\n", i);
         mcus[i] = extract_mcu(stream,
                                 nb_components_y,
                                 nb_components_cb,
@@ -232,10 +245,10 @@ int main(int argc, char **argv)
     block *liste_blocks = malloc(nb_blocks * sizeof(block));
     block *blocks_temp = NULL;
     for (uint16_t i = 0; i < nb_mcus; i++) {
-        printf("%d\n", i);
         blocks_temp = extract_blocks(mcus[i], sampling_factors);
+
         for (size_t j = 0; j < nb_components_y; j++) {
-            liste_blocks[i*nb_components_y+j] = blocks_temp[0];
+            liste_blocks[i*nb_components_y+j] = blocks_temp[j];
         }
         free(blocks_temp);
         blocks_temp = NULL;
