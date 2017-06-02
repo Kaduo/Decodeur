@@ -140,24 +140,54 @@ void upsample_vertical(block *blocks, enum component comp, uint8_t indice, uint8
 
     blocks[indice_cible][comp] = calloc(64, sizeof(int16_t));
 
+    for (size_t i = 0; i < 64; i+=2) {
+        // On complète la deuxième composante (celle de droite)
+        blocks[indice_cible][comp][i] = blocks[indice][comp][4 + 8*(i/8) + (i%8)/2];
+        blocks[indice_cible][comp][i+1] = blocks[indice_cible][comp][i];
+    }
+    for (size_t i = 0; i < 64; i+=2) {
+        // On complète la première composante en place (celle de gauche)
+        for (size_t i = 63; i > 1; i-=2) {
+            blocks[indice][comp][i] = blocks[indice][comp][8*(i/8) + (i%8)/2];
+            blocks[indice][comp][i-1] = blocks[indice][comp][i];
+        }
+    }
+}
+
+void upsample_vertical_avance(block *blocks, enum component comp, uint8_t indice, uint8_t indice_cible)
+{
+    printf("\ncible : %d\n", indice_cible);
+    printf("indice : %d\n", indice);
+    if (blocks[indice][comp] == NULL) {
+        perror("Impossible de diviser une composante inexistante !");
+        exit(EXIT_FAILURE);
+    }
+
+    if (blocks[indice_cible][comp] != NULL) {
+        perror("RAAAAAAAAAAAAAAH !!");
+        exit(EXIT_FAILURE);
+    }
+
+    blocks[indice_cible][comp] = calloc(64, sizeof(int16_t));
+
     for (size_t i = 0; i < 64; i++) {
         // On complète la deuxième composante (celle de droite)
         if (i%2) {
-            blocks[indice_cible][comp][i] = blocks[indice][comp][32*(1 + i/8) + i/2];
+            blocks[indice_cible][comp][i] = blocks[indice][comp][4 + 8*(i/8) + (i%8)/2];
         }
         else {
             printf("blocks[indice_cible][comp] : %p\n", blocks[indice_cible][comp]);
-            blocks[indice_cible][comp][i] = (blocks[indice][comp][32*(1 + i/8) + i/2 - 1] + blocks[indice][comp][32*(1 + i/8) + i/2])/2;
+            blocks[indice_cible][comp][i] = (blocks[indice][comp][4 + 8*(i/8) + (i%8)/2 - 1] + blocks[indice][comp][4 + 8*(i/8) + (i%8)/2])/2;
         }
     }
     for (size_t i = 0; i < 64; i++) {
         // On complète la première composante en place (celle de gauche)
         for (size_t i = 63; i > 0; i--) {
             if (i%2) {
-                blocks[indice][comp][i] = blocks[indice][comp][i/2 + 32*(i/8)];
+                blocks[indice][comp][i] = (blocks[indice][comp][(i%8)/2 + 8*(i/8)] + blocks[indice][comp][(i%8)/2 + 1 + 8*(i/8)])/2;
             }
             else {
-                blocks[indice][comp][i] = (blocks[indice][comp][i/2 + 32*(i/8)] + blocks[indice][comp][i/2 + 1 + 32*(i/8)])/2;
+                blocks[indice][comp][i] = blocks[indice][comp][(i%8)/2 + 8*(i/8)];
             }
         }
     }
