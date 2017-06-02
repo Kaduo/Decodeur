@@ -111,6 +111,7 @@ void del_stuffing(struct bitstream *stream){
     if( fgetc(stream->pfile) != 0x00){
         fseek(stream->pfile, -1, SEEK_CUR);
     }
+    else printf("Byte stuffing\n");
 } // end def
 
 uint8_t read_bitstream(struct bitstream *stream,
