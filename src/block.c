@@ -114,7 +114,6 @@ void upsampling_recursif(block *blocks, enum component comp, uint8_t indice, uin
         upsampling_recursif(blocks, comp, indice + h1*v1/nb_elements, h1, v1, h, v);
 
     } else {
-        printf("\n\nWHAT /§§§§ §§§§SDF ALERT ROUGES MLJDGKJGKJSKDHJDSG\n\n\n");
         h *= 2;
         uint8_t nb_elements = h * v;
 
@@ -145,12 +144,10 @@ void upsample_vertical(block *blocks, enum component comp, uint8_t indice, uint8
         blocks[indice_cible][comp][i] = blocks[indice][comp][4 + 8*(i/8) + (i%8)/2];
         blocks[indice_cible][comp][i+1] = blocks[indice_cible][comp][i];
     }
-    for (size_t i = 0; i < 64; i+=2) {
         // On complète la première composante en place (celle de gauche)
-        for (size_t i = 63; i > 1; i-=2) {
-            blocks[indice][comp][i] = blocks[indice][comp][8*(i/8) + (i%8)/2];
-            blocks[indice][comp][i-1] = blocks[indice][comp][i];
-        }
+    for (size_t i = 63; i > 1; i-=2) {
+        blocks[indice][comp][i] = blocks[indice][comp][8*(i/8) + (i%8)/2];
+        blocks[indice][comp][i-1] = blocks[indice][comp][i];
     }
 }
 
