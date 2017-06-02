@@ -71,8 +71,6 @@ void load_cur_byte(struct bitstream *stream){
     if(byte == -1){
         stream->cur_byte = 0;
         stream->bits_in_cur_byte = 0;
-        perror("Erroeur lors de la lecture de l'image\n");
-        exit(EXIT_FAILURE);
     } // end if
     else{
         stream->cur_byte = byte;
