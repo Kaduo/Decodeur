@@ -190,8 +190,8 @@ int main(int argc, char **argv)
     int16_t previous_dc_cb = 0;
     int16_t previous_dc_cr = 0;
     for (size_t i = 0; i < nb_mcus; ++i) {
-        //printf("\n\n======================\n");
-        //printf("\nMCU %d :", i);
+        printf("\n\n======================\n");
+        printf("\nMCU %d :", i);
         mcus[i] = extract_mcu(stream,
                                 nb_components_y,
                                 nb_components_cb,
@@ -205,11 +205,11 @@ int main(int argc, char **argv)
 
     }
 
-    /*printf("\nPremière composante Y :\n");
+    printf("\nPremière composante Y :\n");
     for (size_t i = 0; i < 64; i++) {
         printf("%"PRId16 " ", mcus[0]->components_y[0][i]);
     }
-    printf("\n");*/
+    printf("\n");
 
     /* Reconstruction des blocs */
 
@@ -249,10 +249,10 @@ int main(int argc, char **argv)
                                         height_ext,
                                         sampling_factors[COMP_Y][DIR_H], // H1
                                         sampling_factors[COMP_Y][DIR_V]);
-    /*printf("\n");
+    printf("\n");
     for (size_t i = 0; i < 64; i++) {
         printf("%d ", pic->pixels[i]->y);
-    }*/
+    }
     printf("\n");
 
     /*******
