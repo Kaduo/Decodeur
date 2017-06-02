@@ -44,7 +44,9 @@ enum marker {
     MARKER_APP0 = 0xffe0,
     MARKER_COM = 0xfffe,
     MARKER_DQT = 0xffdb,
-    MARKER_SOF = 0xffc0
+    MARKER_SOF = 0xffc0,
+    MARKER_DHT = 0xffc4,
+    MARKER_SOS = 0xffda
 };
 
 /* Structure representant un descripteur contenant toutes les informations lues
@@ -62,35 +64,54 @@ extern void close_jpeg(struct jpeg_desc *jpeg);
 /* Retourne le nom de fichier de l’image ouverte */
 extern char *get_filename(const struct jpeg_desc *jpeg);
 
-// access to stream, placed just at the beginning of the scan raw data
+/* Retourne l’adresse d’un bitstream permettant de lire les donnees brutes
+d’image encodées dans le flux */
 extern struct bitstream *get_bitstream(const struct jpeg_desc *jpeg);
 
-// from DQT
+/* Retourne le nombre de tables de quantifications */
 extern uint8_t get_nb_quantization_tables(const struct jpeg_desc *jpeg);
+
+/* Retourne l’adresse memoire de la i_eme table de quantification */
 extern uint8_t *get_quantization_table(const struct jpeg_desc *jpeg,
                                        uint8_t index);
 
-// from DHT
+/* Retourne le nombre de tables de Huffman de la composante acdc (DC ou AC) */
 extern uint8_t get_nb_huffman_tables(const struct jpeg_desc *jpeg,
                                      enum acdc acdc);
+
+/* Retourne la i_eme table de Huffman de la composante DC ou AC */
 extern struct huff_table *get_huffman_table(const struct jpeg_desc *jpeg,
                                             enum acdc acdc, uint8_t index);
 
-// from Frame Header SOF0
+/* Retourne la taille de l’image (nombre de pixels) dans la direction dir
+(horizontale ou verticale) */
 extern uint16_t get_image_size(struct jpeg_desc *jpeg, enum direction dir);
+
+/* Retourne le nombre de composantes */
 extern uint8_t get_nb_components(const struct jpeg_desc *jpeg);
 
+/* Retourne l’identifiant de la frame_comp_index composante definie dans le frame
+header */
 extern uint8_t get_frame_component_id(const struct jpeg_desc *jpeg,
                                       uint8_t frame_comp_index);
+
+/* Retourne le facteur de sous-echantillonnage dans la direction dir de la
+frame_comp_index composante de couleur */
 extern uint8_t get_frame_component_sampling_factor(const struct jpeg_desc *jpeg,
                                                    enum direction dir,
                                                    uint8_t frame_comp_index);
+
+/* Retourne l’index de la table de quantification de la frame_comp_index
+composante de couleur */
 extern uint8_t get_frame_component_quant_index(const struct jpeg_desc *jpeg,
                                                uint8_t frame_comp_index);
 
-// from Scan Header SOS
+/* Retourne l’identifiant de la scan_comp_index composante lue dans le scan */
 extern uint8_t get_scan_component_id(const struct jpeg_desc *jpeg,
                                      uint8_t scan_comp_index);
+
+/* Retourne l’index de la table de Huffman (DC ou AC) associee a la
+scan_comp_index composante lue dans le scan */
 extern uint8_t get_scan_component_huffman_index(const struct jpeg_desc *jpeg,
                                                 enum acdc,
                                                 uint8_t scan_comp_index);
