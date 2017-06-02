@@ -16,7 +16,6 @@ struct mcu *create_mcu(uint8_t nb_components_y, uint8_t nb_components_cb, uint8_
 
     mcu->components_y = calloc(nb_components_y, sizeof(int16_t *));
     if (nb_components_cb > 0) {
-        printf("\nHELLO THERE !\n");
         mcu->components_cb = calloc(nb_components_cb, sizeof(int16_t *));
         mcu->components_cr = calloc(nb_components_cr, sizeof(int16_t *));
     }
@@ -86,7 +85,7 @@ struct mcu *extract_mcu(struct bitstream *bitstream,
             current_index_y++;
 
         } else if (ordre_des_composantes[i] == COMP_Cb) {
-            printf("ICI : %f LA : %d\n", (double) sizeof(mcu->components_cb)/sizeof(int16_t *), current_index_cb);
+            //printf("ICI : %f LA : %d\n", (double) sizeof(mcu->components_cb)/sizeof(int16_t *), current_index_cb);
             mcu->components_cb[current_index_cb] = get_component(bitstream,
                                                         huff_tables[1][DC],
                                                         huff_tables[1][AC],
