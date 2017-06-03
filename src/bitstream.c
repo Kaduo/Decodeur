@@ -89,7 +89,6 @@ uint8_t read_bitstream(struct bitstream *stream,
         } else {
             stream->end_of_stream = true;
         } // end else
-        printf("fast read\n");
         return 8;
    } // end fast read
    
@@ -122,4 +121,24 @@ uint8_t read_bitstream(struct bitstream *stream,
 // La fonction end_of_bitstream retourne true si le flux a été entièrement parcouru, false s’il reste des bits à lire. 
 bool end_of_bitstream(struct bitstream *stream){
     return stream->end_of_stream;
+} // end def
+
+
+
+/* Optionnel! */
+extern void skip_bitstream_until(struct bitstream *stream, uint8_t byte){
+    stream->byte_pos = 0;
+    while(stream->next != byte && stream->next_available == true){
+        fill_next(stream);
+    } // end while
+    if( stream->next_available){
+        fill_next(stream);
+        stream->byte = stream->next;
+        if( stream->next_available){
+            fill_next(stream);
+        } // end if
+    } else {
+        stream->end_of_stream = true;
+    } // end if
+    
 } // end def

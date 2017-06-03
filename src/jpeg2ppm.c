@@ -16,6 +16,8 @@ int main(int argc, char **argv)
     
     // TEste bitstream    
     struct bitstream *stream = create_bitstream(filename);
+    skip_bitstream_until(stream, 0xff);
+    //skip_bitstream_until(stream, 0xf1);
 uint32_t out=0;
 size_t nb_bits = 8;
 for(size_t i=0; i<20; i++){
