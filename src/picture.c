@@ -60,9 +60,9 @@ struct picture *blocks2pixels(block *blocks,
                 } // end if
                 else{
                     pic->pixels[l*width + b*8 +i] = create_pixel_rgb(
-                        (uint8_t) blocks[l_bloc*nb_blocs_h*v1 +b][0][l_in_bloc*8 + i],
-                        (uint8_t) blocks[l_bloc*nb_blocs_h*v1 +b][1][l_in_bloc*8 + i],
-                        (uint8_t) blocks[l_bloc*nb_blocs_h*v1 +b][2][l_in_bloc*8 + i]);
+                        (uint8_t) blocks[l_bloc*nb_blocs_h*v1 + b][0][l_in_bloc*8 + i],
+                        (uint8_t) blocks[l_bloc*nb_blocs_h*v1 + b][1][l_in_bloc*8 + i],
+                        (uint8_t) blocks[l_bloc*nb_blocs_h*v1 + b][2][l_in_bloc*8 + i]);
 
                 } // end else
             } // end for i.

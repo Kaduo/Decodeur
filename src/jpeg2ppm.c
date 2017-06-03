@@ -93,7 +93,7 @@ enum component *get_components_order(const struct jpeg_desc *jpeg, uint8_t facto
             }
         }
         else {
-            printf("WTF ERREUR FATALE");
+            printf("ERREUR FATALE");
         }
     }
 
@@ -177,14 +177,14 @@ int main(int argc, char **argv)
     // Taille de l'image complétée.
     uint16_t width_ext = 0;
     uint16_t height_ext = 0;
-    if(width%8){
-        width_ext = width + 8 - width % 8;
+    if (width%(8*sampling_factors[0][0])){
+        width_ext = width + (8*sampling_factors[0][0]) - width % (8*sampling_factors[0][0]);
     }
     else{
         width_ext = width;
     }
-    if(height%8){
-        height_ext = height + 8 - height % 8;
+    if (height%(8*sampling_factors[0][1])){
+        height_ext = height + (8*sampling_factors[0][1]) - height % (8*sampling_factors[0][1]);
     }
     else{
         height_ext = height;
