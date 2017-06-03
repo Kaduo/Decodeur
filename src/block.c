@@ -109,7 +109,7 @@ void upsampling_recursif(block *blocks, enum component comp, uint8_t indice, uin
         v *= 2;
         uint8_t nb_elements = h * v;
 
-        upsample_vertical(blocks, comp, indice, indice + h1*v1/nb_elements);
+        //upsample_vertical(blocks, comp, indice, indice + h1*v1/nb_elements);
         upsampling_recursif(blocks, comp, indice, h1, v1, h, v);
         upsampling_recursif(blocks, comp, indice + h1*v1/nb_elements, h1, v1, h, v);
 

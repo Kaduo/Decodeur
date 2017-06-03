@@ -18,10 +18,10 @@ LDFLAGS = -lm
 # Liste des fichiers objet
 
 # les notres...
-OBJPROF_FILES =  $(OBJPROF_DIR)/huffman.o  $(OBJPROF_DIR)/jpeg_reader.o
+OBJPROF_FILES =  $(OBJPROF_DIR)/huffman.o  $(OBJPROF_DIR)/jpeg_reader.o $(OBJPROF_DIR)/bitstream.o
 
 # et les votres!
-OBJ_FILES = $(OBJ_DIR)/shared.o $(OBJ_DIR)/block.o $(OBJ_DIR)/zigzag.o $(OBJ_DIR)/rgb.o $(OBJ_DIR)/pixel.o $(OBJ_DIR)/picture.o $(OBJ_DIR)/mcu.o $(OBJ_DIR)/jpeg2ppm.o $(OBJ_DIR)/component.o $(OBJ_DIR)/bitstream.o
+OBJ_FILES = $(OBJ_DIR)/shared.o $(OBJ_DIR)/block.o $(OBJ_DIR)/zigzag.o $(OBJ_DIR)/rgb.o $(OBJ_DIR)/pixel.o $(OBJ_DIR)/picture.o $(OBJ_DIR)/mcu.o $(OBJ_DIR)/jpeg2ppm.o $(OBJ_DIR)/component.o
 
 # cible par défaut
 
