@@ -135,7 +135,36 @@ void upsample_horizontal(block *blocks, enum component comp, uint8_t indice, uin
         exit(EXIT_FAILURE);
     }
 
-    printf("\nBLOC 1\n");
+    blocks[indice_cible][comp] = calloc(64, sizeof(int16_t));
+
+    for (size_t i = 0; i < 64; i+=2) {
+        // On complète la deuxième composante (celle de droite)
+        blocks[indice_cible][comp][i] = blocks[indice][comp][4 + 8*(i/8) + (i%8)/2];
+        blocks[indice_cible][comp][i+1] = blocks[indice_cible][comp][i];
+    }
+        // On complète la première composante en place (celle de gauche)
+    for (size_t i = 63; i > 1; i-=2) {
+        blocks[indice][comp][i] = blocks[indice][comp][8*(i/8) + (i%8)/2];
+        blocks[indice][comp][i-1] = blocks[indice][comp][i];
+    }
+
+    printf("\n");
+}
+
+
+void upsample_vertical(block *blocks, enum component comp, uint8_t indice, uint8_t indice_cible)
+{
+    if (blocks[indice][comp] == NULL) {
+        perror("Impossible de diviser une composante inexistante !");
+        exit(EXIT_FAILURE);
+    }
+
+    if (blocks[indice_cible][comp] != NULL) {
+        perror("RAAAAAAAAAAAAAAH !!");
+        exit(EXIT_FAILURE);
+    }
+
+    printf("\nBLOC original : \n");
     for (size_t i = 0; i < 64; i++) {
         if (i%8 == 0) {
             printf("\n");
