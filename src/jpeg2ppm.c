@@ -152,15 +152,14 @@ int main(int argc, char **argv)
 
 
     for (size_t i = 0; i < nb_components; i++) {
-        printf("huh");
         sampling_factors[i][0] = get_frame_component_sampling_factor(jdesc, DIR_H, i);
         sampling_factors[i][1] = get_frame_component_sampling_factor(jdesc, DIR_V, i);
     }
 
-    // H1 V1
+    // Sampling factors
     printf("H1 : %hhu, V1 : %hhu\n", sampling_factors[0][0], sampling_factors[0][1]);
-    printf("H1 : %hhu, V1 : %hhu\n", sampling_factors[1][0], sampling_factors[1][1]);
-    printf("H1 : %hhu, V1 : %hhu\n", sampling_factors[2][0], sampling_factors[2][1]);
+    printf("H2 : %hhu, V3 : %hhu\n", sampling_factors[1][0], sampling_factors[1][1]);
+    printf("H3 : %hhu, V3 : %hhu\n", sampling_factors[2][0], sampling_factors[2][1]);
 
     //Nombre de composantes par MCU
     uint8_t nb_components_y = sampling_factors[0][0]*sampling_factors[0][1];
