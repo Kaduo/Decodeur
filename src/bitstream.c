@@ -76,6 +76,24 @@ uint8_t read_bitstream(struct bitstream *stream,
     if(nb_bits == 0) return 0;
     
     uint8_t nb_bits_read = 0;
+    
+   // Lecture en mode rapide pour lecture d'octet alligné.
+    if( nb_bits == 8 && stream->byte_pos == 0){
+        *dest = stream->byte;
+        // Si on peut encore lire le fichier.
+        if(stream->next_available){
+            if(discard_byte_stuffing) del_byte_stuffing(stream);
+            stream->byte = stream->next;
+            fill_next(stream);
+            stream->byte_pos = 0;
+        } else {
+            stream->end_of_stream = true;
+        } // end else
+        printf("fast read\n");
+        return 8;
+   } // end fast read
+   
+    // Lecture bit à bit.
     for(uint8_t i=0; i < nb_bits; i++){
         // On lit un bit.
         *dest <<= 1;
