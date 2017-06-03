@@ -10,7 +10,7 @@ int main(int argc, char **argv)
 
     FILE *pf = fopen("test.jpeg", "wb");
     uint8_t data[] = {
-    0xaa, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+    0xaa, 1, 0x55, 0x55, 4, 5, 6, 0xff, 7, 8, 0xff, 0x00, 9};
     fwrite(data, sizeof(data), 1, pf);
     fclose(pf);
     
