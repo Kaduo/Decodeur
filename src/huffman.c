@@ -27,6 +27,12 @@ printf("Fonction load huffman table\n");
             nb_codes += nb_level_codes[i];
             printf("%d codes au niveau %hhu\n", nb_level_codes[i], i+1);
         } // end for
+        
+        // Vérification sur le nombre de code.
+        if(nb_codes > 256){
+            fprintf(stderr, "Format de table de Huffman non compatible. La somme des codes est supérieur à 256 : %d\n", nb_codes);
+            exit(EXIT_FAILURE);
+        } // end if
         printf("Nombre de code : %d\n", nb_codes);
         printf("Nombre de byte lu : %d\n", *nb_byte_read);
     exit(EXIT_FAILURE);
