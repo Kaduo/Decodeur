@@ -55,7 +55,7 @@ printf("\n# Fonction load huffman table\n");
             // Si on a des code sur ce niveau, on met à jour la profondeur.
             if(nb_level_codes[i]) deep = i+1;
             
-            printf("%d codes au niveau %hhu\n", nb_level_codes[i], i+1);
+            printf("%d codes au niveau %d\n", nb_level_codes[i], i+1);
         } // end for
         
         // Vérification sur le nombre de code.
@@ -67,24 +67,55 @@ printf("\n# Fonction load huffman table\n");
         printf("## Nombre de code : %d\n", nb_codes);
         printf("Profondeur : %d\n", deep);
         
-        // Lecture des codes.
-        uint8_t code  = 0;
+        // Construction de l'arbre.
+        struct node *root = create_node(false, 0xFF);
+        struct node **free_nodes = malloc(sizeof(struct node *) << deep);
+        uint16_t nb_free_slots = 2;
+        struct node **next_free_nodes = malloc(sizeof(struct node *) << deep);
+        uint16_t nb_next_free_slots = 0;
+        
         // Boucle sur les niveaux.
-        for(uint8_t l=0; l<deep; l++){
-            printf("Lecture des code du niveau %d\n", l);
-            for(uint8_t c=0; c < nb_level_codes[l]; c++){
-                nb_bits_read = read_bitstream(stream, 8, &tmp, true);
-                if(nb_bits_read != 8){
-                    perror("Erreur de lecture du fichier lors de l'extraction des code de huffman");
-                    exit(EXIT_FAILURE);
-                } // end def error
-                *nb_byte_read +=1;
-                code = (uint8_t) tmp;
+        for(uint8_t l=1; l<=deep; l++){
+            printf("Complétion du niveau %d\n", l);
+            
+            // Boucle sur les noeuds du niveau.
+            for(uint16_t i=0; i < nb_free_slots; i++){
+                // Si on a écrit tout les code Huffman, on sort des boucles.
+                if(l == deep && nb_level_codes[l-1] <= i) break;
                 
-                printf("numéro %d, code : %d\n", c, code);
-            } // end for c.
+                printf("noeud : %d, slot %d\n", i/2, i%2);
+                // On regarde si des codes sont encore dispo pour ce niveau.
+                if( nb_level_codes[l-1] > i){
+                    printf("Ajout d'une feuille ");
+                    // On ajoute une feuille.
+                    nb_bits_read = read_bitstream(stream, 8, &tmp, true);
+                    if(nb_bits_read != 8){
+                        perror("Erreur de lecture du fichier lors de l'extraction des code de huffman");
+                        exit(EXIT_FAILURE);
+                    } // end def error
+                    *nb_byte_read +=1;
+                    printf("symbole %d\n", (uint8_t) tmp);
+                    free_nodes[i/2+i%2] = create_node(true, (uint8_t) tmp);
+                } else { // ajout d'un noeud
+                    printf("Ajout d'un noeud\n");
+                    struct node *new = create_node(false, 0xFF);
+                    free_nodes[i/2+i%2] = new;
+                    // On l'ajoute à la liste des noeuds à parccourir pour le prochain niveau.
+                    next_free_nodes[i] = new;
+                    nb_next_free_slots += 2;
+                } // end else
+            } // end for i.
+            
+            struct node **sav = free_nodes; 
+            free_nodes = next_free_nodes;
+            next_free_nodes = sav;
+            nb_free_slots = nb_next_free_slots;
+            nb_next_free_slots = 0;
         } // end for n.
         printf("Nombre de byte lu : %d\n", *nb_byte_read);
+        free(free_nodes);
+        free(next_free_nodes);
+        table->tree = root;
     //exit(EXIT_FAILURE);
         return table;        
     
