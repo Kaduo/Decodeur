@@ -1,8 +1,32 @@
 #include "huffman.h"
 
+struct node{
+    struct node *childs[2];
+    bool sheet;
+    uint8_t value;
+    };
+
 struct huff_table{
     uint16_t nb_codes;
+    struct node *tree;
 };
+
+struct node *create_node(bool sheet, uint8_t value){
+    struct node *n = malloc(sizeof(struct node));
+    n->childs[0] = NULL;
+    n->childs[1] = NULL;
+    n->sheet = sheet;
+    n->value = value;
+    return n;
+} // end def
+
+
+void free_tree(struct node *n){
+    if(n->childs[0]) free_tree(n->childs[0]);
+    if(n->childs[1]) free_tree(n->childs[0]);
+    
+    free(n);
+} // end def
 
 extern struct huff_table *load_huffman_table(struct bitstream *stream,
     uint16_t *nb_byte_read){
