@@ -74,8 +74,13 @@ printf("\n# Fonction load huffman table\n");
             printf("Lecture des code du niveau %d\n", l);
             for(uint8_t c=0; c < nb_level_codes[l]; c++){
                 nb_bits_read = read_bitstream(stream, 8, &tmp, true);
-                code = (uint8_t) tmp;
+                if(nb_bits_read != 8){
+                    perror("Erreur de lecture du fichier lors de l'extraction des code de huffman");
+                    exit(EXIT_FAILURE);
+                } // end def error
                 *nb_byte_read +=1;
+                code = (uint8_t) tmp;
+                
                 printf("numéro %d, code : %d\n", c, code);
             } // end for c.
         } // end for n.
