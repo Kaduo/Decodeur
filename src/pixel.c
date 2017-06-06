@@ -10,7 +10,7 @@ Auteurs .... : A. He - M. Barbe - B. Potet (Ensimag 1A 2016/2017 - G6)
 /* Cree un pixel suivant une luminance donnee */
 union pixel *create_pixel_bw(uint8_t y)
 {
-    union pixel *pixel = malloc(sizeof(union pixel));
+    union pixel *pixel = malloc(sizeof(uint8_t));
     pixel->y = y;
     return pixel;
 }

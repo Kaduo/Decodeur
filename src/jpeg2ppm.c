@@ -284,11 +284,10 @@ int main(int argc, char **argv)
     * Création de l'image PPM ou PGM *
     *****/
 
-    //free_picture(pic);
-
     printf("\nHOULALA\n");
     write_ppm(pic, get_outfile_name(filename, pic->colored));
     fprintf(stderr, "\nWHOAOUH\n");
+    free_picture(pic, width*height);
     // Libération mémoire du tableau de MCU
     for(uint32_t i=0; i< nb_mcus; i++){
          free(mcus[i]);
@@ -297,7 +296,6 @@ int main(int argc, char **argv)
 
     // Libération mémoire des blocks.
     for(size_t b=0; b<nb_blocks; b++){
-        fprintf(stderr, "%d\n", b);
         free_block(liste_blocks[b], est_couleur(jdesc));
     } // end for
     free(liste_blocks);
