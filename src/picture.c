@@ -51,7 +51,7 @@ struct picture *blocks2pixels(block *blocks,
 
         // Boucle sur les blocs de la ligne l.
         uint16_t b = h1*(l_bloc%v1);
-        for(; b < nb_blocs_h*v1 - v1 + l_bloc%v1;) {
+        for(; b < nb_blocs_h*v1 - 1 - h1*(v1 - l_bloc%v1 - 1);) {
             printf("indice block : %d\n", b);
             printf("ligne block : %d\n", l_bloc);
             printf("indice block whoa : %d\n", (l_bloc/v1)*nb_blocs_h + b);
