@@ -286,7 +286,7 @@ int main(int argc, char **argv)
     char *outfile_name = get_outfile_name(filename, pic->colored);
     write_ppm(pic, outfile_name);
     free(outfile_name);
-    free_picture(pic, width*height);
+    free_picture(pic);
     // Libération mémoire du tableau de MCU
     for(uint32_t i=0; i< nb_mcus; i++){
          free_mcu(mcus[i]);
