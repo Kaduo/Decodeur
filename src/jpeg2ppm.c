@@ -93,7 +93,7 @@ enum component *get_components_order(const struct jpeg_desc *jpeg, uint8_t facto
             }
         }
         else {
-            printf("WTF ERREUR FATALE");
+            printf("ERREUR FATALE");
         }
     }
 
@@ -152,15 +152,14 @@ int main(int argc, char **argv)
 
 
     for (size_t i = 0; i < nb_components; i++) {
-        printf("huh");
         sampling_factors[i][0] = get_frame_component_sampling_factor(jdesc, DIR_H, i);
         sampling_factors[i][1] = get_frame_component_sampling_factor(jdesc, DIR_V, i);
     }
 
-    // H1 V1
+    // Sampling factors
     printf("H1 : %hhu, V1 : %hhu\n", sampling_factors[0][0], sampling_factors[0][1]);
-    printf("H1 : %hhu, V1 : %hhu\n", sampling_factors[1][0], sampling_factors[1][1]);
-    printf("H1 : %hhu, V1 : %hhu\n", sampling_factors[2][0], sampling_factors[2][1]);
+    printf("H2 : %hhu, V3 : %hhu\n", sampling_factors[1][0], sampling_factors[1][1]);
+    printf("H3 : %hhu, V3 : %hhu\n", sampling_factors[2][0], sampling_factors[2][1]);
 
     //Nombre de composantes par MCU
     uint8_t nb_components_y = sampling_factors[0][0]*sampling_factors[0][1];
@@ -177,14 +176,14 @@ int main(int argc, char **argv)
     // Taille de l'image complétée.
     uint16_t width_ext = 0;
     uint16_t height_ext = 0;
-    if(width%8){
-        width_ext = width + 8 - width % 8;
+    if (width%(8*sampling_factors[0][0])){
+        width_ext = width + (8*sampling_factors[0][0]) - width % (8*sampling_factors[0][0]);
     }
     else{
         width_ext = width;
     }
-    if(height%8){
-        height_ext = height + 8 - height % 8;
+    if (height%(8*sampling_factors[0][1])){
+        height_ext = height + (8*sampling_factors[0][1]) - height % (8*sampling_factors[0][1]);
     }
     else{
         height_ext = height;

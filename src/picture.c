@@ -46,11 +46,11 @@ struct picture *blocks2pixels(block *blocks,
 
     // Boucle sur les lignes de pixels.
     for(uint16_t l=0; l < height; l++){
-        l_bloc = (l/8)/v1;
+        l_bloc = (l/8);
         l_in_bloc = l%8;
 
         // Boucle sur les blocs de la ligne l.
-        for(uint16_t b=0; b < (nb_blocs_h -1) * v1; b+=v1){
+        for(uint16_t b = v1*(l_bloc%v1); b < (nb_blocs_h - 1) * v1; b+= v1){
             // Boucle sur les pixels de la ligne l%8 du bloc b.
             for(uint8_t i=0; i < 8; i++){
 
@@ -59,14 +59,20 @@ struct picture *blocks2pixels(block *blocks,
                         (uint8_t) blocks[l_bloc*nb_blocs_h*v1 + b][0][l_in_bloc*8 + i]);
                 } // end if
                 else{
-                    pic->pixels[l*width + b*8 +i] = create_pixel_rgb(
-                        (uint8_t) blocks[l_bloc*nb_blocs_h*v1 +b][0][l_in_bloc*8 + i],
-                        (uint8_t) blocks[l_bloc*nb_blocs_h*v1 +b][1][l_in_bloc*8 + i],
-                        (uint8_t) blocks[l_bloc*nb_blocs_h*v1 +b][2][l_in_bloc*8 + i]);
+                    printf("debut\n");
+                    printf("%d\n", l_in_bloc*8 + i);
+                    printf("HElo\n");
+                    printf("%p\n", pic->pixels[l*width + (b/v1)*8 + i]);
+
+                    pic->pixels[l*width + (b/v1)*8 + i] = create_pixel_rgb(
+                        (uint8_t) blocks[l_bloc*nb_blocs_h + b][0][l_in_bloc*8 + i],
+                        (uint8_t) blocks[l_bloc*nb_blocs_h + b][1][l_in_bloc*8 + i],
+                        (uint8_t) blocks[l_bloc*nb_blocs_h + b][2][l_in_bloc*8 + i]);
 
                 } // end else
             } // end for i.
         } // end for b.
+        printf("hi\n");
         size_t indice_dernier_bloc = nb_blocs_h * v1 - v1;
         for(uint8_t i=0; i < 8 - (width_ext - width); i++){
 
@@ -82,7 +88,8 @@ struct picture *blocks2pixels(block *blocks,
 
             } // end else
         }
-    } // end for l
+    } // end for
+    printf("hey\n");
 return pic;
 } // end def
 

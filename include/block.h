@@ -25,6 +25,8 @@ extern block *extract_blocks(struct mcu *mcu, const uint8_t factors[COMP_NB][DIR
 
 void upsampling_recursif(block *blocks, enum component comp, uint8_t indice, uint8_t h1, uint8_t v1, uint8_t h, uint8_t v);
 
+void upsample_horizontal(block *blocks, enum component comp, uint8_t indice, uint8_t indice_cible);
+
 void upsample_vertical(block *blocks, enum component comp, uint8_t indice, uint8_t indice_cible);
 
 /* Sur-echantillonne un composant donné sous-echantillonné en deux */
