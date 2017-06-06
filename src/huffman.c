@@ -174,11 +174,9 @@ uint8_t *nb_bits_read){
 extern void free_huffman_table(struct huff_table *table){
     
     if(table){
-        fprintf(stderr, "Pointeur : %p", table);
         free_tree(table->tree);
         free(table);
         table = NULL;
     } // end if
-    fprintf(stderr, "Sortie de free huffman\n");
 } // end def
 
