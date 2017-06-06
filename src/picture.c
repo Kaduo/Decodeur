@@ -41,21 +41,21 @@ struct picture *blocks2pixels(block *blocks,
     struct picture *pic = create_picture(width, height, !is_bw);
     size_t nb_blocs_h = width_ext / 8;
     size_t nb_blocs_v = height_ext / 8;
-    uint16_t l_bloc = 0;
-    uint16_t l_in_bloc = 0;
+    uint32_t l_bloc = 0;
+    uint32_t l_in_bloc = 0;
 
     // Boucle sur les lignes de pixels.
-    for(uint16_t l=0; l < height; l++){
+    for(uint32_t l=0; l < height; l++){
         l_bloc = (l/8);
         l_in_bloc = l%8;
 
         // Boucle sur les blocs de la ligne l.
-        uint16_t b = h1*(l_bloc%v1);
-        for(; b < nb_blocs_h*v1 - 1 - h1*(v1 - l_bloc%v1 - 1);) {
-            printf("indice block : %d\n", b);
+        uint32_t b = h1*(l_bloc%v1);
+        for(; b < (uint32_t) nb_blocs_h*v1 - 1 - h1*(v1 - l_bloc%v1 - 1);) {
+            /*printf("indice block : %d\n", b);
             printf("ligne block : %d\n", l_bloc);
             printf("indice block whoa : %d\n", (l_bloc/v1)*nb_blocs_h + b);
-            printf("ligne pix : %d\n", l);
+            printf("ligne pix : %d\n", l);*/
 
             // Boucle sur les pixels de la ligne l%8 du bloc b.
             for(uint8_t i=0; i < 8; i++){
