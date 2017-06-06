@@ -39,6 +39,6 @@ void upsample_vertical(block *blocks, enum component comp, uint8_t indice, uint8
 void convert_to_rgb(block block);
 
 /* Libere de la memoire la place occupee par un bloc */
-extern void free_block(block block);
+extern void free_block(block block, bool is_color);
 
 #endif

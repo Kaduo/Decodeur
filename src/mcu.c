@@ -41,7 +41,8 @@ void free_components(int16_t **components, uint8_t size_components)
 
 void free_mcu(struct mcu *mcu)
 {
-    free_components(mcu->components_y, mcu->nb_ys);
+    // On libère les comp_Y dans les blocks, car on fait une copie.
+    //free_components(mcu->components_y, mcu->nb_ys);
     free_components(mcu->components_cb, mcu->nb_cbs);
     free_components(mcu->components_cr, mcu->nb_crs);
     free(mcu);
