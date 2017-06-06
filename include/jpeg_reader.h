@@ -37,18 +37,6 @@ enum acdc {
     ACDC_NB
 };
 
-/* Enumeration des marqueurs JPEG */
-enum marker {
-    MARKER_SOI = 0xffd8,
-    MARKER_EOI = 0xffd9,
-    MARKER_APP0 = 0xffe0,
-    MARKER_COM = 0xfffe,
-    MARKER_DQT = 0xffdb,
-    MARKER_SOF = 0xffc0,
-    MARKER_DHT = 0xffc4,
-    MARKER_SOS = 0xffda
-};
-
 /* Structure representant un descripteur contenant toutes les informations lues
 dans les entêtes des sections JPEG */
 struct jpeg_desc;
@@ -113,7 +101,7 @@ extern uint8_t get_scan_component_id(const struct jpeg_desc *jpeg,
 /* Retourne l’index de la table de Huffman (DC ou AC) associee a la
 scan_comp_index composante lue dans le scan */
 extern uint8_t get_scan_component_huffman_index(const struct jpeg_desc *jpeg,
-                                                enum acdc,
+                                                enum acdc acdc,
                                                 uint8_t scan_comp_index);
 
 #endif
