@@ -294,7 +294,13 @@ int main(int argc, char **argv)
          free_mcu(mcus[i]);
      } // end for
     free(mcus);
-
+    
+    // Libération mémoire des blocks.
+    for(size_t b=0; b<nb_blocks; b++){
+        free_block(liste_blocks[b], est_couleur(jdesc));
+    } // end for
+    free(liste_blocks);
+    
     /* Nettoyage de printemps : close_jpeg ferme aussi le bitstream
      * (voir Annexe C du sujet). */
     close_jpeg(jdesc);
