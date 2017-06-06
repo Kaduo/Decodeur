@@ -16,7 +16,7 @@ struct picture {
     size_t width;
     size_t height;
     bool colored;
-    union pixel **pixels;
+    union pixel *pixels;
 };
 
 /* Cree une image a partir de dimensions donnes */
@@ -52,6 +52,6 @@ extern void secured_close_file(FILE **file, const char *filename);
 extern uint8_t get_magic_number(bool colored);
 
 /* Libere en memoire l'espace occupe par une image donnee */
-void free_picture(struct picture *picture, uint32_t nb_pixels);
+void free_picture(struct picture *picture);
 
 #endif
