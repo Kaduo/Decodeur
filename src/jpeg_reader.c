@@ -21,6 +21,8 @@ Auteurs .... : A. He - M. Barbe - B. Potet (Ensimag 1A 2016/2017 - G6)
 #define MAX_HUFFMAN_TABLES 4
 /* Taille en bits d'un octet */
 #define BYTE_SIZE 8
+/* Taille en bits du nombre maximum de bits possibles de lire par un read */
+#define MAX_READ 32
 
 /* == SECTION APP == */
 
@@ -78,13 +80,13 @@ static const char NORM[] = "JFIF";
 /* Enumeration des marqueurs JPEG */
 enum marker {
     MARKER_SOI = 0xffd8,
-    MARKER_EOI = 0xffd9,
-    MARKER_APP0 = 0xffe0,
+    MARKER_APP = 0xffe0,
     MARKER_COM = 0xfffe,
     MARKER_DQT = 0xffdb,
     MARKER_SOF = 0xffc0,
     MARKER_DHT = 0xffc4,
-    MARKER_SOS = 0xffda
+    MARKER_SOS = 0xffda,
+    MARKER_EOI = 0xffd9
 };
 
 /* Structure representant une frame component */
@@ -111,7 +113,7 @@ struct jpeg_desc {
     uint8_t nb_quantization_tables; // Nombre de tables de quantification
     uint8_t **quantization_tables; // Tables de quantification
     uint8_t *nb_huffman_tables; // Nombre de tables de Huffman par composante
-    struct huff_table **huff_tables; // Tables de Huffman
+    struct huff_table ***huff_tables; // Tables de Huffman
     struct bitstream *stream; // Flux de donnees
 };
 
@@ -126,16 +128,16 @@ struct jpeg_desc *read_jpeg(const char *filename)
     jpeg->nb_quantization_tables = 0;
     jpeg->quantization_tables = calloc(MAX_QUANT_TABLES, sizeof(uint8_t*));
     jpeg->nb_huffman_tables = calloc(ACDC_NB, sizeof(uint8_t));
-    jpeg->huff_tables = calloc(ACDC_NB, sizeof(struct huff_table*));
-    jpeg->huff_tables[AC] = calloc(MAX_HUFFMAN_TABLES, sizeof(struct huff_table));
-    jpeg->huff_tables[DC] = calloc(MAX_HUFFMAN_TABLES, sizeof(struct huff_table));
+    jpeg->huff_tables = calloc(ACDC_NB, sizeof(struct huff_table**));
+    jpeg->huff_tables[AC] = calloc(MAX_HUFFMAN_TABLES, sizeof(struct huff_table*));
+    jpeg->huff_tables[DC] = calloc(MAX_HUFFMAN_TABLES, sizeof(struct huff_table*));
 
     /* Recuperation du nom du fichier */
     jpeg->filename = calloc(strlen(filename) + 1, sizeof(char));
     if (!strcpy(jpeg->filename, filename)) {
         fprintf(stderr, "Le nom du fichier '%s' n'a pas pu etre recupere.\n",
                     filename);
-        exit(1);
+        exit(EXIT_FAILURE);
     }
 
     /* Recuperation du flux de donnees */
@@ -150,25 +152,16 @@ struct jpeg_desc *read_jpeg(const char *filename)
     /* Variable qui stockera la longueur de la section */
     uint32_t size = 0;
     /* Variable qui stockera les bits restant a lire dans une section */
-    int32_t unread = 0;
-    /* Variable qui stockera le nombre de tables de quantification */
-    uint8_t nb_dqt = 0;
-    /* Variable qui stockera l'indice iq */
-    uint8_t iq = 0;
-    /* Variable qui stockera le nombre de bits lus par le module Huffman */
-    uint16_t nb_bytes_read = 0;
-    /* Variable qui stockera le type de la table de Huffman */
-    uint8_t huff_type = 0;
-    /* Variable qui stockera l'indice de la table de Huffman */
-    uint8_t huff_index = 0;
+    uint32_t unread = 0;
 
     /* Traitement du debut de l'image (marqueur SOI) */
     read_bitstream(jpeg->stream, MARKER_SIZE, &read, false);
     if (read != MARKER_SOI) {
-        fprintf(stderr, "Le fichier JPEG debute par le marqueur '%04x' au lieu \
-                    d'un marqueur SOI '%04x'.\n", read, MARKER_SOI);
-        exit(1);
+        fprintf(stderr, "Le fichier JPEG debute par le marqueur '0x%04x' au lieu \
+                    d'un marqueur SOI '0x%04x'.\n", read, MARKER_SOI);
+        exit(EXIT_FAILURE);
     }
+
 
     /* Lecture du marqueur */
     nb_read = read_bitstream(jpeg->stream, MARKER_SIZE, &read, false);
@@ -180,57 +173,71 @@ struct jpeg_desc *read_jpeg(const char *filename)
         /* Comparaison du marqueur lu avec les marqueurs connus */
         switch(read) {
             /* Application Data */
-            case MARKER_APP0:
+            case MARKER_APP:
+                printf("JUI APP !\n");
                 for (uint8_t i = 0; i < APP_NORM; ++i) {
                     read_bitstream(jpeg->stream, BYTE_SIZE, &read, false);
-                    if ((char) (read + '0') != NORM[i]) {
-                        fprintf(stderr, "Marqueur APP : la norme n'est pas \
-                                    JFIF (caractere %c a la %hhue position)\n.",
-                                    read + '0', i);
-                        exit(1);
+                    if ((char) read != NORM[i]) {
+                        fprintf(stderr, "Marqueur APP : la norme n'est pas "
+                                    "JFIF (caractere %c a la %hhue position).\n",
+                                    (char) read, i);
+                        exit(EXIT_FAILURE);
                     }
                 }
-                unread = size * BYTE_SIZE - MARKER_SIZE - SECTION_SIZE - APP_NORM;
+                /* Ignore le reste de la section */
+                unread = size * BYTE_SIZE - SECTION_SIZE - APP_NORM * BYTE_SIZE;
+                while (unread > MAX_READ) {
+                    read_bitstream(jpeg->stream, MAX_READ, &read, false);
+                    unread -= MAX_READ;
+                }
                 read_bitstream(jpeg->stream, unread, &read, false);
                 break;
             /* Commentaire */
             case MARKER_COM:
+            printf("JUI COM !\n");
                 /* Lecture de tous les bits de la section */
-                unread = size * BYTE_SIZE - MARKER_SIZE - SECTION_SIZE;
+                unread = size * BYTE_SIZE - SECTION_SIZE;
+                while (unread > MAX_READ) {
+                    read_bitstream(jpeg->stream, MAX_READ, &read, false);
+                    unread -= MAX_READ;
+                }
                 read_bitstream(jpeg->stream, unread, &read, false);
                 break;
             /* Define Quantization Table */
             case MARKER_DQT:
+                printf("JUI DQT !\n");
                 /* Calcul du nombre de tables de quantification */
-                unread = size * BYTE_SIZE - MARKER_SIZE - SECTION_SIZE;
-                nb_dqt = unread / DQT_TABLE;
+                unread = size * BYTE_SIZE - SECTION_SIZE;
+                uint8_t nb_dqt = unread / DQT_TABLE;
                 /* Lecture de chaque table de quantification */
-                for (uint8_t i = jpeg->nb_quantization_tables; i < nb_dqt; ++i) {
+                for (uint8_t i = 0; i < nb_dqt; ++i) {
                     /* Incrementation du nombre de tables dans la structure */
                     jpeg->nb_quantization_tables++;
                     read_bitstream(jpeg->stream, DQT_PRECISION, &read, false);
                     read_bitstream(jpeg->stream, DQT_INDEX_Q, &read, false);
-                    iq = (uint8_t) read;
+                    uint8_t iq = read;
                     /* Recuperation des tables de quantification */
                     jpeg->quantization_tables[iq] = calloc(DQT_NB_VALUES,
                                                             sizeof(uint8_t));
-                    for (uint8_t i = 0; i < DQT_NB_VALUES; ++i) {
+                    for (uint8_t j = 0; j < DQT_NB_VALUES; ++j) {
                         read_bitstream(jpeg->stream, BYTE_SIZE, &read, false);
-                        jpeg->quantization_tables[iq][i] = (uint8_t) read;
+                        jpeg->quantization_tables[iq][j] = (uint8_t) read;
                     }
                 }
                 break;
             /* Start Of Frame */
             case MARKER_SOF:
+                printf("JUI SOF !\n");
                 /* Recuperation des dimensions */
                 read_bitstream(jpeg->stream, SOF_PRECISION, &read, false);
                 read_bitstream(jpeg->stream, SOF_IMAGE_SIZE, &read, false);
-                jpeg->size[DIR_H] = (uint16_t) read;
-                read_bitstream(jpeg->stream, SOF_IMAGE_SIZE, &read, false);
                 jpeg->size[DIR_V] = (uint16_t) read;
+                read_bitstream(jpeg->stream, SOF_IMAGE_SIZE, &read, false);
+                jpeg->size[DIR_H] = (uint16_t) read;
+                printf("SIZE : %ux%u", jpeg->size[DIR_H], jpeg->size[DIR_V]);
                 /* Recuperation du nombre de composantes */
                 read_bitstream(jpeg->stream, SOF_NB_COMPONENTS, &read, false);
-                jpeg->nb_components += (uint8_t) read;
+                jpeg->nb_components = (uint8_t) read;
                 jpeg->frame_components = calloc(jpeg->nb_components,
                                             sizeof(struct frame_component*));
                 for (uint8_t i = 0; i < jpeg->nb_components; ++i) {
@@ -255,30 +262,42 @@ struct jpeg_desc *read_jpeg(const char *filename)
                 break;
             /* Define Huffman Tables */
             case MARKER_DHT:
-                read_bitstream(jpeg->stream, DHT_UNUSED, &read, false);
-                if (read != 0) {
-                    fprintf(stderr, "Marqueur DHT : les trois premiers bits \
-                                valent %u et non 0\n.", read);
-                    exit(1);
-                }
+                printf("JUI DHT !\n");
                 /* Recuperation des tables de Huffman */
-                while (size - nb_bytes_read > 0) {
+                unread = size - SECTION_SIZE / BYTE_SIZE; // En octets !
+                while (unread > 0) {
+                    /* Verification de la valeur 0 attendue */
+                    read_bitstream(jpeg->stream, DHT_UNUSED, &read, false);
+                    if (read != 0) {
+                        fprintf(stderr, "Marqueur DHT : les trois premiers bits "
+                                    "valent %u et non 0.\n", read);
+                        exit(EXIT_FAILURE);
+                    }
+                    /* Recuperation du type */
                     read_bitstream(jpeg->stream, DHT_TYPE, &read, false);
-                    huff_type = (uint8_t) read;
+                    uint8_t huff_type = (uint8_t) read;
+                    /* Recuperation de l'index */
                     read_bitstream(jpeg->stream, DHT_INDEX, &read, false);
-                    huff_index = (uint8_t) read;
+                    uint8_t huff_index = (uint8_t) read;
+                    /* Recuperation de la table */
+                    uint16_t nb_bytes_read = 0;
                     jpeg->huff_tables[huff_type][huff_index] = load_huffman_table(
                                                             jpeg->stream,
                                                             &nb_bytes_read);
                     jpeg->nb_huffman_tables[huff_type]++;
+                    unread -= nb_bytes_read +
+                                (DHT_UNUSED + DHT_TYPE + DHT_INDEX) / BYTE_SIZE;
                 }
                 break;
             /* Start Of Scan */
             case MARKER_SOS:
+                printf("JUI SOS !\n");
                 /* Recuperation des associations composantes - tables Huffman */
-                read_bitstream(jpeg->stream, SOS_NB_COMPONENTS, &read, false);
-                jpeg->scan_components = calloc(read, sizeof(struct scan_component));
-                for (uint32_t i = 0; i < read; ++i) {
+                nb_read = read_bitstream(jpeg->stream, SOS_NB_COMPONENTS, &read, false);
+                jpeg->scan_components = calloc(read, sizeof(struct scan_component*));
+                uint8_t nb_components = (uint8_t) read;
+                for (uint32_t i = 0; i < nb_components; ++i) {
+                    jpeg->scan_components[i] = malloc(sizeof(struct scan_component));
                     read_bitstream(jpeg->stream, SOS_IC, &read, false);
                     jpeg->scan_components[i]->ic = (uint8_t) read;
                     jpeg->scan_components[i]->ih = calloc(ACDC_NB,
@@ -289,11 +308,11 @@ struct jpeg_desc *read_jpeg(const char *filename)
                     jpeg->scan_components[i]->ih[AC] = (uint8_t) read;
                 }
                 read_bitstream(jpeg->stream, SOS_UNUSED, &read, false);
-                break;
+                return jpeg;
             /* Marqueur inconnu */
             default:
-                fprintf(stderr, "Marqueur lu '%04x' inconnu.\n", read);
-                exit(1);
+                fprintf(stderr, "Marqueur lu '0x%04x' inconnu.\n", read);
+                exit(EXIT_FAILURE);
         }
         /* Lecture du marqueur suivant */
         nb_read = read_bitstream(jpeg->stream, MARKER_SIZE, &read, false);
@@ -301,20 +320,45 @@ struct jpeg_desc *read_jpeg(const char *filename)
 
     /* === FIN DE LECTURE DES SECTIONS JPEG === */
 
-    /* Traitement de la fin de l'image (marqueur EOI) */
-    if (read != MARKER_EOI) {
-        fprintf(stderr, "Le fichier JPEG termine par le marqueur '%04x' au lieu \
-                    d'un marqueur EOI '%04x'.\n", read, MARKER_EOI);
-        exit(1);
-    }
-
-    return jpeg;
+    fprintf(stderr, "Absence de marqueur SOS !\n.");
+    exit(1);
 }
 
 /* Ferme un descripteur prealablement ouvert, en liberant toute la memoire
 necessaire */
 void close_jpeg(struct jpeg_desc *jpeg)
 {
+    /* Liberation des tables de Huffman */
+    for (uint8_t i = 0; i < ACDC_NB; ++i) {
+        for (uint8_t j = 0; j < MAX_HUFFMAN_TABLES; ++j) {
+            free_huffman_table(jpeg->huff_tables[i][j]);
+        }
+        free(jpeg->huff_tables[i]);
+    }
+    free(jpeg->huff_tables);
+    /* Liberation des tables de quantification */
+    for (uint8_t i = 0; i < jpeg->nb_quantization_tables; ++i) {
+        free(jpeg->quantization_tables[i]);
+    }
+    free(jpeg->quantization_tables);
+    /* Liberation des composantes */
+    for (uint8_t i = 0; i < jpeg->nb_components; ++i) {
+        /* Liberation des frame components */
+        free(jpeg->frame_components[i]->sampling_factors);
+        free(jpeg->frame_components[i]);
+        /* Liberation des scan components */
+        free(jpeg->scan_components[i]);
+    }
+    free(jpeg->frame_components);
+    free(jpeg->scan_components);
+    /* Liberation des autres elements */
+    free(jpeg->filename);
+    free(jpeg->size);
+    free(jpeg->nb_huffman_tables);
+    close_bitstream(jpeg->stream);
+    /* Liberation de la structure */
+    free(jpeg);
+    jpeg = NULL;
 }
 
 /* Retourne le nom de fichier de l’image ouverte */
@@ -353,7 +397,7 @@ uint8_t get_nb_huffman_tables(const struct jpeg_desc *jpeg,
 struct huff_table *get_huffman_table(const struct jpeg_desc *jpeg,
                                             enum acdc acdc, uint8_t index)
 {
-    return &jpeg->huff_tables[acdc][index];
+    return jpeg->huff_tables[acdc][index];
 }
 
 /* Retourne la taille de l’image (nombre de pixels) dans la direction dir
