@@ -32,7 +32,6 @@ struct picture *blocks2pixels(block *blocks,
                                 size_t width,
                                 size_t height,
                                 size_t width_ext,
-                                size_t height_ext,
                                 uint8_t h1,
                                 uint8_t v1)
 {

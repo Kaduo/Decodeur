@@ -276,7 +276,6 @@ int main(int argc, char **argv)
                                         width,
                                         height,
                                         width_ext,
-                                        height_ext,
                                         sampling_factors[COMP_Y][DIR_H], // H1
                                         sampling_factors[COMP_Y][DIR_V]);
 
