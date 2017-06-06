@@ -23,10 +23,10 @@ struct node *create_node(bool sheet, uint8_t value){
 
 
 void free_tree(struct node *n){
-    if(n->childs[0]) free_tree(n->childs[0]);
-    if(n->childs[1]) free_tree(n->childs[0]);
+    //if(n->childs[0]) free_tree(n->childs[0]);
+    //if(n->childs[1]) free_tree(n->childs[1]);
     
-    free(n);
+    //free(n);
 } // end def
 
 extern struct huff_table *load_huffman_table(struct bitstream *stream,
@@ -171,7 +171,8 @@ uint8_t *nb_bits_read){
 } // end def
 
 extern void free_huffman_table(struct huff_table *table){
-//free_tree(table->tree);
+    fprintf(stderr, "debug : deep %d, tree %p\n", table->deep, table->tree);
+    free_tree(table->tree);
     free(table);
 } // end def
 
