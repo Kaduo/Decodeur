@@ -156,11 +156,10 @@ struct jpeg_desc *read_jpeg(const char *filename)
     /* Traitement du debut de l'image (marqueur SOI) */
     read_bitstream(jpeg->stream, MARKER_SIZE, &read, false);
     if (read != MARKER_SOI) {
-        fprintf(stderr, "Le fichier JPEG debute par le marqueur '0x%04x' au lieu \
-                    d'un marqueur SOI '0x%04x'.\n", read, MARKER_SOI);
+        fprintf(stderr, "Le fichier JPEG debute par le marqueur '0x%04x' au lieu"
+                    " d'un marqueur SOI '0x%04x'.\n", read, MARKER_SOI);
         exit(EXIT_FAILURE);
     }
-
 
     /* Lecture du marqueur */
     nb_read = read_bitstream(jpeg->stream, MARKER_SIZE, &read, false);
@@ -341,6 +340,7 @@ void close_jpeg(struct jpeg_desc *jpeg)
         free(jpeg->frame_components[i]->sampling_factors);
         free(jpeg->frame_components[i]);
         /* Liberation des scan components */
+        free(jpeg->scan_components[i]->ih);
         free(jpeg->scan_components[i]);
     }
     free(jpeg->frame_components);
