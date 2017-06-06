@@ -284,13 +284,13 @@ int main(int argc, char **argv)
     * Création de l'image PPM ou PGM *
     *****/
 
-    printf("\nHOULALA\n");
-    write_ppm(pic, get_outfile_name(filename, pic->colored));
-    fprintf(stderr, "\nWHOAOUH\n");
+    char *outfile_name = get_outfile_name(filename, pic->colored);
+    write_ppm(pic, outfile_name);
+    free(outfile_name);
     free_picture(pic, width*height);
     // Libération mémoire du tableau de MCU
     for(uint32_t i=0; i< nb_mcus; i++){
-         free(mcus[i]);
+         free_mcu(mcus[i]);
      } // end for
     free(mcus);
 
@@ -299,6 +299,16 @@ int main(int argc, char **argv)
         free_block(liste_blocks[b], est_couleur(jdesc));
     } // end for
     free(liste_blocks);
+
+    free(ordre_des_composantes);
+
+    free(huff_tables[0]);
+    if (est_couleur(jdesc)) {
+        free(huff_tables[1]);
+    }
+    free(huff_tables);
+
+    free(quant_tables);
 
     /* Nettoyage de printemps : close_jpeg ferme aussi le bitstream
      * (voir Annexe C du sujet). */
