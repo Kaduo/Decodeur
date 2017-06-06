@@ -9,6 +9,7 @@ struct node{
 struct huff_table{
     uint16_t nb_codes;
     struct node *tree;
+    uint8_t deep;
 };
 
 struct node *create_node(bool sheet, uint8_t value){
@@ -116,6 +117,7 @@ printf("\n# Fonction load huffman table\n");
         free(free_nodes);
         free(next_free_nodes);
         table->tree = root;
+        table->deep = deep;
     //exit(EXIT_FAILURE);
         return table;        
     
@@ -125,11 +127,8 @@ extern int8_t next_huffman_value(struct huff_table *table,
 struct bitstream *stream){
 
     printf("Fonction next_huffman_value\n");
-    exit(EXIT_FAILURE);
-    stream = 0;
-    table = 0;
-    return 0;
-
+    uint8_t nb_bits_read;
+    return next_huffman_value_count(table, stream, &nb_bits_read);
 } // end def
 
 
@@ -137,13 +136,29 @@ extern int8_t next_huffman_value_count(struct huff_table *table,
 struct bitstream *stream,
 uint8_t *nb_bits_read){
 
-printf("Fonction next_huffman_value_count\n");
-exit(EXIT_FAILURE);
-    stream = 0;
-    table = 0;
-    nb_bits_read = 0;
-    return 0;
-
+    printf("Fonction next_huffman_count\n");
+     uint32_t bit = 0;
+    *nb_bits_read = 0;
+    struct node *n = table->tree;
+printf("Lecture du symbole: ");    
+    while (*nb_bits_read < table->deep){
+        // Lecture du bit.
+    if(! read_bitstream(stream, 1, &bit, true)){
+        perror("Erreur de lecture du fichier lors du décodage d'un code Huffman.\n");
+        exit(EXIT_FAILURE);}
+        
+        (*nb_bits_read)++;
+        printf("%d ", bit);
+        
+        n = n->childs[bit];
+        if(n->sheet){
+        printf("\nSymbole trouvé : %d\n", n->value);
+            return n->value;
+        } // end if
+        
+    } // end while
+    fprintf(stderr, "Erreur de décodage du symbole Huffman, nombre de bits lu : %d, deep : %d\n", *nb_bits_read, table->deep);
+    exit(EXIT_FAILURE);
 } // end def
 
 extern void free_huffman_table(struct huff_table *table){
