@@ -277,18 +277,14 @@ int main(int argc, char **argv)
                                         height_ext,
                                         sampling_factors[COMP_Y][DIR_H], // H1
                                         sampling_factors[COMP_Y][DIR_V]);
-    printf("\n");
-    for (size_t i = 0; i < 64; i++) {
-        printf("%d ", pic->pixels[i]->y);
-    }
-    printf("\n");
 
     /*******
     * Création de l'image PPM ou PGM *
     *****/
 
+    printf("\nHOULALA\n");
     write_ppm(pic, get_outfile_name(filename, pic->colored));
-
+    printf("\nWHOAOUH\n");
     // Libération mémoire du tableau de MCU
     for(uint16_t i=0; i< nb_mcus; i++){
          free_mcu(mcus[i]);
