@@ -34,7 +34,7 @@ extern block *extract_blocks(struct mcu *mcu, const uint8_t factors[COMP_NB][DIR
         blocks[i][COMP_Y] = mcu->components_y[i];
     }
 
-    if (mcu->components_cb != NULL) {
+    if (mcu->nb_cbs > 0) {
 
         if (no_upsampling_cb) {
             for (size_t i = 0; i < nb_blocks; i++) {
@@ -42,6 +42,7 @@ extern block *extract_blocks(struct mcu *mcu, const uint8_t factors[COMP_NB][DIR
             }
         }
         else {
+            blocks[0][COMP_Cb] = mcu->components_cb[0];
             upsampling_recursif(blocks, COMP_Cb, 0, factors[COMP_Y][DIR_H], factors[COMP_Y][DIR_V], factors[COMP_Cb][DIR_H], factors[COMP_Cb][DIR_V]);
         }
 
@@ -51,6 +52,7 @@ extern block *extract_blocks(struct mcu *mcu, const uint8_t factors[COMP_NB][DIR
             }
         }
         else {
+            blocks[0][COMP_Cr] = mcu->components_cr[0];
             upsampling_recursif(blocks, COMP_Cr, 0, factors[COMP_Y][DIR_H], factors[COMP_Y][DIR_V], factors[COMP_Cr][DIR_H], factors[COMP_Cr][DIR_V]);
         }
     }
@@ -107,7 +109,7 @@ void upsampling_recursif(block *blocks, enum component comp, uint8_t indice, uin
         v *= 2;
         uint8_t nb_elements = h * v;
 
-        upsample_horizontal(blocks, comp, indice, indice + h1*v1/nb_elements);
+        upsample_vertical(blocks, comp, indice, indice + h1*v1/nb_elements);
         upsampling_recursif(blocks, comp, indice, h1, v1, h, v);
         upsampling_recursif(blocks, comp, indice + h1*v1/nb_elements, h1, v1, h, v);
 
@@ -115,7 +117,7 @@ void upsampling_recursif(block *blocks, enum component comp, uint8_t indice, uin
         h *= 2;
         uint8_t nb_elements = h * v;
 
-        //upsample_vertical(blocks, comp, indice, indice + h1*v1/nb_elements);
+        upsample_horizontal(blocks, comp, indice, indice + h1*v1/nb_elements);
         upsampling_recursif(blocks, comp, indice,h1,v1,h,v);
         upsampling_recursif(blocks, comp, indice + h1*v1/nb_elements, h1, v1, h, v);
     }
@@ -124,69 +126,129 @@ void upsampling_recursif(block *blocks, enum component comp, uint8_t indice, uin
 void upsample_horizontal(block *blocks, enum component comp, uint8_t indice, uint8_t indice_cible)
 {
     if (blocks[indice][comp] == NULL) {
-        perror("Impossible de diviser un composante inexistante !");
+        perror("Impossible de diviser une composante inexistante !");
         exit(EXIT_FAILURE);
     }
+
+    if (blocks[indice_cible][comp] != NULL) {
+        perror("RAAAAAAAAAAAAAAH !!");
+        exit(EXIT_FAILURE);
+    }
+
+    blocks[indice_cible][comp] = calloc(64, sizeof(int16_t));
+
+    for (size_t i = 0; i < 64; i+=2) {
+        // On complète la deuxième composante (celle de droite)
+        blocks[indice_cible][comp][i] = blocks[indice][comp][4 + 8*(i/8) + (i%8)/2];
+        blocks[indice_cible][comp][i+1] = blocks[indice_cible][comp][i];
+    }
+        // On complète la première composante en place (celle de gauche)
+    for (size_t i = 63; i > 1; i-=2) {
+        blocks[indice][comp][i] = blocks[indice][comp][8*(i/8) + (i%8)/2];
+        blocks[indice][comp][i-1] = blocks[indice][comp][i];
+    }
+
+    printf("\n");
+}
+
+
+void upsample_vertical(block *blocks, enum component comp, uint8_t indice, uint8_t indice_cible)
+{
+    if (blocks[indice][comp] == NULL) {
+        perror("Impossible de diviser une composante inexistante !");
+        exit(EXIT_FAILURE);
+    }
+
+    if (blocks[indice_cible][comp] != NULL) {
+        perror("RAAAAAAAAAAAAAAH !!");
+        exit(EXIT_FAILURE);
+    }
+
+    printf("\nBLOC original : \n");
+    for (size_t i = 0; i < 64; i++) {
+        if (i%8 == 0) {
+            printf("\n");
+        }
+        printf("%d ", blocks[indice][comp][i]);
+    }
+    printf("\n");
+
+    blocks[indice_cible][comp] = calloc(64, sizeof(int16_t));
+
+    for (size_t i = 0; i < 64; i++) {
+        // On complète la deuxième composante (celle du bas)
+        blocks[indice_cible][comp][i] = blocks[indice][comp][32 + (i%8) + 8*(i/16)];
+        blocks[indice_cible][comp][i + 8] = blocks[indice_cible][comp][i];
+        if (i%8 == 7) {
+            i += 8;
+        }
+    }
+
+    for (int16_t i = 63; i >= 8; i--) {
+        // On complète la première composante en place (celle du haut)
+        blocks[indice][comp][i] = blocks[indice][comp][(i%8) + 8*(i/16)];
+        blocks[indice][comp][i - 8] = blocks[indice][comp][i];
+        if (i%8 == 0) {
+            i -= 8;
+        }
+    }
+
+    printf("\nBLOC HAUT\n");
+    for (size_t i = 0; i < 64; i++) {
+        if (i%8 == 0) {
+            printf("\n");
+        }
+        printf("%d ", blocks[indice][comp][i]);
+    }
+
+    printf("\n\nBLOC BAS\n");
+    for (size_t i = 0; i < 64; i++) {
+        if (i%8 == 0) {
+            printf("\n");
+        }
+        printf("%d ", blocks[indice_cible][comp][i]);
+    }
+    printf("\n");
+}
+
+void upsample_vertical_avance(block *blocks, enum component comp, uint8_t indice, uint8_t indice_cible)
+{
+    printf("\ncible : %d\n", indice_cible);
+    printf("indice : %d\n", indice);
+    if (blocks[indice][comp] == NULL) {
+        perror("Impossible de diviser une composante inexistante !");
+        exit(EXIT_FAILURE);
+    }
+
+    if (blocks[indice_cible][comp] != NULL) {
+        perror("RAAAAAAAAAAAAAAH !!");
+        exit(EXIT_FAILURE);
+    }
+
+    blocks[indice_cible][comp] = calloc(64, sizeof(int16_t));
 
     for (size_t i = 0; i < 64; i++) {
         // On complète la deuxième composante (celle de droite)
         if (i%2) {
-            blocks[indice_cible][comp][i] = blocks[indice][comp][32*(1 + i/8) + i/2];
+            blocks[indice_cible][comp][i] = blocks[indice][comp][4 + 8*(i/8) + (i%8)/2];
         }
         else {
-            blocks[indice_cible][comp][i] = (blocks[indice][comp][32*(1 + i/8) + i/2 - 1] + blocks[indice][comp][32*(1 + i/8) + i/2])/2;
+            printf("blocks[indice_cible][comp] : %p\n", blocks[indice_cible][comp]);
+            blocks[indice_cible][comp][i] = (blocks[indice][comp][4 + 8*(i/8) + (i%8)/2 - 1] + blocks[indice][comp][4 + 8*(i/8) + (i%8)/2])/2;
         }
     }
     for (size_t i = 0; i < 64; i++) {
         // On complète la première composante en place (celle de gauche)
         for (size_t i = 63; i > 0; i--) {
             if (i%2) {
-                blocks[indice][comp][i] = blocks[indice][comp][i/2 + 32*(i/8)];
+                blocks[indice][comp][i] = (blocks[indice][comp][(i%8)/2 + 8*(i/8)] + blocks[indice][comp][(i%8)/2 + 1 + 8*(i/8)])/2;
             }
             else {
-                blocks[indice][comp][i] = (blocks[indice][comp][i/2 + 32*(i/8)] + blocks[indice][comp][i/2 + 1 + 32*(i/8)])/2;
+                blocks[indice][comp][i] = blocks[indice][comp][(i%8)/2 + 8*(i/8)];
             }
         }
     }
 }
-
-/*void upsample_horizontal(int16_t **blocks, uint8_t indice)
-{
-    if (blocks[indice][comp] == NULL) {
-        perror("Impossible de diviser un composante inexistante !");
-        exit(EXIT_FAILURE);
-    }
-
-    if (blocks[indice_cible][comp] == NULL) {
-        blocks[indice_cible][comp] = malloc(64*sizeof(int16_t));
-        for (size_t i = 0; i < 64; i++) {
-            // On complète la deuxième composante (celle du bas)
-            if ((i/8)%2) {
-                blocks[indice_cible][comp][i] = (blocks[indice][comp][32 + i/2 - 1] + blocks[indice][comp][32 + i/2])/2;
-            }
-            else {
-                blocks[indice_cible][comp][i] = blocks[indice][comp][32 + i/2];
-            }
-        }
-        for (size_t i = 0; i < 64; i++) {
-            // On complète la première composante en place (celle du haut)
-            for (size_t i = 63; i > 0; i--) {
-                if ((i/8)%2) {
-                    blocks[indice][comp][i] = blocks[indice][comp][i/2];
-                }
-                else {
-                    blocks[indice][comp][i] = (blocks[indice][comp][i/2] + blocks[indice][comp][i/2 + 1])/2;
-                }
-            }
-        }
-    }
-    else {
-        perror("Cette composante devrait être vide !");
-        exit(EXIT_FAILURE);
-    }
-
-}*/
-
 
 /* Sur-echantillonne un composant donné sous-echantillonné en deux */
 //int16_t **upsample_to_two(const struct component *component);
