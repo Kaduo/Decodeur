@@ -106,8 +106,7 @@ int16_t *inverse_quantization(const int16_t *coefficients,
 /* Retourne le tableau zigzag inverse d'un tableau donne */
 int16_t *inverse_zigzag(const int16_t *coefficients, size_t size)
 {
-    int16_t *inverse = calloc(size * size, sizeof(int16_t));
-    inverse = get_inverse(coefficients, size);
+    int16_t *inverse = get_inverse(coefficients, size);
     return inverse;
 }
 

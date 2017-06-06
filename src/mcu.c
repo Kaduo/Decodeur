@@ -30,7 +30,7 @@ struct mcu *create_mcu(uint8_t nb_components_y, uint8_t nb_components_cb, uint8_
     return mcu;
 }
 
-/*void free_components(int16_t **components, uint8_t size_components)
+void free_components(int16_t **components, uint8_t size_components)
 {
     for (uint8_t i = 0; i < size_components; i++) {
         free(components[i]);
@@ -42,12 +42,12 @@ struct mcu *create_mcu(uint8_t nb_components_y, uint8_t nb_components_cb, uint8_
 void free_mcu(struct mcu *mcu)
 {
     // On libère les comp_Y dans les blocks, car on fait une copie.
-    //free_components(mcu->components_y, mcu->nb_ys);
-    free_components(mcu->components_cb, mcu->nb_cbs);
-    free_components(mcu->components_cr, mcu->nb_crs);
+    free(mcu->components_y);
+    free(mcu->components_cb);
+    free(mcu->components_cr);
     free(mcu);
     mcu = NULL;
-}*/
+}
 
 /*
 Extrait une mcu complète (s'occupe de l'allocation mémoire).
