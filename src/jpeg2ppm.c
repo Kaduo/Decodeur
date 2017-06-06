@@ -191,9 +191,9 @@ int main(int argc, char **argv)
     printf("Taille de l'image complétée : %d x %d\n", width_ext, height_ext);
 
     // Calcul du nombre de MCU
-    uint16_t nb_mcus_h = width_ext / (8 * sampling_factors[0][0]);
-    uint16_t nb_mcus_v = height_ext / (8 * sampling_factors[0][1]);
-    uint16_t nb_mcus = nb_mcus_h * nb_mcus_v;
+    uint32_t nb_mcus_h = width_ext / (8 * sampling_factors[0][0]);
+    uint32_t nb_mcus_v = height_ext / (8 * sampling_factors[0][1]);
+    uint32_t nb_mcus = nb_mcus_h * nb_mcus_v;
     printf("Nombre de MCU : %d\n", nb_mcus);
 
     // Création du tableau de mcus
@@ -232,6 +232,8 @@ int main(int argc, char **argv)
 
     }
 
+
+
     /*printf("\nPremière composante Y :\n");
     for (size_t i = 0; i < 64; i++) {
         printf("%"PRId16 " ", mcus[0]->components_y[0][i]);
@@ -240,10 +242,10 @@ int main(int argc, char **argv)
 
     /* Reconstruction des blocs */
 
-    uint16_t nb_blocks = nb_components_y*nb_mcus;
+    uint32_t nb_blocks = nb_components_y*nb_mcus;
     block *liste_blocks = malloc(nb_blocks * sizeof(block));
     block *blocks_temp = NULL;
-    for (uint16_t i = 0; i < nb_mcus; i++) {
+    for (uint32_t i = 0; i < nb_mcus; i++) {
         blocks_temp = extract_blocks(mcus[i], sampling_factors);
 
         for (size_t j = 0; j < nb_components_y; j++) {
@@ -286,7 +288,7 @@ int main(int argc, char **argv)
     write_ppm(pic, get_outfile_name(filename, pic->colored));
     printf("\nWHOAOUH\n");
     // Libération mémoire du tableau de MCU
-    for(uint16_t i=0; i< nb_mcus; i++){
+    for(uint32_t i=0; i< nb_mcus; i++){
          free_mcu(mcus[i]);
      } // end for
     free(mcus);
