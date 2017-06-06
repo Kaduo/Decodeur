@@ -172,7 +172,7 @@ uint8_t *nb_bits_read){
 
 extern void free_huffman_table(struct huff_table *table){
     fprintf(stderr, "debug : deep %d, tree %p\n", table->deep, table->tree);
-    free_tree(table->tree);
-    free(table);
+    //free_tree(table->tree);
+    //free(table);
 } // end def
 
