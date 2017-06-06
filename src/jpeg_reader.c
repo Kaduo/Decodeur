@@ -7,7 +7,6 @@ Auteurs .... : A. He - M. Barbe - B. Potet (Ensimag 1A 2016/2017 - G6)
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "inttypes.h"
 #include "jpeg_reader.h"
 #include "huffman.h"
 
@@ -174,7 +173,6 @@ struct jpeg_desc *read_jpeg(const char *filename)
         switch(read) {
             /* Application Data */
             case MARKER_APP:
-                printf("JUI APP !\n");
                 for (uint8_t i = 0; i < APP_NORM; ++i) {
                     read_bitstream(jpeg->stream, BYTE_SIZE, &read, false);
                     if ((char) read != NORM[i]) {
@@ -194,7 +192,6 @@ struct jpeg_desc *read_jpeg(const char *filename)
                 break;
             /* Commentaire */
             case MARKER_COM:
-            printf("JUI COM !\n");
                 /* Lecture de tous les bits de la section */
                 unread = size * BYTE_SIZE - SECTION_SIZE;
                 while (unread > MAX_READ) {
@@ -205,7 +202,6 @@ struct jpeg_desc *read_jpeg(const char *filename)
                 break;
             /* Define Quantization Table */
             case MARKER_DQT:
-                printf("JUI DQT !\n");
                 /* Calcul du nombre de tables de quantification */
                 unread = size * BYTE_SIZE - SECTION_SIZE;
                 uint8_t nb_dqt = unread / DQT_TABLE;
@@ -227,7 +223,6 @@ struct jpeg_desc *read_jpeg(const char *filename)
                 break;
             /* Start Of Frame */
             case MARKER_SOF:
-                printf("JUI SOF !\n");
                 /* Recuperation des dimensions */
                 read_bitstream(jpeg->stream, SOF_PRECISION, &read, false);
                 read_bitstream(jpeg->stream, SOF_IMAGE_SIZE, &read, false);
@@ -262,7 +257,6 @@ struct jpeg_desc *read_jpeg(const char *filename)
                 break;
             /* Define Huffman Tables */
             case MARKER_DHT:
-                printf("JUI DHT !\n");
                 /* Recuperation des tables de Huffman */
                 unread = size - SECTION_SIZE / BYTE_SIZE; // En octets !
                 while (unread > 0) {
@@ -291,7 +285,6 @@ struct jpeg_desc *read_jpeg(const char *filename)
                 break;
             /* Start Of Scan */
             case MARKER_SOS:
-                printf("JUI SOS !\n");
                 /* Recuperation des associations composantes - tables Huffman */
                 nb_read = read_bitstream(jpeg->stream, SOS_NB_COMPONENTS, &read, false);
                 jpeg->scan_components = calloc(read, sizeof(struct scan_component*));
@@ -320,6 +313,7 @@ struct jpeg_desc *read_jpeg(const char *filename)
 
     /* === FIN DE LECTURE DES SECTIONS JPEG === */
 
+    /* Si rien n'a ete renvoye, erreur */
     fprintf(stderr, "Absence de marqueur SOS !\n.");
     exit(1);
 }
