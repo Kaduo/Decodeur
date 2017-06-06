@@ -270,8 +270,16 @@ void convert_to_rgb(block block) {
 }
 
 /* Libere de la memoire la place occupee par un bloc */
-void free_block(block block)
+void free_block(block block, bool is_color)
 {
+    // Libération des composantes.
+    // Composante y.
+    free(block[0]);
+    if(is_color){
+        // Libération de CR et CB.
+        free(block[1]);
+        free(block[2]);
+    } // end if
   free(block);
   block = NULL;
 }
