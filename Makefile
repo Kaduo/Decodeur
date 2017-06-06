@@ -21,7 +21,7 @@ LDFLAGS = -lm
 OBJPROF_FILES = 
 
 # et les votres!
-OBJ_FILES = $(OBJ_DIR)/shared.o $(OBJ_DIR)/block.o $(OBJ_DIR)/zigzag.o $(OBJ_DIR)/rgb.o $(OBJ_DIR)/pixel.o $(OBJ_DIR)/picture.o $(OBJ_DIR)/mcu.o $(OBJ_DIR)/jpeg2ppm.o $(OBJ_DIR)/component.o $(OBJ_DIR)/bitstream.o $(OBJ_DIR)/jpeg_reader.o $(OBJ_DIR)/huffman.o  
+OBJ_FILES = $(OBJ_DIR)/shared.o $(OBJ_DIR)/block.o $(OBJ_DIR)/zigzag.o $(OBJ_DIR)/rgb.o $(OBJ_DIR)/picture.o $(OBJ_DIR)/mcu.o $(OBJ_DIR)/jpeg2ppm.o $(OBJ_DIR)/component.o $(OBJ_DIR)/bitstream.o $(OBJ_DIR)/jpeg_reader.o $(OBJ_DIR)/huffman.o  
 
 # cible par défaut
 
@@ -37,9 +37,6 @@ $(OBJ_DIR)/shared.o: $(SRC_DIR)/shared.c $(INC_DIR)/shared.h
 
 $(OBJ_DIR)/rgb.o: $(SRC_DIR)/rgb.c $(INC_DIR)/rgb.h
 	$(CC) $(CFLAGS) -c $(SRC_DIR)/rgb.c -o $(OBJ_DIR)/rgb.o
-
-$(OBJ_DIR)/pixel.o: $(SRC_DIR)/pixel.c $(INC_DIR)/pixel.h
-	$(CC) $(CFLAGS) -c $(SRC_DIR)/pixel.c -o $(OBJ_DIR)/pixel.o
 
 $(OBJ_DIR)/block.o: $(SRC_DIR)/block.c $(INC_DIR)/block.h
 	$(CC) $(CFLAGS) -c $(SRC_DIR)/block.c -o $(OBJ_DIR)/block.o
