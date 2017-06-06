@@ -50,9 +50,11 @@ struct picture *blocks2pixels(block *blocks,
         l_in_bloc = l%8;
 
         // Boucle sur les blocs de la ligne l.
-        for(uint16_t b = h1*(l_bloc%v1); b < (nb_blocs_h - (l_bloc%v1) - 1) + nb_blocs_h*(l_bloc%v1);) {
+        uint16_t b = h1*(l_bloc%v1);
+        for(; b < nb_blocs_h*v1 - v1 + l_bloc%v1;) {
             printf("indice block : %d\n", b);
-            printf("indice block whoa : %d\n", l_bloc*nb_blocs_h + b);
+            printf("ligne block : %d\n", l_bloc);
+            printf("indice block whoa : %d\n", (l_bloc/v1)*nb_blocs_h + b);
             printf("ligne pix : %d\n", l);
 
             // Boucle sur les pixels de la ligne l%8 du bloc b.
@@ -63,11 +65,10 @@ struct picture *blocks2pixels(block *blocks,
                         (uint8_t) blocks[l_bloc*nb_blocs_h*v1 + b][0][l_in_bloc*8 + i]);
                 } // end if
                 else{
-
                     pic->pixels[l*width + (b/v1)*8 + i] = create_pixel_rgb(
-                        (uint8_t) blocks[l_bloc*nb_blocs_h + b][0][l_in_bloc*8 + i],
-                        (uint8_t) blocks[l_bloc*nb_blocs_h + b][1][l_in_bloc*8 + i],
-                        (uint8_t) blocks[l_bloc*nb_blocs_h + b][2][l_in_bloc*8 + i]);
+                        (uint8_t) blocks[(l_bloc - l_bloc%v1)*nb_blocs_h + b][0][l_in_bloc*8 + i],
+                        (uint8_t) blocks[(l_bloc - l_bloc%v1)*nb_blocs_h + b][1][l_in_bloc*8 + i],
+                        (uint8_t) blocks[(l_bloc - l_bloc%v1)*nb_blocs_h + b][2][l_in_bloc*8 + i]);
 
                 } // end else
             } // end for i.
@@ -80,7 +81,7 @@ struct picture *blocks2pixels(block *blocks,
             }
 
         } // end for b.
-        size_t indice_dernier_bloc = (nb_blocs_h - 1) + nb_blocs_h*(l_bloc%v1);
+        uint16_t indice_dernier_bloc = b;
         printf("dernier bloc : %d\n", indice_dernier_bloc);
         printf("ligne (bloc) : %d (%d)\n", l, l_bloc);
         //exit(1);
@@ -92,9 +93,9 @@ struct picture *blocks2pixels(block *blocks,
             } // end if
             else{
                 pic->pixels[l*width + (indice_dernier_bloc/v1)*8 + i] = create_pixel_rgb(
-                    blocks[l_bloc*nb_blocs_h + indice_dernier_bloc][0][l_in_bloc*8 + i],
-                    blocks[l_bloc*nb_blocs_h + indice_dernier_bloc][1][l_in_bloc*8 + i],
-                    blocks[l_bloc*nb_blocs_h + indice_dernier_bloc][2][l_in_bloc*8 + i]);
+                    blocks[(l_bloc - l_bloc%v1)*nb_blocs_h + indice_dernier_bloc][0][l_in_bloc*8 + i],
+                    blocks[(l_bloc - l_bloc%v1)*nb_blocs_h + indice_dernier_bloc][1][l_in_bloc*8 + i],
+                    blocks[(l_bloc - l_bloc%v1)*nb_blocs_h + indice_dernier_bloc][2][l_in_bloc*8 + i]);
 
             } // end else
         }
