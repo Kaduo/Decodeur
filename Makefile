@@ -76,3 +76,4 @@ $(OBJ_DIR)/huffman.o: $(SRC_DIR)/huffman.c $(INC_DIR)/huffman.h
 
 clean:
 	rm -f $(TARGET) $(OBJ_FILES)
+	rm images/*ppm images/*pgm images/*blabla
