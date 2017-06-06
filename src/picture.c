@@ -171,8 +171,11 @@ uint8_t get_magic_number(bool colored)
 }
 
 /* Libere en memoire l'espace occupe par une image donnee */
-void free_picture(struct picture *picture)
+void free_picture(struct picture *picture, uint32_t nb_pixels)
 {
+    for (size_t i = 0; i < nb_pixels; i++) {
+        free_pixel(picture->pixels[i]);
+    }
     free(picture->pixels);
     free(picture);
     picture = NULL;
