@@ -40,7 +40,6 @@ struct picture *blocks2pixels(block *blocks,
     bool is_bw = blocks[0][COMP_Cb] == NULL;
     struct picture *pic = create_picture(width, height, !is_bw);
     size_t nb_blocs_h = width_ext / 8;
-    size_t nb_blocs_v = height_ext / 8;
     uint32_t l_bloc = 0;
     uint32_t l_in_bloc = 0;
 
