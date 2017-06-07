@@ -13,15 +13,20 @@ LD = clang
 INC = -I$(INC_DIR)
 
 CFLAGS += $(INC) -Wall -std=c99 -O0 -g  -Wextra
+
+ifdef DEBUG
+CFLAGS += -Ddebug
+endif
+
 LDFLAGS = -lm
 
 # Liste des fichiers objet
 
 # les notres...
-OBJPROF_FILES = 
+OBJPROF_FILES =
 
 # et les votres!
-OBJ_FILES = $(OBJ_DIR)/shared.o $(OBJ_DIR)/block.o $(OBJ_DIR)/zigzag.o $(OBJ_DIR)/rgb.o $(OBJ_DIR)/picture.o $(OBJ_DIR)/mcu.o $(OBJ_DIR)/jpeg2ppm.o $(OBJ_DIR)/component.o $(OBJ_DIR)/bitstream.o $(OBJ_DIR)/jpeg_reader.o $(OBJ_DIR)/huffman.o  
+OBJ_FILES = $(OBJ_DIR)/shared.o $(OBJ_DIR)/block.o $(OBJ_DIR)/zigzag.o $(OBJ_DIR)/rgb.o $(OBJ_DIR)/picture.o $(OBJ_DIR)/mcu.o $(OBJ_DIR)/jpeg2ppm.o $(OBJ_DIR)/component.o $(OBJ_DIR)/bitstream.o $(OBJ_DIR)/jpeg_reader.o $(OBJ_DIR)/huffman.o
 
 # cible par défaut
 
@@ -65,9 +70,8 @@ $(OBJ_DIR)/jpeg_reader.o: $(SRC_DIR)/jpeg_reader.c $(INC_DIR)/jpeg_reader.h
 $(OBJ_DIR)/huffman.o: $(SRC_DIR)/huffman.c $(INC_DIR)/huffman.h
 	$(CC) $(CFLAGS) -c $(SRC_DIR)/huffman.c -o $(OBJ_DIR)/huffman.o
 
-
-
-
+debug: clean
+	$(MAKE) DEBUG=1
 
 .PHONY: clean
 
