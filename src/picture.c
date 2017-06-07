@@ -51,10 +51,6 @@ struct picture *blocks2pixels(block *blocks,
         // Boucle sur les blocs de la ligne l.
         uint32_t b = h1*(l_bloc%v1);
         for(; b < (uint32_t) nb_blocs_h*v1 - 1 - h1*(v1 - l_bloc%v1 - 1);) {
-            /*printf("indice block : %d\n", b);
-            printf("ligne block : %d\n", l_bloc);
-            printf("indice block whoa : %d\n", (l_bloc/v1)*nb_blocs_h + b);
-            printf("ligne pix : %d\n", l);*/
 
             // Boucle sur les pixels de la ligne l%8 du bloc b.
             for(uint8_t i=0; i < 8; i++){
@@ -80,8 +76,8 @@ struct picture *blocks2pixels(block *blocks,
 
         } // end for b.
         uint16_t indice_dernier_bloc = b;
-        printf("dernier bloc : %d\n", indice_dernier_bloc);
-        printf("ligne (bloc) : %d (%d)\n", l, l_bloc);
+       trace("dernier bloc : %d\n", indice_dernier_bloc);
+       trace("ligne (bloc) : %d (%d)\n", l, l_bloc);
         //exit(1);
         for(uint8_t i=0; i < 8 - (width_ext - width); i++){
 
@@ -97,7 +93,7 @@ struct picture *blocks2pixels(block *blocks,
             } // end else
         }
     } // end for
-    printf("hey\n");
+   trace("hey\n");
 return pic;
 } // end def
 

@@ -38,7 +38,7 @@ void get_dc(struct huff_table *dc_table,
 {
     uint8_t nb_read;
     uint8_t magnitude = (uint8_t) next_huffman_value_count(dc_table, stream, &nb_read);
-    printf("\nMagnitude DC : %02x(%hhu)", magnitude, nb_read);
+   trace("\nMagnitude DC : %02x(%hhu)", magnitude, nb_read);
     int16_t new_value = *previous_dc + get_coefficient(stream, magnitude, true);
     coefficients[0] = new_value;
     *previous_dc = new_value;
@@ -51,11 +51,11 @@ void get_acs(struct huff_table *ac_table,
                 int16_t *coefficients,
                 size_t length)
 {
-    printf("\nMagnitudes ACs : ");
+   trace("\nMagnitudes ACs : ");
     for (size_t i = 1; i < length; ++i) {
         uint8_t nb_read;
         uint8_t symbole = (uint8_t) next_huffman_value_count(ac_table, stream, &nb_read);
-        printf("%02x(%hhu) ", symbole, nb_read);
+       trace("%02x(%hhu) ", symbole, nb_read);
         /* 1er cas : code EOB */
         if (symbole == 0x00) {
             return;
@@ -68,9 +68,7 @@ void get_acs(struct huff_table *ac_table,
             exit(EXIT_FAILURE);
         /* 4e cas : 0xab */
         } else {
-            //printf("\navant décalage : %d", i);
             i += (symbole >> 4);
-            //printf("\naprès décalage : %d\n", i);
             uint8_t magnitude = symbole & 0x0F;
             coefficients[i] = get_coefficient(stream, magnitude, true);
         }
@@ -165,40 +163,40 @@ int16_t *get_component(struct bitstream *stream,
                         size_t size)
 {
     /* 1. Extraction - extraction */
-    printf("\n\nextracted : PREVIOUS_DC = %04x\n", *previous_dc);
+   trace("\n\nextracted : PREVIOUS_DC = %04x\n", *previous_dc);
     int16_t *extracted = extract(dc_table,
                                   ac_table,
                                   stream,
                                   previous_dc,
                                   size*size);
 
-    /*printf("\n"); // <- PRINT VITAL POUR LE DEBUG NE PAS EFFACER SVP (PAS UNE BLAGUE)
+    trace("\n"); // <- PRINT VITAL POUR LE DEBUG NE PAS EFFACER SVP (PAS UNE BLAGUE)
     for (size_t i = 0; i < 64; i++) {
-        printf("%04x ", extracted[i]);
-    }*/
+       trace("%04x ", extracted[i]);
+    }
 
     /* 2. Quantification inverse */
     int16_t *quantization = inverse_quantization(extracted,
                                                   quantization_table,
                                                   size*size);
-    /*printf("\n\nquantization\n");
+    trace("\n\nquantization\n");
      for (size_t i = 0; i < 64; i++) {
-         printf("%04x ", quantization[i]);
-     }*/
+        trace("%04x ", quantization[i]);
+     }
     /* 3. Reorganisation zigzag */
     int16_t *zigzag = inverse_zigzag(quantization, size);
 
-    /*printf("\n\nzigzag\n");
+    trace("\n\nzigzag\n");
     for (size_t i = 0; i < 64; i++) {
-        printf("%04x ", zigzag[i]);
-    }*/
+       trace("%04x ", zigzag[i]);
+    }
     /* 4. Transformee en cosinus discrete inverse (iDCT) */
     int16_t *component = idct(zigzag, size);
 
-    /*printf("\n\ncomponent\n");
+    trace("\n\ncomponent\n");
      for (size_t i = 0; i < 64; i++) {
-         printf("%04x ", component[i]);
-     }*/
+        trace("%04x ", component[i]);
+     }
     free(extracted);
     free(quantization);
     free(zigzag);

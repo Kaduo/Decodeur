@@ -11,6 +11,7 @@ Auteurs .... : A. He - M. Barbe - B. Potet (Ensimag 1A 2016/2017 - G6)
 #include <stdint.h>
 #include "mcu.h"
 #include "jpeg_reader.h"
+#include "trace.h"
 
 
 /* Structure representant un bloc */

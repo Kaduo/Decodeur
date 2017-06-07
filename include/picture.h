@@ -10,8 +10,9 @@ Auteurs .... : A. He - M. Barbe - B. Potet (Ensimag 1A 2016/2017 - G6)
 #include <stdbool.h>
 #include "block.h"
 #include "rgb.h"
+#include "trace.h"
 
-// Union representant un pixel (soit suivant une luminance, soit RGB) 
+// Union representant un pixel (soit suivant une luminance, soit RGB)
 union pixel {
     uint8_t y;
     struct rgb rgb;

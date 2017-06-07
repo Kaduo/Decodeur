@@ -228,7 +228,7 @@ struct jpeg_desc *read_jpeg(const char *filename)
                 jpeg->size[DIR_V] = (uint16_t) read;
                 read_bitstream(jpeg->stream, SOF_IMAGE_SIZE, &read, false);
                 jpeg->size[DIR_H] = (uint16_t) read;
-                printf("SIZE : %ux%u", jpeg->size[DIR_H], jpeg->size[DIR_V]);
+               trace("SIZE : %ux%u", jpeg->size[DIR_H], jpeg->size[DIR_V]);
                 /* Recuperation du nombre de composantes */
                 read_bitstream(jpeg->stream, SOF_NB_COMPONENTS, &read, false);
                 jpeg->nb_components = (uint8_t) read;

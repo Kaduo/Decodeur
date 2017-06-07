@@ -148,7 +148,7 @@ void upsample_horizontal(block *blocks, enum component comp, uint8_t indice, uin
         blocks[indice][comp][i-1] = blocks[indice][comp][i];
     }
 
-    printf("\n");
+   trace("\n");
 }
 
 
@@ -164,14 +164,14 @@ void upsample_vertical(block *blocks, enum component comp, uint8_t indice, uint8
         exit(EXIT_FAILURE);
     }
 
-    printf("\nBLOC original : \n");
+   trace("\nBLOC original : \n");
     for (size_t i = 0; i < 64; i++) {
         if (i%8 == 0) {
-            printf("\n");
+           trace("\n");
         }
-        printf("%d ", blocks[indice][comp][i]);
+       trace("%d ", blocks[indice][comp][i]);
     }
-    printf("\n");
+   trace("\n");
 
     blocks[indice_cible][comp] = calloc(64, sizeof(int16_t));
 
@@ -193,28 +193,28 @@ void upsample_vertical(block *blocks, enum component comp, uint8_t indice, uint8
         }
     }
 
-    printf("\nBLOC HAUT\n");
+   trace("\nBLOC HAUT\n");
     for (size_t i = 0; i < 64; i++) {
         if (i%8 == 0) {
-            printf("\n");
+           trace("\n");
         }
-        printf("%d ", blocks[indice][comp][i]);
+       trace("%d ", blocks[indice][comp][i]);
     }
 
-    printf("\n\nBLOC BAS\n");
+   trace("\n\nBLOC BAS\n");
     for (size_t i = 0; i < 64; i++) {
         if (i%8 == 0) {
-            printf("\n");
+           trace("\n");
         }
-        printf("%d ", blocks[indice_cible][comp][i]);
+       trace("%d ", blocks[indice_cible][comp][i]);
     }
-    printf("\n");
+   trace("\n");
 }
 
 void upsample_vertical_avance(block *blocks, enum component comp, uint8_t indice, uint8_t indice_cible)
 {
-    printf("\ncible : %d\n", indice_cible);
-    printf("indice : %d\n", indice);
+   trace("\ncible : %d\n", indice_cible);
+   trace("indice : %d\n", indice);
     if (blocks[indice][comp] == NULL) {
         perror("Impossible de diviser une composante inexistante !");
         exit(EXIT_FAILURE);
@@ -233,7 +233,7 @@ void upsample_vertical_avance(block *blocks, enum component comp, uint8_t indice
             blocks[indice_cible][comp][i] = blocks[indice][comp][4 + 8*(i/8) + (i%8)/2];
         }
         else {
-            printf("blocks[indice_cible][comp] : %p\n", blocks[indice_cible][comp]);
+           trace("blocks[indice_cible][comp] : %p\n", blocks[indice_cible][comp]);
             blocks[indice_cible][comp][i] = (blocks[indice][comp][4 + 8*(i/8) + (i%8)/2 - 1] + blocks[indice][comp][4 + 8*(i/8) + (i%8)/2])/2;
         }
     }

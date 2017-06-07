@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "bitstream.h"
+#include "trace.h"
 
 
 struct huff_table;

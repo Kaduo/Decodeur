@@ -9,6 +9,7 @@ Auteurs .... : A. He - M. Barbe - B. Potet (Ensimag 1A 2016/2017 - G6)
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "trace.h"
 
 #include "bitstream.h"
 
