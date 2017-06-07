@@ -12,7 +12,7 @@ CC = clang
 LD = clang
 INC = -I$(INC_DIR)
 
-CFLAGS += -DDEBUG $(INC) -Wall -std=c99 -O0 -g  -Wextra
+CFLAGS += $(INC) -Wall -std=c99 -O0 -g  -Wextra
 
 ifdef DEBUG
 CFLAGS += -DDEBUG
@@ -70,9 +70,8 @@ $(OBJ_DIR)/jpeg_reader.o: $(SRC_DIR)/jpeg_reader.c $(INC_DIR)/jpeg_reader.h
 $(OBJ_DIR)/huffman.o: $(SRC_DIR)/huffman.c $(INC_DIR)/huffman.h
 	$(CC) $(CFLAGS) -c $(SRC_DIR)/huffman.c -o $(OBJ_DIR)/huffman.o
 
-
 debug: clean
-	$(MAKE) DBUG=1
+	$(MAKE) DEBUG=1
 
 .PHONY: clean
 
