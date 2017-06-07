@@ -3,10 +3,10 @@
 
 #ifdef DEBUG
 #define trace(fmt, ...) \
-            do { if (DEBUG) fprintf(stdout, fmt, __VA_ARGS__); } while (0)
+            do { fprintf(stdout, fmt, __VA_ARGS__); } while (0)
 #else
 #define trace(fmt, ...) \
-            do { } while (0)
+            do { printf("HELLO"); } while (0)
 
 #endif
 

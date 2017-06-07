@@ -15,7 +15,7 @@ INC = -I$(INC_DIR)
 CFLAGS += $(INC) -Wall -std=c99 -O0 -g  -Wextra
 
 ifdef DEBUG
-CFLAGS += -Ddebug
+CFLAGS += -DDEBUG
 endif
 
 LDFLAGS = -lm
@@ -72,7 +72,7 @@ $(OBJ_DIR)/huffman.o: $(SRC_DIR)/huffman.c $(INC_DIR)/huffman.h
 
 
 debug: clean
-	$(MAKE) DEBUG=1
+	$(MAKE) DBUG=1
 
 .PHONY: clean
 
