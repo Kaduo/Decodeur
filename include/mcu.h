@@ -25,8 +25,12 @@ struct mcu {
   uint8_t nb_crs;
 };
 
+/* Crée une structure MCU */
 struct mcu *create_mcu(uint8_t nb_components_y, uint8_t nb_components_cb, uint8_t nb_components_cr);
 
+/* Extrait une MCU complète. 'ordre_des_composantes' est un tableau indiquant
+l'ordre des composantes dans la MCU. 'huff_tables' est un tableau de couples de
+tables de Huffman, de forme : [[Y_dc, Y_ac], [C_dc, C_ac]] */
 extern struct mcu *extract_mcu(struct bitstream *bitstream,
                         uint8_t nb_components_y,
                         uint8_t nb_components_cb,
@@ -38,8 +42,7 @@ extern struct mcu *extract_mcu(struct bitstream *bitstream,
                         struct huff_table ***huff_tables,
                         uint8_t **quant_tables);
 
-void free_components(int16_t **components, uint8_t size_components);
-
-void free_mcu(struct mcu *mcu);
+/* Libère la place occupée en mémoire par une MCU */
+extern void free_mcu(struct mcu *mcu);
 
 #endif

@@ -105,12 +105,12 @@ void upsampling_recursif(block *blocks, enum component comp, uint8_t indice, uin
 void upsample_horizontal(block *blocks, enum component comp, uint8_t indice, uint8_t indice_cible)
 {
     if (blocks[indice][comp] == NULL) {
-        perror("Impossible de diviser une composante inexistante !");
+        fprintf(stderr, "Impossible de diviser une composante inexistante !");
         exit(EXIT_FAILURE);
     }
 
     if (blocks[indice_cible][comp] != NULL) {
-        perror("L'indice cible est déjà occupé !");
+        fprintf(stderr, "L'indice cible est déjà occupé !");
         exit(EXIT_FAILURE);
     }
 
@@ -132,12 +132,12 @@ void upsample_horizontal(block *blocks, enum component comp, uint8_t indice, uin
 void upsample_vertical(block *blocks, enum component comp, uint8_t indice, uint8_t indice_cible)
 {
     if (blocks[indice][comp] == NULL) {
-        perror("Impossible de diviser une composante inexistante !");
+        fprintf(stderr, "Impossible de diviser une composante inexistante !");
         exit(EXIT_FAILURE);
     }
 
     if (blocks[indice_cible][comp] != NULL) {
-        perror("L'indice cible est déjà occupé !");
+        fprintf(stderr, "L'indice cible est déjà occupé !");
         exit(EXIT_FAILURE);
     }
 
@@ -180,7 +180,7 @@ void free_block(block block, bool is_color)
 {
     /* Libération de la composante Y */
     free(block[0]);
-    if(is_color){
+    if (is_color) {
         /* Libération des composantes Cb et Cr */
         free(block[1]);
         free(block[2]);
