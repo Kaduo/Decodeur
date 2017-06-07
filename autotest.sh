@@ -35,6 +35,14 @@ echo "== zig-zag.jpg =="
 time $EXEC $IMG/zig-zag.jpg > /dev/null 2>&1
 echo -e
 
+echo "== unicorn.jpg =="
+time $EXEC $IMG/unicorn.jpg > /dev/null 2>&1
+echo -e
+
+echo "== zig-zag.jpg =="
+time $EXEC $IMG/zig-zag.jpg > /dev/null 2>&1
+echo -e
+
 echo "== thumbs.jpg =="
 time $EXEC $IMG/thumbs.jpg > /dev/null 2>&1
 echo -e

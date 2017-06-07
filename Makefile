@@ -22,10 +22,10 @@ LDFLAGS = -lm
 
 # Liste des fichiers objet
 
-# les notres...
+# Professeurs
 OBJPROF_FILES =  $(OBJPROF_DIR)/huffman.o  $(OBJPROF_DIR)/jpeg_reader.o $(OBJPROF_DIR)/bitstream.o
 
-# et les votres!
+# Étudiants
 OBJ_FILES = $(OBJ_DIR)/shared.o $(OBJ_DIR)/block.o $(OBJ_DIR)/zigzag.o $(OBJ_DIR)/rgb.o $(OBJ_DIR)/picture.o $(OBJ_DIR)/mcu.o $(OBJ_DIR)/jpeg2ppm.o $(OBJ_DIR)/component.o
 
 # cible par défaut
@@ -63,8 +63,6 @@ $(OBJ_DIR)/jpeg2ppm.o: $(SRC_DIR)/jpeg2ppm.c $(INC_DIR)/jpeg2ppm.h
 
 $(OBJ_DIR)/bitstream.o: $(SRC_DIR)/bitstream.c $(INC_DIR)/bitstream.h
 	$(CC) $(CFLAGS) -c $(SRC_DIR)/bitstream.c -o $(OBJ_DIR)/bitstream.o
-
-
 
 debug: clean
 	$(MAKE) DEBUG=1
