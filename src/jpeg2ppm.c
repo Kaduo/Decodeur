@@ -269,7 +269,6 @@ int main(int argc, char **argv)
     *****/
 
     char *outfile = get_outfile_name(filename, pic->colored);
-    printf("%s", outfile);
     write_ppm(pic, outfile);
     free_picture(pic);
     free(outfile);
