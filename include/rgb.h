@@ -32,6 +32,6 @@ extern uint8_t get_green(int16_t y, int16_t cb, int16_t cr);
 extern uint8_t get_blue(int16_t y, int16_t cb, int16_t cr);
 
 /* Clampe une valeur color dans l'intervalle [0,255] */
-extern uint8_t clamp(int16_t color);
+uint8_t clamp(int16_t color);
 
 #endif
