@@ -102,9 +102,9 @@ enum component *get_components_order(const struct jpeg_desc *jpeg, uint8_t facto
 
 char *get_outfile_name(const char *filename, bool colored)
 {
-    char *outfile = malloc(sizeof(char) * strlen(filename) + 1);
+    char *outfile = calloc(strlen(filename) + 1, sizeof(char));
     /* Recherche la derniere occurence du caractere point '.' */
-    char find = '.';
+    const char find = '.';
     const char *last = strchr(filename, find);
     /* Si le caractere a ete trouve, on genere un nom, sinon NULL */
     if (last) {
@@ -268,10 +268,12 @@ int main(int argc, char **argv)
     * Création de l'image PPM ou PGM *
     *****/
 
-    char *outfile_name = get_outfile_name(filename, pic->colored);
-    write_ppm(pic, outfile_name);
-    free(outfile_name);
+    char *outfile = get_outfile_name(filename, pic->colored);
+    printf("%s", outfile);
+    write_ppm(pic, outfile);
     free_picture(pic);
+    free(outfile);
+
     // Libération mémoire du tableau de MCU
     for(uint32_t i=0; i< nb_mcus; i++){
          free_mcu(mcus[i]);

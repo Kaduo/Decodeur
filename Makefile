@@ -70,6 +70,7 @@ $(OBJ_DIR)/jpeg_reader.o: $(SRC_DIR)/jpeg_reader.c $(INC_DIR)/jpeg_reader.h
 $(OBJ_DIR)/huffman.o: $(SRC_DIR)/huffman.c $(INC_DIR)/huffman.h
 	$(CC) $(CFLAGS) -c $(SRC_DIR)/huffman.c -o $(OBJ_DIR)/huffman.o
 
+
 debug: clean
 	$(MAKE) DEBUG=1
 
@@ -77,4 +78,4 @@ debug: clean
 
 clean:
 	rm -f $(TARGET) $(OBJ_FILES)
-	rm images/*ppm images/*pgm images/*blabla
+	rm -f images/*ppm images/*pgm images/*blabla
