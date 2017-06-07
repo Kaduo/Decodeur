@@ -38,7 +38,7 @@ void get_dc(struct huff_table *dc_table,
 {
     uint8_t nb_read;
     uint8_t magnitude = (uint8_t) next_huffman_value_count(dc_table, stream, &nb_read);
-    printf("\nMagnitude DC : %02x(%hhu)", magnitude, nb_read);
+#ifdef DEBUG printf("\nMagnitude DC : %02x(%hhu)", magnitude, nb_read); #endif
     int16_t new_value = *previous_dc + get_coefficient(stream, magnitude, true);
     coefficients[0] = new_value;
     *previous_dc = new_value;
@@ -51,11 +51,11 @@ void get_acs(struct huff_table *ac_table,
                 int16_t *coefficients,
                 size_t length)
 {
-    printf("\nMagnitudes ACs : ");
+#ifdef DEBUG printf("\nMagnitudes ACs : "); #endif
     for (size_t i = 1; i < length; ++i) {
         uint8_t nb_read;
         uint8_t symbole = (uint8_t) next_huffman_value_count(ac_table, stream, &nb_read);
-        printf("%02x(%hhu) ", symbole, nb_read);
+#ifdef DEBUG printf("%02x(%hhu) ", symbole, nb_read); #endif
         /* 1er cas : code EOB */
         if (symbole == 0x00) {
             return;
@@ -165,7 +165,7 @@ int16_t *get_component(struct bitstream *stream,
                         size_t size)
 {
     /* 1. Extraction - extraction */
-    printf("\n\nextracted : PREVIOUS_DC = %04x\n", *previous_dc);
+#ifdef DEBUG printf("\n\nextracted : PREVIOUS_DC = %04x\n", *previous_dc); #endif
     int16_t *extracted = extract(dc_table,
                                   ac_table,
                                   stream,
@@ -174,7 +174,7 @@ int16_t *get_component(struct bitstream *stream,
 
     /*printf("\n"); // <- PRINT VITAL POUR LE DEBUG NE PAS EFFACER SVP (PAS UNE BLAGUE)
     for (size_t i = 0; i < 64; i++) {
-        printf("%04x ", extracted[i]);
+#ifdef DEBUG printf("%04x ", extracted[i]); #endif
     }*/
 
     /* 2. Quantification inverse */
@@ -183,21 +183,21 @@ int16_t *get_component(struct bitstream *stream,
                                                   size*size);
     /*printf("\n\nquantization\n");
      for (size_t i = 0; i < 64; i++) {
-         printf("%04x ", quantization[i]);
+#ifdef DEBUG printf("%04x ", quantization[i]); #endif
      }*/
     /* 3. Reorganisation zigzag */
     int16_t *zigzag = inverse_zigzag(quantization, size);
 
     /*printf("\n\nzigzag\n");
     for (size_t i = 0; i < 64; i++) {
-        printf("%04x ", zigzag[i]);
+#ifdef DEBUG printf("%04x ", zigzag[i]); #endif
     }*/
     /* 4. Transformee en cosinus discrete inverse (iDCT) */
     int16_t *component = idct(zigzag, size);
 
     /*printf("\n\ncomponent\n");
      for (size_t i = 0; i < 64; i++) {
-         printf("%04x ", component[i]);
+#ifdef DEBUG printf("%04x ", component[i]); #endif
      }*/
     free(extracted);
     free(quantization);

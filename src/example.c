@@ -26,7 +26,7 @@ int main(int argc, char **argv)
     uint32_t byte = 0;
     uint8_t nb_read = read_bitstream(stream, 8, &byte, false);
     if (nb_read == 8) {
-	printf("Le premier octet des donnees brutes du fichier JPEG %s vaut 0x%x.\n",
+#ifdef DEBUG printf("Le premier octet des donnees brutes du fichier JPEG %s vaut 0x%x.\n", #endif
 	       filename,
 	       byte);
     } else {

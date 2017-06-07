@@ -55,7 +55,7 @@ enum component *get_components_order(const struct jpeg_desc *jpeg, uint8_t facto
     uint8_t nb_components_per_mcu = nb_components_y + nb_components_cb + nb_components_cr;
 
     uint8_t nb_components = get_nb_components(jpeg);
-    printf("\nnb_components_per_mcu : %d\n", nb_components_per_mcu);
+    #ifdef DEBUG printf("\nnb_components_per_mcu : %d\n", nb_components_per_mcu); #endif
 
     enum component *order = malloc(nb_components_per_mcu*sizeof(enum component));
 
@@ -74,26 +74,26 @@ enum component *get_components_order(const struct jpeg_desc *jpeg, uint8_t facto
         if (scan_id == id_y) {
             for (size_t k = 0; k < nb_components_y; k++) {
                 order[j] = COMP_Y;
-                printf("j : %d\n", j);
+                #ifdef DEBUG printf("j : %d\n", j); #endif
                 j++;
             }
         }
         else if (scan_id == id_cb) {
             for (size_t k = 0; k < nb_components_cb; k++) {
                 order[j] = COMP_Cb;
-                printf("j : %d\n", j);
+                #ifdef DEBUG printf("j : %d\n", j); #endif
                 j++;
             }
         }
         else if (scan_id == id_cr) {
             for (size_t k = 0; k < nb_components_cr; k++) {
                 order[j] = COMP_Cr;
-                printf("j : %d\n", j);
+                #ifdef DEBUG printf("j : %d\n", j); #endif
                 j++;
             }
         }
         else {
-            printf("ERREUR FATALE");
+            #ifdef DEBUG printf("ERREUR FATALE"); #endif
         }
     }
 
@@ -139,7 +139,7 @@ int main(int argc, char **argv)
 
     // Nombre de composant
     uint8_t nb_components = get_nb_components(jdesc);
-    printf("Nombre de composante : %hhu\n", nb_components);
+    #ifdef DEBUG printf("Nombre de composante : %hhu\n", nb_components); #endif
 
 
     /*******
@@ -157,22 +157,22 @@ int main(int argc, char **argv)
     }
 
     // Sampling factors
-    printf("H1 : %hhu, V1 : %hhu\n", sampling_factors[0][0], sampling_factors[0][1]);
-    printf("H2 : %hhu, V3 : %hhu\n", sampling_factors[1][0], sampling_factors[1][1]);
-    printf("H3 : %hhu, V3 : %hhu\n", sampling_factors[2][0], sampling_factors[2][1]);
+    #ifdef DEBUG printf("H1 : %hhu, V1 : %hhu\n", sampling_factors[0][0], sampling_factors[0][1]); #endif
+    #ifdef DEBUG printf("H2 : %hhu, V3 : %hhu\n", sampling_factors[1][0], sampling_factors[1][1]); #endif
+    #ifdef DEBUG printf("H3 : %hhu, V3 : %hhu\n", sampling_factors[2][0], sampling_factors[2][1]); #endif
 
     //Nombre de composantes par MCU
     uint8_t nb_components_y = sampling_factors[0][0]*sampling_factors[0][1];
     uint8_t nb_components_cb = sampling_factors[1][0]*sampling_factors[1][1];
     uint8_t nb_components_cr = sampling_factors[2][0]*sampling_factors[2][1];
-    printf("\nnb_y : %hhu\n", nb_components_y);
-    printf("\nnb_cb : %hhu\n", nb_components_cb);
-    printf("\nnb_cr : %hhu\n", nb_components_cr);
+    #ifdef DEBUG printf("\nnb_y : %hhu\n", nb_components_y); #endif
+    #ifdef DEBUG printf("\nnb_cb : %hhu\n", nb_components_cb); #endif
+    #ifdef DEBUG printf("\nnb_cr : %hhu\n", nb_components_cr); #endif
 
     // Taille de l'image.
     uint16_t width = get_image_size(jdesc, DIR_H);
     uint16_t height = get_image_size(jdesc, DIR_V);
-    printf("Taille de l'image : %d x %d\n", width, height);
+#ifdef DEBUG printf("Taille de l'image : %d x %d\n", width, height); #endif
     // Taille de l'image complétée.
     uint16_t width_ext = 0;
     uint16_t height_ext = 0;
@@ -188,13 +188,13 @@ int main(int argc, char **argv)
     else{
         height_ext = height;
     }
-    printf("Taille de l'image complétée : %d x %d\n", width_ext, height_ext);
+#ifdef DEBUG printf("Taille de l'image complétée : %d x %d\n", width_ext, height_ext); #endif
 
     // Calcul du nombre de MCU
     uint32_t nb_mcus_h = width_ext / (8 * sampling_factors[0][0]);
     uint32_t nb_mcus_v = height_ext / (8 * sampling_factors[0][1]);
     uint32_t nb_mcus = nb_mcus_h * nb_mcus_v;
-    printf("Nombre de MCU : %d\n", nb_mcus);
+#ifdef DEBUG printf("Nombre de MCU : %d\n", nb_mcus); #endif
 
     // Création du tableau de mcus
     struct mcu **mcus = calloc(nb_mcus, sizeof(struct mcu *));
@@ -206,19 +206,19 @@ int main(int argc, char **argv)
     enum component *ordre_des_composantes = get_components_order(jdesc, sampling_factors);
 
     // Debug
-    printf("Table de quantification index 0 : \n");
+#ifdef DEBUG printf("Table de quantification index 0 : \n"); #endif
     for(uint8_t i=0; i<64; i++){
-        printf("%hhu ", quant_tables[0][i]);
+#ifdef DEBUG printf("%hhu ", quant_tables[0][i]); #endif
     } // end for
-    printf("\n");
+#ifdef DEBUG printf("\n"); #endif
 
     // On extrait les mcus
     int16_t previous_dc_y = 0;
     int16_t previous_dc_cb = 0;
     int16_t previous_dc_cr = 0;
     for (size_t i = 0; i < nb_mcus; ++i) {
-        printf("\n\n======================\n");
-        printf("\nMCU %zu :\n", i);
+#ifdef DEBUG printf("\n\n======================\n"); #endif
+#ifdef DEBUG printf("\nMCU %zu :\n", i); #endif
         mcus[i] = extract_mcu(stream,
                                 nb_components_y,
                                 nb_components_cb,
@@ -236,9 +236,9 @@ int main(int argc, char **argv)
 
     /*printf("\nPremière composante Y :\n");
     for (size_t i = 0; i < 64; i++) {
-        printf("%"PRId16 " ", mcus[0]->components_y[0][i]);
+#ifdef DEBUG printf("%"PRId16 " ", mcus[0]->components_y[0][i]); #endif
     }
-    printf("\n");*/
+#ifdef DEBUG printf("\n");*/ #endif
 
     /* Reconstruction des blocs */
 
@@ -263,9 +263,9 @@ int main(int argc, char **argv)
 
     /*printf("\nComposante R si couleur, niveau de gris sinon\n");
     for (size_t i = 0; i < 64; i++) {
-        printf("%"PRId16"\n", liste_blocks[0][0][i]);
+#ifdef DEBUG printf("%"PRId16"\n", liste_blocks[0][0][i]); #endif
     }
-    printf("\n");*/
+#ifdef DEBUG printf("\n");*/ #endif
 
 
     /*******
