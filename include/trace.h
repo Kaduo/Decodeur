@@ -6,7 +6,7 @@
             do { fprintf(stdout, fmt, __VA_ARGS__); } while (0)
 #else
 #define trace(fmt, ...) \
-            do { printf("HELLO"); } while (0)
+            do { } while (0)
 
 #endif
 
