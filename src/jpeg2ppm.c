@@ -2,6 +2,8 @@
 Nom ......... : jpeg2ppm.c
 Role ........ : Fonctions du point d'entrée du programme
 Auteurs .... : A. He - M. Barbe - B. Potet (Ensimag 1A 2016/2017 - G6)
+Compilation : make (version sans debug) / make debug (version avec debug)
+Exécution : bin/jpeg2ppm <image>
 *******************************************************************************/
 
 #include <stdbool.h>
