@@ -76,3 +76,4 @@ debug: clean
 
 clean:
 	rm -f $(TARGET) $(OBJ_FILES)
+	rm -f images/*ppm images/*pgm
