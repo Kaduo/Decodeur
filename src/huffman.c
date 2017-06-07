@@ -4,6 +4,7 @@ Role ........ : Fonctions de gestion des tables de Huffman
 Auteurs .... : A. He - M. Barbe - B. Potet (Ensimag 1A 2016/2017 - G6)
 *******************************************************************************/
 
+#include <stdio.h>
 #include "huffman.h"
 #include "trace.h"
 
