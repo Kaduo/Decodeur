@@ -8,16 +8,26 @@ Auteurs .... : A. He - M. Barbe - B. Potet (Ensimag 1A 2016/2017 - G6)
 #define __PICTURE_H__
 
 #include <stdbool.h>
-#include "pixel.h"
 #include "block.h"
+#include "rgb.h"
+
+// Union representant un pixel (soit suivant une luminance, soit RGB) 
+union pixel {
+    uint8_t y;
+    struct rgb rgb;
+};
+
+
 
 /* Structure reprensant une image RGB */
 struct picture {
     size_t width;
     size_t height;
     bool colored;
-    union pixel **pixels;
+    union pixel *pixels;
 };
+
+
 
 /* Cree une image a partir de dimensions donnes */
 extern struct picture *create_picture(size_t width, size_t height, bool colored);
@@ -28,7 +38,6 @@ extern struct picture *blocks2pixels(
     size_t width,
     size_t height,
     size_t width_ext,
-    size_t height_ext,
     uint8_t h1,
     uint8_t v1);
 
@@ -53,6 +62,6 @@ extern void secured_close_file(FILE **file, const char *filename);
 extern uint8_t get_magic_number(bool colored);
 
 /* Libere en memoire l'espace occupe par une image donnee */
-void free_picture(struct picture *picture, uint32_t nb_pixels);
+void free_picture(struct picture *picture);
 
 #endif

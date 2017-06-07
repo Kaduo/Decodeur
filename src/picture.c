@@ -32,7 +32,6 @@ struct picture *blocks2pixels(block *blocks,
                                 size_t width,
                                 size_t height,
                                 size_t width_ext,
-                                size_t height_ext,
                                 uint8_t h1,
                                 uint8_t v1)
 {
@@ -40,9 +39,9 @@ struct picture *blocks2pixels(block *blocks,
     bool is_bw = blocks[0][COMP_Cb] == NULL;
     struct picture *pic = create_picture(width, height, !is_bw);
     size_t nb_blocs_h = width_ext / 8;
-    size_t nb_blocs_v = height_ext / 8;
     uint32_t l_bloc = 0;
     uint32_t l_in_bloc = 0;
+    uint32_t id_pixel = 0;
 
     // Boucle sur les lignes de pixels.
     for(uint32_t l=0; l < height; l++){
@@ -60,15 +59,14 @@ struct picture *blocks2pixels(block *blocks,
             // Boucle sur les pixels de la ligne l%8 du bloc b.
             for(uint8_t i=0; i < 8; i++){
 
+                id_pixel = l*width + (b/(h1*v1))*h1*8 + ((b%(h1*v1))%h1)*8 + i;
                 if(is_bw){
-                    pic->pixels[l*width + b*8 + i] = create_pixel_bw(
-                        (uint8_t) blocks[l_bloc*nb_blocs_h + b][0][l_in_bloc*8 + i]);
+                        pic->pixels[id_pixel].y = (uint8_t) blocks[l_bloc*nb_blocs_h + b][0][l_in_bloc*8 + i];
                 } // end if
                 else{
-                    pic->pixels[l*width + (b/(h1*v1))*h1*8 + ((b%(h1*v1))%h1)*8 + i] = create_pixel_rgb(
-                        (uint8_t) blocks[(l_bloc - l_bloc%v1)*nb_blocs_h + b][0][l_in_bloc*8 + i],
-                        (uint8_t) blocks[(l_bloc - l_bloc%v1)*nb_blocs_h + b][1][l_in_bloc*8 + i],
-                        (uint8_t) blocks[(l_bloc - l_bloc%v1)*nb_blocs_h + b][2][l_in_bloc*8 + i]);
+                        pic->pixels[id_pixel].rgb.red = (uint8_t) blocks[(l_bloc - l_bloc%v1)*nb_blocs_h + b][0][l_in_bloc*8 + i];
+                        pic->pixels[id_pixel].rgb.green = (uint8_t) blocks[(l_bloc - l_bloc%v1)*nb_blocs_h + b][1][l_in_bloc*8 + i];
+                        pic->pixels[id_pixel].rgb.blue = (uint8_t) blocks[(l_bloc - l_bloc%v1)*nb_blocs_h + b][2][l_in_bloc*8 + i];
 
                 } // end else
             } // end for i.
@@ -87,15 +85,14 @@ struct picture *blocks2pixels(block *blocks,
         //exit(1);
         for(uint8_t i=0; i < 8 - (width_ext - width); i++){
 
+            id_pixel = l*width + (indice_dernier_bloc/(h1*v1))*h1*8 + ((indice_dernier_bloc%(h1*v1))%h1)*8 + i;
             if(is_bw){
-                pic->pixels[l*width + indice_dernier_bloc*8 + i] = create_pixel_bw(
-                    blocks[l_bloc*nb_blocs_h + indice_dernier_bloc][0][l_in_bloc*8 + i]);
+                    pic->pixels[id_pixel].y = blocks[l_bloc*nb_blocs_h + indice_dernier_bloc][0][l_in_bloc*8 + i];
             } // end if
             else{
-                pic->pixels[l*width + (indice_dernier_bloc/(h1*v1))*h1*8 + ((indice_dernier_bloc%(h1*v1))%h1)*8 + i] = create_pixel_rgb(
-                    blocks[(l_bloc - l_bloc%v1)*nb_blocs_h + indice_dernier_bloc][0][l_in_bloc*8 + i],
-                    blocks[(l_bloc - l_bloc%v1)*nb_blocs_h + indice_dernier_bloc][1][l_in_bloc*8 + i],
-                    blocks[(l_bloc - l_bloc%v1)*nb_blocs_h + indice_dernier_bloc][2][l_in_bloc*8 + i]);
+                pic->pixels[id_pixel].rgb.red = blocks[(l_bloc - l_bloc%v1)*nb_blocs_h + indice_dernier_bloc][0][l_in_bloc*8 + i];
+                    pic->pixels[id_pixel].rgb.green = blocks[(l_bloc - l_bloc%v1)*nb_blocs_h + indice_dernier_bloc][1][l_in_bloc*8 + i];
+                    pic->pixels[id_pixel].rgb.blue = blocks[(l_bloc - l_bloc%v1)*nb_blocs_h + indice_dernier_bloc][2][l_in_bloc*8 + i];
 
             } // end else
         }
@@ -137,9 +134,9 @@ void write_ppm_data(const struct picture *picture, const char *filename)
     /* Ecriture des donnees */
     for (size_t i = 0; i < picture->width * picture->height; ++i) {
         if (picture->colored) {
-            fwrite(&(picture->pixels[i]->rgb), sizeof(struct rgb), 1, outfile);
+            fwrite(&(picture->pixels[i].rgb), sizeof(struct rgb), 1, outfile);
         } else {
-            fwrite(&picture->pixels[i]->y, sizeof(uint8_t), 1, outfile);
+            fwrite(&picture->pixels[i].y, sizeof(uint8_t), 1, outfile);
         }
     }
     /* Fermeture du fichier */
@@ -171,11 +168,8 @@ uint8_t get_magic_number(bool colored)
 }
 
 /* Libere en memoire l'espace occupe par une image donnee */
-void free_picture(struct picture *picture, uint32_t nb_pixels)
+void free_picture(struct picture *picture)
 {
-    for (size_t i = 0; i < nb_pixels; i++) {
-        free_pixel(picture->pixels[i]);
-    }
     free(picture->pixels);
     free(picture);
     picture = NULL;

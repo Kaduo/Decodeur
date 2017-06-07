@@ -218,7 +218,7 @@ int main(int argc, char **argv)
     int16_t previous_dc_cr = 0;
     for (size_t i = 0; i < nb_mcus; ++i) {
         printf("\n\n======================\n");
-        printf("\nMCU %d :\n", i);
+        printf("\nMCU %zu :\n", i);
         mcus[i] = extract_mcu(stream,
                                 nb_components_y,
                                 nb_components_cb,
@@ -276,7 +276,6 @@ int main(int argc, char **argv)
                                         width,
                                         height,
                                         width_ext,
-                                        height_ext,
                                         sampling_factors[COMP_Y][DIR_H], // H1
                                         sampling_factors[COMP_Y][DIR_V]);
 
@@ -287,7 +286,7 @@ int main(int argc, char **argv)
     char *outfile_name = get_outfile_name(filename, pic->colored);
     write_ppm(pic, outfile_name);
     free(outfile_name);
-    free_picture(pic, width*height);
+    free_picture(pic);
     // Libération mémoire du tableau de MCU
     for(uint32_t i=0; i< nb_mcus; i++){
          free_mcu(mcus[i]);
