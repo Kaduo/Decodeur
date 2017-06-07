@@ -42,8 +42,17 @@ extern block *extract_blocks(struct mcu *mcu, const uint8_t factors[COMP_NB][DIR
             }
         }
         else {
-            blocks[0][COMP_Cb] = mcu->components_cb[0];
-            upsampling_recursif(blocks, COMP_Cb, 0, factors[COMP_Y][DIR_H], factors[COMP_Y][DIR_V], factors[COMP_Cb][DIR_H], factors[COMP_Cb][DIR_V]);
+            for (size_t i = 0; i < mcu->nb_cbs; i++) {
+                blocks[i*factors[COMP_Cb][DIR_V]*factors[COMP_Cb][DIR_H]][COMP_Cb] = mcu->components_cb[i];
+                upsampling_recursif(blocks, COMP_Cb, i*factors[COMP_Cb][DIR_V]*factors[COMP_Cb][DIR_H],
+                    factors[COMP_Y][DIR_H], factors[COMP_Y][DIR_V], factors[COMP_Cb][DIR_H], factors[COMP_Cb][DIR_V]);
+            }
+
+            if (factors[COMP_Y][DIR_H] == 2 && factors[COMP_Y][DIR_V] == 2 && factors[COMP_Cb][DIR_H] == 2) {
+                int16_t *temp = blocks[1][COMP_Cb];
+                blocks[1][COMP_Cb] = blocks[2][COMP_Cb];
+                blocks[2][COMP_Cb] = temp;
+            }
         }
 
         if (no_upsampling_cr) {
@@ -52,8 +61,18 @@ extern block *extract_blocks(struct mcu *mcu, const uint8_t factors[COMP_NB][DIR
             }
         }
         else {
-            blocks[0][COMP_Cr] = mcu->components_cr[0];
-            upsampling_recursif(blocks, COMP_Cr, 0, factors[COMP_Y][DIR_H], factors[COMP_Y][DIR_V], factors[COMP_Cr][DIR_H], factors[COMP_Cr][DIR_V]);
+            for (size_t i = 0; i < mcu->nb_crs; i++) {
+                blocks[i*factors[COMP_Cr][DIR_V]*factors[COMP_Cr][DIR_H]][COMP_Cr] = mcu->components_cr[i];
+                upsampling_recursif(blocks, COMP_Cr, i*factors[COMP_Cr][DIR_V]*factors[COMP_Cr][DIR_H],
+                    factors[COMP_Y][DIR_H], factors[COMP_Y][DIR_V], factors[COMP_Cr][DIR_H], factors[COMP_Cr][DIR_V]);
+            }
+
+            if (factors[COMP_Y][DIR_H] == 2 && factors[COMP_Y][DIR_V] == 2 && factors[COMP_Cr][DIR_H] == 2) {
+                int16_t *temp = blocks[1][COMP_Cr];
+                blocks[1][COMP_Cr] = blocks[2][COMP_Cr];
+                blocks[2][COMP_Cr] = temp;
+            }
+
         }
     }
     return blocks;
@@ -118,7 +137,7 @@ void upsampling_recursif(block *blocks, enum component comp, uint8_t indice, uin
         uint8_t nb_elements = h * v;
 
         upsample_horizontal(blocks, comp, indice, indice + h1*v1/nb_elements);
-        upsampling_recursif(blocks, comp, indice,h1,v1,h,v);
+        upsampling_recursif(blocks, comp, indice, h1, v1, h, v);
         upsampling_recursif(blocks, comp, indice + h1*v1/nb_elements, h1, v1, h, v);
     }
 }
@@ -211,7 +230,7 @@ void upsample_vertical(block *blocks, enum component comp, uint8_t indice, uint8
     printf("\n");
 }
 
-void upsample_vertical_avance(block *blocks, enum component comp, uint8_t indice, uint8_t indice_cible)
+/*void upsample_vertical_avance(block *blocks, enum component comp, uint8_t indice, uint8_t indice_cible)
 {
     printf("\ncible : %d\n", indice_cible);
     printf("indice : %d\n", indice);
@@ -248,7 +267,7 @@ void upsample_vertical_avance(block *blocks, enum component comp, uint8_t indice
             }
         }
     }
-}
+}*/
 
 /* Sur-echantillonne un composant donné sous-echantillonné en deux */
 //int16_t **upsample_to_two(const struct component *component);
