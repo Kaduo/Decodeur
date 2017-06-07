@@ -1,105 +1,113 @@
-#include "jpeg2ppm.h"
+/*******************************************************************************
+Nom ......... : jpeg2ppm.c
+Role ........ : Fonctions du point d'entrée du programme
+Auteurs .... : A. He - M. Barbe - B. Potet (Ensimag 1A 2016/2017 - G6)
+*******************************************************************************/
+
 #include <stdbool.h>
 #include <string.h>
+#include "jpeg2ppm.h"
+#include "bitstream.h"
+#include "jpeg_reader.h"
+#include "picture.h"
+#include "mcu.h"
+#include "shared.h"
 
-bool est_couleur(const struct jpeg_desc *jpeg){
+/* Indique si l'image est en couleur */
+bool est_couleur(const struct jpeg_desc *jpeg)
+{
     return get_nb_components(jpeg) > 1;
 }
 
-/* Récupère les tables de Huffman dans l'ordre Y_dc, Y_ac, puis C_dc et C_ac (si elles existent).
-Pour Antoine : ce code est irrécupérable, inutile d'essayer de le nettoyer. De même pour les fonctions suivantes.*/
-extern struct huff_table ***get_huff_tables(const struct jpeg_desc *jpeg) {
-
+/* Récupère les tables de Huffman dans l'ordre Y_dc, Y_ac, puis C_dc et C_ac (si elles existent) */
+struct huff_table ***get_huff_tables(const struct jpeg_desc *jpeg)
+{
     uint8_t nb_huffman_tables = get_nb_huffman_tables(jpeg, AC);
 
     struct huff_table ***huff_tables;
-    huff_tables = malloc(nb_huffman_tables*sizeof(struct huff_table **));
-    huff_tables[0] = malloc(2*sizeof(struct huff_table *));
+    huff_tables = malloc(nb_huffman_tables * sizeof(struct huff_table**));
 
-    uint8_t id_huff_y_dc = get_scan_component_huffman_index(jpeg, DC, 0);
-    uint8_t id_huff_y_ac = get_scan_component_huffman_index(jpeg, AC, 0);
-    huff_tables[0][DC] = get_huffman_table(jpeg, DC, id_huff_y_dc);
-    huff_tables[0][AC] = get_huffman_table(jpeg, AC, id_huff_y_ac);
+    /* Récupération des tables de Huffman de la composante Y */
+    huff_tables[COMP_Y] = malloc(2 * sizeof(struct huff_table*));
+    uint8_t id_huff_y_dc = get_scan_component_huffman_index(jpeg, DC, COMP_Y);
+    uint8_t id_huff_y_ac = get_scan_component_huffman_index(jpeg, AC, COMP_Y);
+    huff_tables[COMP_Y][DC] = get_huffman_table(jpeg, DC, id_huff_y_dc);
+    huff_tables[COMP_Y][AC] = get_huffman_table(jpeg, AC, id_huff_y_ac);
 
+    /* Si l'image est en couleur, récupération de l'autre table */
     if (nb_huffman_tables > 1) {
-
-        huff_tables[1] = malloc(2*sizeof(struct huff_table *));
-
-        uint8_t id_huff_c_dc = get_scan_component_huffman_index(jpeg, DC, 1);
-        uint8_t id_huff_c_ac = get_scan_component_huffman_index(jpeg, AC, 1);
-        huff_tables[1][DC] = get_huffman_table(jpeg, DC, id_huff_c_dc);
-        huff_tables[1][AC] = get_huffman_table(jpeg, AC, id_huff_c_ac);
+        huff_tables[COMP_Cb] = malloc(2 * sizeof(struct huff_table*));
+        uint8_t id_huff_c_dc = get_scan_component_huffman_index(jpeg, DC, COMP_Cb);
+        uint8_t id_huff_c_ac = get_scan_component_huffman_index(jpeg, AC, COMP_Cb);
+        huff_tables[COMP_Cb][DC] = get_huffman_table(jpeg, DC, id_huff_c_dc);
+        huff_tables[COMP_Cb][AC] = get_huffman_table(jpeg, AC, id_huff_c_ac);
     }
 
     return huff_tables;
 }
 
 /* Récupère les tables de quantification dans l'ordre Y puis C (si elle existe) */
-uint8_t **get_quant_tables(const struct jpeg_desc *jpeg) {
-
+uint8_t **get_quant_tables(const struct jpeg_desc *jpeg)
+{
     uint8_t nb_quant_tables = get_nb_quantization_tables(jpeg);
-    uint8_t **quant_tables = malloc(nb_quant_tables*sizeof(uint8_t *));
-    for (uint8_t i = 0; i < nb_quant_tables; i++) {
+    uint8_t **quant_tables = malloc(nb_quant_tables * sizeof(uint8_t*));
+    for (uint8_t i = 0; i < nb_quant_tables; ++i) {
         quant_tables[i] = get_quantization_table(jpeg, i);
     }
     return quant_tables;
 }
 
-/* Renvoie un tableau donnant l'ordre des composantes dans les mcus */
-enum component *get_components_order(const struct jpeg_desc *jpeg, uint8_t factors[COMP_NB][DIR_NB]) {
-
+/* Renvoie un tableau donnant l'ordre des composantes dans les MCUs */
+enum component *get_components_order(const struct jpeg_desc *jpeg, uint8_t factors[COMP_NB][DIR_NB])
+{
     uint8_t nb_components_y = factors[COMP_Y][DIR_H] * factors[COMP_Y][DIR_V];
     uint8_t nb_components_cb = factors[COMP_Cb][DIR_H] * factors[COMP_Cb][DIR_V];
     uint8_t nb_components_cr = factors[COMP_Cr][DIR_H] * factors[COMP_Cr][DIR_V];
     uint8_t nb_components_per_mcu = nb_components_y + nb_components_cb + nb_components_cr;
+    trace("Nb. de composantes par MCU : %d\n", nb_components_per_mcu);
 
     uint8_t nb_components = get_nb_components(jpeg);
-   trace("\nnb_components_per_mcu : %d\n", nb_components_per_mcu);
 
-    enum component *order = malloc(nb_components_per_mcu*sizeof(enum component));
+    enum component *order = malloc(nb_components_per_mcu * sizeof(enum component));
 
-    uint8_t id_y = get_frame_component_id(jpeg, 0);
-    uint8_t id_cb = id_y + 1;
-    uint8_t id_cr = id_y + 2;
+    uint8_t id_y = get_frame_component_id(jpeg, COMP_Y);
+    uint8_t id_cb;
+    uint8_t id_cr;
 
     if (nb_components > 1) {
-        id_cb = get_frame_component_id(jpeg, 1);
-        id_cr = get_frame_component_id(jpeg, 2);
+        id_cb = get_frame_component_id(jpeg, COMP_Cb);
+        id_cr = get_frame_component_id(jpeg, COMP_Cr);
     }
 
-    uint8_t j = 0;
-    for (uint8_t i = 0; i < nb_components; i++) {
+    uint8_t j = 0; // Position de la composante lue
+    /* Itération sur le type de composante */
+    for (uint8_t i = 0; i < nb_components; ++i) {
         uint8_t scan_id = get_scan_component_id(jpeg, i);
         if (scan_id == id_y) {
-            for (size_t k = 0; k < nb_components_y; k++) {
+            for (uint8_t k = 0; k < nb_components_y; ++k) {
                 order[j] = COMP_Y;
-               trace("j : %d\n", j);
                 j++;
             }
-        }
-        else if (scan_id == id_cb) {
-            for (size_t k = 0; k < nb_components_cb; k++) {
+        } else if (scan_id == id_cb) {
+            for (uint8_t k = 0; k < nb_components_cb; ++k) {
                 order[j] = COMP_Cb;
-               trace("j : %d\n", j);
                 j++;
             }
-        }
-        else if (scan_id == id_cr) {
-            for (size_t k = 0; k < nb_components_cr; k++) {
+        } else if (scan_id == id_cr) {
+            for (uint8_t k = 0; k < nb_components_cr; ++k) {
                 order[j] = COMP_Cr;
-               trace("j : %d\n", j);
                 j++;
             }
         }
         else {
-           trace("ERREUR FATALE");
+            fprintf(stderr, "Composante non reconnue.\n");
         }
     }
 
     return order;
-
 }
 
+/* Récupère le nom du fichier de sortie */
 char *get_outfile_name(const char *filename, bool colored)
 {
     char *outfile = calloc(strlen(filename) + 1, sizeof(char));
@@ -122,13 +130,14 @@ char *get_outfile_name(const char *filename, bool colored)
 int main(int argc, char **argv)
 {
     if (argc != 2) {
-	/* Si y'a pas au moins un argument en ligne de commandes, on
-	 * boude. */
-	fprintf(stderr, "Usage: %s fichier.jpeg\n", argv[0]);
-	return EXIT_FAILURE;
+    	/* Si y'a pas au moins un argument en ligne de commandes, on boude */
+    	fprintf(stderr, "Usage: %s fichier.jpeg\n", argv[0]);
+    	return EXIT_FAILURE;
     }
+
     /* On recupere le nom du fichier JPEG sur la ligne de commande. */
     const char *filename = argv[1];
+    trace("# Décodage du fichier %s\n", filename);
 
     /* On cree un jpeg_desc qui permettra de lire ce fichier. */
     struct jpeg_desc *jdesc = read_jpeg(filename);
@@ -136,88 +145,71 @@ int main(int argc, char **argv)
     /* On recupere le flux des donnees brutes a partir du descripteur. */
     struct bitstream *stream = get_bitstream(jdesc);
 
-    // Nombre de composant
     uint8_t nb_components = get_nb_components(jdesc);
-   trace("Nombre de composante : %hhu\n", nb_components);
+    trace("Nombre de composantes : %hhu\n\n", nb_components);
 
+    /* == EXTRACTION DES MCUs == */
 
-    /*******
-    *  MCU
-    ******/
-
-    // Calcul du nombre de MCU
-
-    uint8_t sampling_factors[3][2] = {{0}}; //Contient les sampling factors h1,v1,h2,...
-
-
+    /* Récupération des facteurs d'échantillonnage */
+    uint8_t sampling_factors[COMP_NB][DIR_NB] = {{0}}; // Contient les sampling factors h1,v1,h2,...
     for (size_t i = 0; i < nb_components; i++) {
-        sampling_factors[i][0] = get_frame_component_sampling_factor(jdesc, DIR_H, i);
-        sampling_factors[i][1] = get_frame_component_sampling_factor(jdesc, DIR_V, i);
+        sampling_factors[i][DIR_H] = get_frame_component_sampling_factor(jdesc, DIR_H, i);
+        sampling_factors[i][DIR_V] = get_frame_component_sampling_factor(jdesc, DIR_V, i);
     }
 
-    // Sampling factors
-   trace("H1 : %hhu, V1 : %hhu\n", sampling_factors[0][0], sampling_factors[0][1]);
-   trace("H2 : %hhu, V3 : %hhu\n", sampling_factors[1][0], sampling_factors[1][1]);
-   trace("H3 : %hhu, V3 : %hhu\n", sampling_factors[2][0], sampling_factors[2][1]);
+    trace("Sampling factors :\n");
+    trace("\tH1 : %hhu, V1 : %hhu\n", sampling_factors[COMP_Y][DIR_H], sampling_factors[COMP_Y][DIR_V]);
+    trace("\tH2 : %hhu, V3 : %hhu\n", sampling_factors[COMP_Cb][DIR_H], sampling_factors[COMP_Cb][DIR_V]);
+    trace("\tH3 : %hhu, V3 : %hhu\n\n", sampling_factors[COMP_Cr][DIR_H], sampling_factors[COMP_Cr][DIR_V]);
 
-    //Nombre de composantes par MCU
-    uint8_t nb_components_y = sampling_factors[0][0]*sampling_factors[0][1];
-    uint8_t nb_components_cb = sampling_factors[1][0]*sampling_factors[1][1];
-    uint8_t nb_components_cr = sampling_factors[2][0]*sampling_factors[2][1];
-   trace("\nnb_y : %hhu\n", nb_components_y);
-   trace("\nnb_cb : %hhu\n", nb_components_cb);
-   trace("\nnb_cr : %hhu\n", nb_components_cr);
+    /* Calcul du nombre de composantes par MCUs */
+    uint8_t nb_components_y = sampling_factors[COMP_Y][DIR_H] * sampling_factors[COMP_Y][DIR_V];
+    uint8_t nb_components_cb = sampling_factors[COMP_Cb][DIR_H] * sampling_factors[COMP_Cb][DIR_V];
+    uint8_t nb_components_cr = sampling_factors[COMP_Cr][DIR_H] * sampling_factors[COMP_Cr][DIR_V];
 
-    // Taille de l'image.
+    /* Calcul de la taille de l'image */
     uint16_t width = get_image_size(jdesc, DIR_H);
     uint16_t height = get_image_size(jdesc, DIR_V);
-   trace("Taille de l'image : %d x %d\n", width, height);
-    // Taille de l'image complétée.
+    trace("Taille de l'image : %dx%d\n", width, height);
+
+    /* Taille de l'image complétée */
     uint16_t width_ext = 0;
     uint16_t height_ext = 0;
-    if (width%(8*sampling_factors[0][0])){
-        width_ext = width + (8*sampling_factors[0][0]) - width % (8*sampling_factors[0][0]);
-    }
-    else{
+    if (width%(BLOCK_SIZE*sampling_factors[COMP_Y][DIR_H])) {
+        width_ext = width + (BLOCK_SIZE*sampling_factors[COMP_Y][DIR_H]) - width % (BLOCK_SIZE*sampling_factors[COMP_Y][DIR_H]);
+    } else {
         width_ext = width;
     }
-    if (height%(8*sampling_factors[0][1])){
-        height_ext = height + (8*sampling_factors[0][1]) - height % (8*sampling_factors[0][1]);
-    }
-    else{
+
+    if (height%(BLOCK_SIZE*sampling_factors[COMP_Y][DIR_V])) {
+        height_ext = height + (BLOCK_SIZE*sampling_factors[COMP_Y][DIR_V]) - height % (BLOCK_SIZE*sampling_factors[COMP_Y][DIR_V]);
+    } else {
         height_ext = height;
     }
-   trace("Taille de l'image complétée : %d x %d\n", width_ext, height_ext);
 
-    // Calcul du nombre de MCU
-    uint32_t nb_mcus_h = width_ext / (8 * sampling_factors[0][0]);
-    uint32_t nb_mcus_v = height_ext / (8 * sampling_factors[0][1]);
+    trace("Taille de l'image complétée : %dx%d\n\n", width_ext, height_ext);
+
+    /* Calcul du nombre de MCUs */
+    uint32_t nb_mcus_h = width_ext / (BLOCK_SIZE * sampling_factors[COMP_Y][DIR_H]);
+    uint32_t nb_mcus_v = height_ext / (BLOCK_SIZE * sampling_factors[COMP_Y][DIR_V]);
     uint32_t nb_mcus = nb_mcus_h * nb_mcus_v;
-   trace("Nombre de MCU : %d\n", nb_mcus);
+    trace("Nombre de MCUs : %d\n\n", nb_mcus);
 
-    // Création du tableau de mcus
-    struct mcu **mcus = calloc(nb_mcus, sizeof(struct mcu *));
+    /* Création du tableau de MCUs */
+    struct mcu **mcus = malloc(nb_mcus * sizeof(struct mcu*));
 
-
-    // Récupération des tables et des informations utiles à l'extraction des mcus
+    /* Récupération des tables et des informations utiles à l'extraction des MCUs */
     uint8_t **quant_tables = get_quant_tables(jdesc);
     struct huff_table ***huff_tables = get_huff_tables(jdesc);
     enum component *ordre_des_composantes = get_components_order(jdesc, sampling_factors);
 
-    // Debug
-   trace("Table de quantification index 0 : \n");
-    for(uint8_t i=0; i<64; i++){
-       trace("%hhu ", quant_tables[0][i]);
-    } // end for
-   trace("\n");
-
-    // On extrait les mcus
+    /* Extraction des MCUs */
+    trace("# Extraction des MCUs\n");
     int16_t previous_dc_y = 0;
     int16_t previous_dc_cb = 0;
     int16_t previous_dc_cr = 0;
-    for (size_t i = 0; i < nb_mcus; ++i) {
-       trace("\n\n======================\n");
-       trace("\nMCU %zu :\n", i);
+    for (uint32_t i = 0; i < nb_mcus; ++i) {
+        trace("## MCU %d :\n", i);
         mcus[i] = extract_mcu(stream,
                                 nb_components_y,
                                 nb_components_cb,
@@ -228,75 +220,76 @@ int main(int argc, char **argv)
                                 ordre_des_composantes,
                                 huff_tables,
                                 quant_tables);
-
+        trace("\n");
     }
+    trace("\n");
 
+    /* Libération de l'ordre des composantes */
+    free(ordre_des_composantes);
+    ordre_des_composantes = NULL;
+
+    /* Libération des tables de quantification et de Huffman */
+    free(huff_tables[COMP_Y]);
+    if (est_couleur(jdesc)) {
+        free(huff_tables[COMP_Cb]);
+    }
+    free(huff_tables);
+    huff_tables = NULL;
+    free(quant_tables);
+    quant_tables = NULL;
 
     /* Reconstruction des blocs */
-
-    uint32_t nb_blocks = nb_components_y*nb_mcus;
+    trace("# Reconstruction des blocs\n");
+    uint32_t nb_blocks = nb_components_y * nb_mcus;
     block *liste_blocks = malloc(nb_blocks * sizeof(block));
-    block *blocks_temp = NULL;
-    for (uint32_t i = 0; i < nb_mcus; i++) {
+    block *blocks_temp = NULL; // Liste des blocs extraits d'une MCU
+    for (uint32_t i = 0; i < nb_mcus; ++i) {
         blocks_temp = extract_blocks(mcus[i], sampling_factors);
-
-        for (size_t j = 0; j < nb_components_y; j++) {
+        for (uint8_t j = 0; j < nb_components_y; ++j) {
             liste_blocks[i*nb_components_y+j] = blocks_temp[j];
         }
         free(blocks_temp);
         blocks_temp = NULL;
     }
 
+    /* Libération mémoire du tableau de MCUs */
+    for(uint32_t i = 0; i < nb_mcus; ++i) {
+         free_mcu(mcus[i]);
+     }
+    free(mcus);
+    mcus = NULL;
+
+    /* == CREATION DE L'IMAGE == */
+
+    /* Conversion en RGB si l'image est en couleur */
     if (est_couleur(jdesc)) {
-        for (size_t i = 0; i < nb_blocks; i++) {
+        for (uint32_t i = 0; i < nb_blocks; ++i) {
             convert_to_rgb(liste_blocks[i]);
         }
     }
 
-    /*******
-    * Conversion en pixel *
-    *******/
-
+    trace("# Construction de l'image en pixels\n");
     struct picture *pic = blocks2pixels(liste_blocks,
                                         width,
                                         height,
                                         width_ext,
-                                        sampling_factors[COMP_Y][DIR_H], // H1
+                                        sampling_factors[COMP_Y][DIR_H],
                                         sampling_factors[COMP_Y][DIR_V]);
 
-    /*******
-    * Création de l'image PPM ou PGM *
-    *****/
+    /* Libération mémoire des blocs */
+    for(uint32_t b = 0; b < nb_blocks; ++b) {
+        free_block(liste_blocks[b], est_couleur(jdesc));
+    }
+    free(liste_blocks);
+    liste_blocks = NULL;
 
+    trace("# Écriture de l'image\n");
     char *outfile = get_outfile_name(filename, pic->colored);
     write_ppm(pic, outfile);
     free_picture(pic);
     free(outfile);
 
-    // Libération mémoire du tableau de MCU
-    for(uint32_t i=0; i< nb_mcus; i++){
-         free_mcu(mcus[i]);
-     } // end for
-    free(mcus);
-
-    // Libération mémoire des blocks.
-    for(size_t b=0; b<nb_blocks; b++){
-        free_block(liste_blocks[b], est_couleur(jdesc));
-    } // end for
-    free(liste_blocks);
-
-    free(ordre_des_composantes);
-
-    free(huff_tables[0]);
-    if (est_couleur(jdesc)) {
-        free(huff_tables[1]);
-    }
-    free(huff_tables);
-
-    free(quant_tables);
-
-    /* Nettoyage de printemps : close_jpeg ferme aussi le bitstream
-     * (voir Annexe C du sujet). */
+    /* Nettoyage de printemps : close_jpeg ferme aussi le bitstream */
     close_jpeg(jdesc);
 
     return EXIT_SUCCESS;

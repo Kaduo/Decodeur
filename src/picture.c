@@ -8,6 +8,8 @@ Auteurs .... : A. He - M. Barbe - B. Potet (Ensimag 1A 2016/2017 - G6)
 #include <stdlib.h>
 #include <stdint.h>
 #include "picture.h"
+#include "shared.h"
+#include "trace.h"
 
 /* Valeur maximale d'une composante RGB */
 const uint8_t MAX_COLOR_VALUE = 255;
@@ -16,7 +18,7 @@ const uint8_t PPM_MAGIC_NUMBER = 6;
 /* Nombre magique du format PGM (noir et blanc) */
 const uint8_t PGM_MAGIC_NUMBER = 5;
 
-/* Cree une image a partir de dimensions donnes */
+/* Crée une image à partir de dimensions données */
 struct picture *create_picture(size_t width, size_t height, bool colored)
 {
     struct picture *picture = malloc(sizeof(struct picture));
@@ -27,7 +29,7 @@ struct picture *create_picture(size_t width, size_t height, bool colored)
     return picture;
 }
 
-// Convertir l'image sous forme de bloc rangé en MCU en tableau de pixel.
+/* Convertit l'image sous forme de bloc rangé en MCU en tableau de pixels */
 struct picture *blocks2pixels(block *blocks,
                                 size_t width,
                                 size_t height,
@@ -35,68 +37,58 @@ struct picture *blocks2pixels(block *blocks,
                                 uint8_t h1,
                                 uint8_t v1)
 {
-
     bool is_bw = blocks[0][COMP_Cb] == NULL;
     struct picture *pic = create_picture(width, height, !is_bw);
-    size_t nb_blocs_h = width_ext / 8;
+    size_t nb_blocs_h = width_ext / BLOCK_SIZE;
     uint32_t l_bloc = 0;
     uint32_t l_in_bloc = 0;
     uint32_t id_pixel = 0;
 
-    // Boucle sur les lignes de pixels.
-    for(uint32_t l=0; l < height; l++){
-        l_bloc = (l/8);
-        l_in_bloc = l%8;
+    /* Boucle sur les lignes de pixels */
+    for(uint32_t l = 0; l < height; ++l){
+        l_bloc = (l/BLOCK_SIZE);
+        l_in_bloc = l%BLOCK_SIZE;
 
-        // Boucle sur les blocs de la ligne l.
-        uint32_t b = h1*(l_bloc%v1);
+        /* Boucle sur les blocs de la ligne l */
+        uint32_t b = h1*(l_bloc%v1); // Indice du bloc dans la ligne de MCU
         for(; b < (uint32_t) nb_blocs_h*v1 - 1 - h1*(v1 - l_bloc%v1 - 1);) {
-
-            // Boucle sur les pixels de la ligne l%8 du bloc b.
-            for(uint8_t i=0; i < 8; i++){
-
-                id_pixel = l*width + (b/(h1*v1))*h1*8 + ((b%(h1*v1))%h1)*8 + i;
-                if(is_bw){
-                        pic->pixels[id_pixel].y = (uint8_t) blocks[l_bloc*nb_blocs_h + b][0][l_in_bloc*8 + i];
-                } // end if
-                else{
-                        pic->pixels[id_pixel].rgb.red = (uint8_t) blocks[(l_bloc - l_bloc%v1)*nb_blocs_h + b][0][l_in_bloc*8 + i];
-                        pic->pixels[id_pixel].rgb.green = (uint8_t) blocks[(l_bloc - l_bloc%v1)*nb_blocs_h + b][1][l_in_bloc*8 + i];
-                        pic->pixels[id_pixel].rgb.blue = (uint8_t) blocks[(l_bloc - l_bloc%v1)*nb_blocs_h + b][2][l_in_bloc*8 + i];
-
-                } // end else
-            } // end for i.
-
-            if (b%h1 < h1 - 1) {
-                b++;
-            }
-            else {
-                b += h1*(v1 - 1) + 1;
+            uint16_t indice_dans_liste = (l_bloc - l_bloc%v1)*nb_blocs_h + b;
+            uint16_t indice_dans_comp = 0;
+            /* Boucle sur les pixels de la ligne l%8 du bloc b */
+            for(uint8_t i = 0; i < BLOCK_SIZE; ++i){
+                indice_dans_comp = l_in_bloc*BLOCK_SIZE + i;
+                id_pixel = l*width + (b/(h1*v1))*h1*BLOCK_SIZE + ((b%(h1*v1))%h1)*BLOCK_SIZE + i;
+                if (is_bw) {
+                        pic->pixels[id_pixel].y = (uint8_t) blocks[l_bloc*nb_blocs_h + b][COMP_Y][l_in_bloc*BLOCK_SIZE + i];
+                } else {
+                        pic->pixels[id_pixel].rgb.red = (uint8_t) blocks[indice_dans_liste][RGB_R][indice_dans_comp];
+                        pic->pixels[id_pixel].rgb.green = (uint8_t) blocks[indice_dans_liste][RGB_G][indice_dans_comp];
+                        pic->pixels[id_pixel].rgb.blue = (uint8_t) blocks[indice_dans_liste][RGB_B][indice_dans_comp];
+                }
             }
 
-        } // end for b.
-        uint16_t indice_dernier_bloc = b;
-       trace("dernier bloc : %d\n", indice_dernier_bloc);
-       trace("ligne (bloc) : %d (%d)\n", l, l_bloc);
-        //exit(1);
-        for(uint8_t i=0; i < 8 - (width_ext - width); i++){
-
-            id_pixel = l*width + (indice_dernier_bloc/(h1*v1))*h1*8 + ((indice_dernier_bloc%(h1*v1))%h1)*8 + i;
-            if(is_bw){
-                    pic->pixels[id_pixel].y = blocks[l_bloc*nb_blocs_h + indice_dernier_bloc][0][l_in_bloc*8 + i];
-            } // end if
-            else{
-                pic->pixels[id_pixel].rgb.red = blocks[(l_bloc - l_bloc%v1)*nb_blocs_h + indice_dernier_bloc][0][l_in_bloc*8 + i];
-                    pic->pixels[id_pixel].rgb.green = blocks[(l_bloc - l_bloc%v1)*nb_blocs_h + indice_dernier_bloc][1][l_in_bloc*8 + i];
-                    pic->pixels[id_pixel].rgb.blue = blocks[(l_bloc - l_bloc%v1)*nb_blocs_h + indice_dernier_bloc][2][l_in_bloc*8 + i];
-
-            } // end else
+            /* Calcul de l'indice du prochain bloc selon l'upsampling */
+            b += (b%h1 < h1 - 1) ? 1 : h1*(v1 - 1) + 1;
         }
-    } // end for
-   trace("hey\n");
-return pic;
-} // end def
 
+        /* Traitement du dernier bloc d'une ligne pour rogner l'image si besoin */
+        uint16_t indice_dernier_bloc = b;
+        uint16_t indice_dans_liste = (l_bloc - l_bloc%v1)*nb_blocs_h + indice_dernier_bloc;
+        uint16_t indice_dans_comp = 0;
+        for(uint8_t i = 0; i < BLOCK_SIZE - (width_ext - width); i++){
+            indice_dans_comp = l_in_bloc*BLOCK_SIZE + i;
+            id_pixel = l*width + (indice_dernier_bloc/(h1*v1))*h1*BLOCK_SIZE + ((indice_dernier_bloc%(h1*v1))%h1)*BLOCK_SIZE + i;
+            if (is_bw) {
+                    pic->pixels[id_pixel].y = blocks[l_bloc*nb_blocs_h + indice_dernier_bloc][COMP_Y][indice_dans_comp];
+            } else {
+                pic->pixels[id_pixel].rgb.red = blocks[indice_dans_liste][RGB_R][indice_dans_comp];
+                    pic->pixels[id_pixel].rgb.green = blocks[indice_dans_liste][RGB_G][indice_dans_comp];
+                    pic->pixels[id_pixel].rgb.blue = blocks[indice_dans_liste][RGB_B][indice_dans_comp];
+            }
+        }
+    }
+    return pic;
+}
 
 /* Genere un fichier PPM binaire correspondant a une image donnee */
 void write_ppm(const struct picture *picture, const char *filename)

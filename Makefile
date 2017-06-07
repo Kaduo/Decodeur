@@ -12,7 +12,7 @@ CC = clang
 LD = clang
 INC = -I$(INC_DIR)
 
-CFLAGS += -DDEBUG $(INC) -Wall -std=c99 -O0 -g  -Wextra
+CFLAGS += $(INC) -Wall -std=c99 -O0 -g  -Wextra
 
 ifdef DEBUG
 CFLAGS += -DDEBUG
@@ -22,11 +22,10 @@ LDFLAGS = -lm
 
 # Liste des fichiers objet
 
-# les notres...
+# Professeurs
 OBJPROF_FILES =
-
-# et les votres!
-OBJ_FILES = $(OBJ_DIR)/shared.o $(OBJ_DIR)/block.o $(OBJ_DIR)/zigzag.o $(OBJ_DIR)/rgb.o $(OBJ_DIR)/picture.o $(OBJ_DIR)/mcu.o $(OBJ_DIR)/jpeg2ppm.o $(OBJ_DIR)/component.o $(OBJ_DIR)/bitstream.o $(OBJ_DIR)/jpeg_reader.o $(OBJ_DIR)/huffman.o
+# Étudiants
+OBJ_FILES = $(OBJ_DIR)/shared.o $(OBJ_DIR)/block.o $(OBJ_DIR)/zigzag.o $(OBJ_DIR)/rgb.o $(OBJ_DIR)/picture.o $(OBJ_DIR)/mcu.o $(OBJ_DIR)/jpeg2ppm.o $(OBJ_DIR)/component.o $(OBJ_DIR)/huffman.o  $(OBJ_DIR)/jpeg_reader.o $(OBJ_DIR)/bitstream.o
 
 # cible par défaut
 
@@ -64,18 +63,16 @@ $(OBJ_DIR)/jpeg2ppm.o: $(SRC_DIR)/jpeg2ppm.c $(INC_DIR)/jpeg2ppm.h
 $(OBJ_DIR)/bitstream.o: $(SRC_DIR)/bitstream.c $(INC_DIR)/bitstream.h
 	$(CC) $(CFLAGS) -c $(SRC_DIR)/bitstream.c -o $(OBJ_DIR)/bitstream.o
 
-$(OBJ_DIR)/jpeg_reader.o: $(SRC_DIR)/jpeg_reader.c $(INC_DIR)/jpeg_reader.h
-	$(CC) $(CFLAGS) -c $(SRC_DIR)/jpeg_reader.c -o $(OBJ_DIR)/jpeg_reader.o
-
 $(OBJ_DIR)/huffman.o: $(SRC_DIR)/huffman.c $(INC_DIR)/huffman.h
 	$(CC) $(CFLAGS) -c $(SRC_DIR)/huffman.c -o $(OBJ_DIR)/huffman.o
 
-
+$(OBJ_DIR)/jpeg_reader.o: $(SRC_DIR)/jpeg_reader.c $(INC_DIR)/jpeg_reader.h
+	$(CC) $(CFLAGS) -c $(SRC_DIR)/jpeg_reader.c -o $(OBJ_DIR)/jpeg_reader.o
+	    
 debug: clean
-	$(MAKE) DBUG=1
+	$(MAKE) DEBUG=1
 
 .PHONY: clean
 
 clean:
 	rm -f $(TARGET) $(OBJ_FILES)
-	rm -f images/*ppm images/*pgm images/*blabla

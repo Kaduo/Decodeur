@@ -27,27 +27,27 @@ enum move {
 };
 
 /* Met a jour un point donne en fonction d'un mouvement courant */
-extern void update_point(struct point *point, enum move move);
+void update_point(struct point *point, enum move move);
 
 /* Indique si un point donne se situe sur la premiere ligne d'un bloc */
-extern bool first_line(const struct point *point);
+bool first_line(const struct point *point);
 
 /* Indique si un point donne se situe sur la premiere colonne d'un bloc */
-extern bool first_column(const struct point *point);
+bool first_column(const struct point *point);
 
 /* Indique si un point donne se situe sur la derniere ligne d'un bloc d'une
 taille donnee */
-extern bool last_line(const struct point *point, size_t size);
+bool last_line(const struct point *point, size_t size);
 
 /* Indique si un point donne se situe sur la derniere colonne d'un bloc d'une
 taille donnee */
-extern bool last_column(const struct point *point, size_t size);
+bool last_column(const struct point *point, size_t size);
 
 /* Indique le prochain mouvement a effectuer a partir d'un point et d'un
 mouvement donnes sur un bloc d'une taille donnee */
-extern enum move next_move(const struct point *point,
-                            enum move move,
-                            size_t size);
+enum move next_move(const struct point *point,
+                        enum move move,
+                        size_t size);
 
 /* Retourne le vecteur zigzag inverse d'un vecteur donne */
 extern int16_t *get_inverse(const int16_t *coefficients, size_t size);

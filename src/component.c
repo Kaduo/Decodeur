@@ -9,11 +9,14 @@ Auteurs .... : A. He - M. Barbe - B. Potet (Ensimag 1A 2016/2017 - G6)
 #include <math.h>
 #include "component.h"
 #include "zigzag.h"
+#include "shared.h"
 
+/* Valeur approchée de pi */
+#define PI 3.14159265359
 /* Valeur minimale d'un coefficient */
-static const float MIN_COEFF = 0.0;
+#define MIN_COEFF 0.0
 /* Valeur maximale d'un coefficient */
-static const float MAX_COEFF = 255.0;
+#define MAX_COEFF 255.0
 
 /* Retourne le coefficient a partir d'un bitstream et d'une magnitude donnes */
 int16_t get_coefficient(struct bitstream *stream, uint8_t magnitude, bool discard_byte_stuffing)
@@ -38,7 +41,7 @@ void get_dc(struct huff_table *dc_table,
 {
     uint8_t nb_read;
     uint8_t magnitude = (uint8_t) next_huffman_value_count(dc_table, stream, &nb_read);
-   trace("\nMagnitude DC : %02x(%hhu)", magnitude, nb_read);
+    trace("Magnitude DC : %02x(%hhu)\n", magnitude, nb_read);
     int16_t new_value = *previous_dc + get_coefficient(stream, magnitude, true);
     coefficients[0] = new_value;
     *previous_dc = new_value;
@@ -48,14 +51,13 @@ void get_dc(struct huff_table *dc_table,
 table Huffman AC et d'un bitstream */
 void get_acs(struct huff_table *ac_table,
                 struct bitstream *stream,
-                int16_t *coefficients,
-                size_t length)
+                int16_t *coefficients)
 {
-   trace("\nMagnitudes ACs : ");
-    for (size_t i = 1; i < length; ++i) {
+    trace("Magnitudes ACs : ");
+    for (size_t i = 1; i < COMPONENT_SIZE; ++i) {
         uint8_t nb_read;
         uint8_t symbole = (uint8_t) next_huffman_value_count(ac_table, stream, &nb_read);
-       trace("%02x(%hhu) ", symbole, nb_read);
+        trace("%02x(%hhu) ", symbole, nb_read);
         /* 1er cas : code EOB */
         if (symbole == 0x00) {
             return;
@@ -73,38 +75,37 @@ void get_acs(struct huff_table *ac_table,
             coefficients[i] = get_coefficient(stream, magnitude, true);
         }
     }
+    trace("\n");
 }
 
 /* Extrait un bloc frequentiel */
 int16_t *extract(struct huff_table *dc_table,
                     struct huff_table *ac_table,
                     struct bitstream *stream,
-                    int16_t *previous_dc,
-                    size_t length)
+                    int16_t *previous_dc)
 {
-    int16_t *coefficients = calloc(length, sizeof(int16_t));
+    int16_t *coefficients = calloc(COMPONENT_SIZE, sizeof(int16_t));
     get_dc(dc_table, stream, previous_dc, coefficients);
-    get_acs(ac_table, stream, coefficients, length);
+    get_acs(ac_table, stream, coefficients);
     return coefficients;
 }
 
 /* Retourne la quantification inverse d'un tableau de coefficients donne par
 une table de quantification inverse donnee */
 int16_t *inverse_quantization(const int16_t *coefficients,
-                                uint8_t *quantization_table,
-                                size_t length)
+                                uint8_t *quantization_table)
 {
-    int16_t *inverse = calloc(length, sizeof(int16_t));
-    for (size_t i = 0; i < length; ++i) {
+    int16_t *inverse = calloc(COMPONENT_SIZE, sizeof(int16_t));
+    for (size_t i = 0; i < COMPONENT_SIZE; ++i) {
         inverse[i] = coefficients[i] * (int16_t) quantization_table[i];
     }
     return inverse;
 }
 
 /* Retourne le tableau zigzag inverse d'un tableau donne */
-int16_t *inverse_zigzag(const int16_t *coefficients, size_t size)
+int16_t *inverse_zigzag(const int16_t *coefficients)
 {
-    int16_t *inverse = get_inverse(coefficients, size);
+    int16_t *inverse = get_inverse(coefficients, BLOCK_SIZE);
     return inverse;
 }
 
@@ -115,30 +116,29 @@ float coeff_idct(size_t x)
 }
 
 /* Retourne l'IDCT d'un tableau de coefficients donne */
-int16_t *idct(const int16_t *coefficients, size_t size)
+int16_t *idct(const int16_t *coefficients)
 {
     /* Initialisation du nouveau bloc */
-    int16_t *inverse = calloc(size * size, sizeof(int16_t));
+    int16_t *inverse = calloc(COMPONENT_SIZE, sizeof(int16_t));
     /* Initialisation des constantes */
-    float pi = acos(-1);
     float offset = 128.0;
-    float facteur = 1/sqrt(2.0 * (double) size);
+    float facteur = 1/sqrt(2.0 * (double) BLOCK_SIZE);
     /* Initialisation des resultats partiels */
     float somme = 0.0;
     float resultat = 0.0;
     /* Calcul pour chaque coefficient du bloc */
-    for(size_t y = 0; y < size; ++y) {
-        for(size_t x = 0; x < size; ++x) {
+    for(size_t y = 0; y < BLOCK_SIZE; ++y) {
+        for(size_t x = 0; x < BLOCK_SIZE; ++x) {
             /* Initialisation de la somme */
             somme = 0.0;
             /* Calcul de la double somme */
-            for(size_t lambda = 0; lambda < size; ++lambda) {
-                for(size_t mu = 0; mu < size; ++mu) {
+            for(size_t lambda = 0; lambda < BLOCK_SIZE; ++lambda) {
+                for(size_t mu = 0; mu < BLOCK_SIZE; ++mu) {
                     somme += coeff_idct(lambda)
                                 * coeff_idct(mu)
-                                * cos((2*x+1)*lambda*pi/(2*size))
-                                * cos((2*y+1)*mu*pi/(2*size))
-                                * coefficients[mu*size+lambda];
+                                * cos((2*x+1)*lambda*PI/(2*BLOCK_SIZE))
+                                * cos((2*y+1)*mu*PI/(2*BLOCK_SIZE))
+                                * coefficients[mu*BLOCK_SIZE+lambda];
                 }
             }
             /* Calcul du resultat */
@@ -148,7 +148,7 @@ int16_t *idct(const int16_t *coefficients, size_t size)
             } else if (resultat > MAX_COEFF) {
                 resultat = MAX_COEFF;
             }
-            inverse[y*size+x] = (int16_t) round(resultat);
+            inverse[y*BLOCK_SIZE+x] = (int16_t) round(resultat);
         }
     }
     return inverse;
@@ -159,47 +159,56 @@ int16_t *get_component(struct bitstream *stream,
                         struct huff_table *dc_table,
                         struct huff_table *ac_table,
                         uint8_t *quantization_table,
-                        int16_t *previous_dc,
-                        size_t size)
+                        int16_t *previous_dc)
 {
-    /* 1. Extraction - extraction */
-   trace("\n\nextracted : PREVIOUS_DC = %04x\n", *previous_dc);
+    /* 1. Extraction */
+    trace("#### Extracted :\n");
     int16_t *extracted = extract(dc_table,
                                   ac_table,
                                   stream,
-                                  previous_dc,
-                                  size*size);
-
-    trace("\n"); // <- PRINT VITAL POUR LE DEBUG NE PAS EFFACER SVP (PAS UNE BLAGUE)
-    for (size_t i = 0; i < 64; i++) {
+                                  previous_dc);
+    #ifdef DEBUG
+    for (size_t i = 0; i < COMPONENT_SIZE; i++) {
        trace("%04x ", extracted[i]);
     }
+    trace("\n\n");
+    #endif
 
     /* 2. Quantification inverse */
     int16_t *quantization = inverse_quantization(extracted,
-                                                  quantization_table,
-                                                  size*size);
-    trace("\n\nquantization\n");
-     for (size_t i = 0; i < 64; i++) {
+                                                  quantization_table);
+    #ifdef DEBUG
+    trace("#### Quantification inverse :\n");
+    for (size_t i = 0; i < COMPONENT_SIZE; ++i) {
         trace("%04x ", quantization[i]);
-     }
-    /* 3. Reorganisation zigzag */
-    int16_t *zigzag = inverse_zigzag(quantization, size);
+    }
+    trace("\n\n");
+    #endif
 
-    trace("\n\nzigzag\n");
-    for (size_t i = 0; i < 64; i++) {
+    /* 3. Reorganisation zigzag */
+    int16_t *zigzag = inverse_zigzag(quantization);
+    #ifdef DEBUG
+    trace("#### Zigzag inverse :\n");
+    for (size_t i = 0; i < COMPONENT_SIZE; ++i) {
        trace("%04x ", zigzag[i]);
     }
-    /* 4. Transformee en cosinus discrete inverse (iDCT) */
-    int16_t *component = idct(zigzag, size);
+    trace("\n\n");
+    #endif
 
-    trace("\n\ncomponent\n");
-     for (size_t i = 0; i < 64; i++) {
+    /* 4. Transformee en cosinus discrete inverse (iDCT) */
+    int16_t *component = idct(zigzag);
+    #ifdef DEBUG
+    trace("#### Composante finale :\n");
+    for (size_t i = 0; i < COMPONENT_SIZE; ++i) {
         trace("%04x ", component[i]);
-     }
+    }
+    trace("\n\n");
+    #endif
+
     free(extracted);
     free(quantization);
     free(zigzag);
+
     /* Retour de la composante */
     return component;
 }
