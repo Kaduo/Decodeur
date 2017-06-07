@@ -19,8 +19,7 @@ struct mcu *create_mcu(uint8_t nb_components_y, uint8_t nb_components_cb, uint8_
     if (nb_components_cb > 0) {
         mcu->components_cb = calloc(nb_components_cb, sizeof(int16_t *));
         mcu->components_cr = calloc(nb_components_cr, sizeof(int16_t *));
-    }
-    else {
+    } else {
         mcu->components_cb = NULL;
         mcu->components_cr = NULL;
     }
@@ -53,21 +52,20 @@ struct mcu *extract_mcu(struct bitstream *bitstream,
     uint8_t current_index_cr = 0;
 
     for (uint8_t i = 0; i < nb_components; i++) {
+        trace("### Composante n°%hhu\n\n", i);
         if (ordre_des_composantes[i] == COMP_Y) {
             mcu->components_y[current_index_y] = get_component(bitstream,
                                                         huff_tables[COMP_Y][DC],
                                                         huff_tables[COMP_Y][AC],
                                                         quant_tables[COMP_Y],
-                                                        previous_dc_y,
-                                                        BLOCK_SIZE);
+                                                        previous_dc_y);
             current_index_y++;
         } else if (ordre_des_composantes[i] == COMP_Cb) {
             mcu->components_cb[current_index_cb] = get_component(bitstream,
                                                         huff_tables[COMP_Cb][DC],
                                                         huff_tables[COMP_Cb][AC],
                                                         quant_tables[COMP_Cb],
-                                                        previous_dc_cb,
-                                                        BLOCK_SIZE);
+                                                        previous_dc_cb);
             current_index_cb++;
         } else if (ordre_des_composantes[i] == COMP_Cr){
             /* Cb et Cr partagent les memes tables */
@@ -75,8 +73,7 @@ struct mcu *extract_mcu(struct bitstream *bitstream,
                                                         huff_tables[COMP_Cb][DC],
                                                         huff_tables[COMP_Cb][AC],
                                                         quant_tables[COMP_Cb],
-                                                        previous_dc_cr,
-                                                        BLOCK_SIZE);
+                                                        previous_dc_cr);
             current_index_cr++;
         } else {
             fprintf(stderr, "Erreur dans la lecture de l'ordre des composantes.\n");

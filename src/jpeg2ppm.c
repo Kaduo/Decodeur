@@ -137,6 +137,7 @@ int main(int argc, char **argv)
 
     /* On recupere le nom du fichier JPEG sur la ligne de commande. */
     const char *filename = argv[1];
+    trace("# Décodage du fichier %s\n", filename);
 
     /* On cree un jpeg_desc qui permettra de lire ce fichier. */
     struct jpeg_desc *jdesc = read_jpeg(filename);
@@ -203,12 +204,12 @@ int main(int argc, char **argv)
     enum component *ordre_des_composantes = get_components_order(jdesc, sampling_factors);
 
     /* Extraction des MCUs */
+    trace("# Extraction des MCUs\n");
     int16_t previous_dc_y = 0;
     int16_t previous_dc_cb = 0;
     int16_t previous_dc_cr = 0;
     for (uint32_t i = 0; i < nb_mcus; ++i) {
-        trace("======================\n");
-        trace("MCU %d :\n", i);
+        trace("## MCU %d :\n", i);
         mcus[i] = extract_mcu(stream,
                                 nb_components_y,
                                 nb_components_cb,
@@ -238,6 +239,7 @@ int main(int argc, char **argv)
     quant_tables = NULL;
 
     /* Reconstruction des blocs */
+    trace("# Reconstruction des blocs\n");
     uint32_t nb_blocks = nb_components_y * nb_mcus;
     block *liste_blocks = malloc(nb_blocks * sizeof(block));
     block *blocks_temp = NULL; // Liste des blocs extraits d'une MCU
@@ -266,6 +268,7 @@ int main(int argc, char **argv)
         }
     }
 
+    trace("# Construction de l'image en pixels\n");
     struct picture *pic = blocks2pixels(liste_blocks,
                                         width,
                                         height,
@@ -280,6 +283,7 @@ int main(int argc, char **argv)
     free(liste_blocks);
     liste_blocks = NULL;
 
+    trace("# Écriture de l'image\n");
     char *outfile = get_outfile_name(filename, pic->colored);
     write_ppm(pic, outfile);
     free_picture(pic);
