@@ -8,6 +8,7 @@ Auteurs .... : A. He - M. Barbe - B. Potet (Ensimag 1A 2016/2017 - G6)
 #include <math.h>
 #include "mcu.h"
 #include "shared.h"
+#include "trace.h"
 
 /* Crée une structure MCU */
 struct mcu *create_mcu(uint8_t nb_components_y, uint8_t nb_components_cb, uint8_t nb_components_cr)

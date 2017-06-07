@@ -12,6 +12,7 @@ Auteurs .... : A. He - M. Barbe - B. Potet (Ensimag 1A 2016/2017 - G6)
 #include "picture.h"
 #include "mcu.h"
 #include "shared.h"
+#include "trace.h"
 
 /* Indique si l'image est en couleur */
 bool est_couleur(const struct jpeg_desc *jpeg)

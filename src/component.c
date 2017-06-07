@@ -10,6 +10,7 @@ Auteurs .... : A. He - M. Barbe - B. Potet (Ensimag 1A 2016/2017 - G6)
 #include "component.h"
 #include "zigzag.h"
 #include "shared.h"
+#include "trace.h"
 
 /* Valeur approchée de pi */
 #define PI 3.14159265359
