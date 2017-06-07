@@ -12,7 +12,7 @@ CC = clang
 LD = clang
 INC = -I$(INC_DIR)
 
-CFLAGS += $(INC) -Wall -std=c99 -O0 -g  -Wextra
+CFLAGS += $(INC) -Wall -std=c99 -O3 -g  -Wextra
 
 ifdef DEBUG
 CFLAGS += -DDEBUG
