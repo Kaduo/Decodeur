@@ -1,3 +1,9 @@
+/*******************************************************************************
+Nom ......... : huffman.h
+Role ........ : Prototypes des fonctions de gestion des tables de Huffman
+Auteurs .... : A. He - M. Barbe - B. Potet (Ensimag 1A 2016/2017 - G6)
+*******************************************************************************/
+
 #ifndef __HUFFMAN_H__
 #define __HUFFMAN_H__
 
@@ -5,7 +11,6 @@
 #include <stdbool.h>
 #include "bitstream.h"
 #include "trace.h"
-
 
 struct huff_table;
 

@@ -8,6 +8,7 @@ Auteurs .... : A. He - M. Barbe - B. Potet (Ensimag 1A 2016/2017 - G6)
 #include "block.h"
 #include "rgb.h"
 #include "shared.h"
+#include "trace.h"
 
 /* Crée une structure block à partir d'une taille donné */
 block create_block()

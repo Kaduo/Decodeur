@@ -9,6 +9,7 @@ Auteurs .... : A. He - M. Barbe - B. Potet (Ensimag 1A 2016/2017 - G6)
 #include <stdint.h>
 #include "picture.h"
 #include "shared.h"
+#include "trace.h"
 
 /* Valeur maximale d'une composante RGB */
 const uint8_t MAX_COLOR_VALUE = 255;
