@@ -1,5 +1,5 @@
 /*******************************************************************************
-Nom ......... : jpeg_reader.h
+Nom ......... : jpeg_reader.c
 Role ........ : Fonctions de lecture de l'entete JPEG
 Auteurs .... : A. He - M. Barbe - B. Potet (Ensimag 1A 2016/2017 - G6)
 *******************************************************************************/
@@ -9,6 +9,7 @@ Auteurs .... : A. He - M. Barbe - B. Potet (Ensimag 1A 2016/2017 - G6)
 #include <string.h>
 #include "jpeg_reader.h"
 #include "huffman.h"
+#include "trace.h"
 
 /* Taille en bits d'un marqueur de section */
 #define MARKER_SIZE 16
@@ -131,7 +132,10 @@ struct jpeg_desc *read_jpeg(const char *filename)
     jpeg->huff_tables[AC] = calloc(MAX_HUFFMAN_TABLES, sizeof(struct huff_table*));
     jpeg->huff_tables[DC] = calloc(MAX_HUFFMAN_TABLES, sizeof(struct huff_table*));
 
+    trace("# Lecture de l'entête JPEG\n");
+
     /* Recuperation du nom du fichier */
+    trace("## Récupération du nom du fichier\n");
     jpeg->filename = calloc(strlen(filename) + 1, sizeof(char));
     if (!strcpy(jpeg->filename, filename)) {
         fprintf(stderr, "Le nom du fichier '%s' n'a pas pu etre recupere.\n",
@@ -140,6 +144,7 @@ struct jpeg_desc *read_jpeg(const char *filename)
     }
 
     /* Recuperation du flux de donnees */
+    trace("## Récupération du flux de données\n");
     jpeg->stream = create_bitstream(filename);
 
     /* === LECTURE DES SECTIONS JPEG === */
@@ -154,9 +159,10 @@ struct jpeg_desc *read_jpeg(const char *filename)
     uint32_t unread = 0;
 
     /* Traitement du debut de l'image (marqueur SOI) */
+    trace("## Vérification du marqueur SOI\n");
     read_bitstream(jpeg->stream, MARKER_SIZE, &read, false);
     if (read != MARKER_SOI) {
-        fprintf(stderr, "Le fichier JPEG debute par le marqueur '0x%04x' au lieu"
+        fprintf(stderr, "Le fichier debute par le marqueur '0x%04x' au lieu"
                     " d'un marqueur SOI '0x%04x'.\n", read, MARKER_SOI);
         exit(EXIT_FAILURE);
     }
@@ -172,6 +178,7 @@ struct jpeg_desc *read_jpeg(const char *filename)
         switch(read) {
             /* Application Data */
             case MARKER_APP:
+                trace("## Détection d'un marqueur APP0\n");
                 for (uint8_t i = 0; i < APP_NORM; ++i) {
                     read_bitstream(jpeg->stream, BYTE_SIZE, &read, false);
                     if ((char) read != NORM[i]) {
@@ -191,6 +198,7 @@ struct jpeg_desc *read_jpeg(const char *filename)
                 break;
             /* Commentaire */
             case MARKER_COM:
+                trace("## Détection d'un marqueur COM\n");
                 /* Lecture de tous les bits de la section */
                 unread = size * BYTE_SIZE - SECTION_SIZE;
                 while (unread > MAX_READ) {
@@ -201,6 +209,7 @@ struct jpeg_desc *read_jpeg(const char *filename)
                 break;
             /* Define Quantization Table */
             case MARKER_DQT:
+                trace("## Détection d'un marqueur DQT\n");
                 /* Calcul du nombre de tables de quantification */
                 unread = size * BYTE_SIZE - SECTION_SIZE;
                 uint8_t nb_dqt = unread / DQT_TABLE;
@@ -222,13 +231,13 @@ struct jpeg_desc *read_jpeg(const char *filename)
                 break;
             /* Start Of Frame */
             case MARKER_SOF:
+                trace("## Détection d'un marqueur SOF\n");
                 /* Recuperation des dimensions */
                 read_bitstream(jpeg->stream, SOF_PRECISION, &read, false);
                 read_bitstream(jpeg->stream, SOF_IMAGE_SIZE, &read, false);
                 jpeg->size[DIR_V] = (uint16_t) read;
                 read_bitstream(jpeg->stream, SOF_IMAGE_SIZE, &read, false);
                 jpeg->size[DIR_H] = (uint16_t) read;
-               trace("SIZE : %ux%u", jpeg->size[DIR_H], jpeg->size[DIR_V]);
                 /* Recuperation du nombre de composantes */
                 read_bitstream(jpeg->stream, SOF_NB_COMPONENTS, &read, false);
                 jpeg->nb_components = (uint8_t) read;
@@ -256,6 +265,7 @@ struct jpeg_desc *read_jpeg(const char *filename)
                 break;
             /* Define Huffman Tables */
             case MARKER_DHT:
+                trace("## Détection d'un marqueur DHT\n");
                 /* Recuperation des tables de Huffman */
                 unread = size - SECTION_SIZE / BYTE_SIZE; // En octets !
                 while (unread > 0) {
@@ -284,6 +294,7 @@ struct jpeg_desc *read_jpeg(const char *filename)
                 break;
             /* Start Of Scan */
             case MARKER_SOS:
+                trace("## Détection d'un marqueur SOS\n");
                 /* Recuperation des associations composantes - tables Huffman */
                 nb_read = read_bitstream(jpeg->stream, SOS_NB_COMPONENTS, &read, false);
                 jpeg->scan_components = calloc(read, sizeof(struct scan_component*));
@@ -303,18 +314,20 @@ struct jpeg_desc *read_jpeg(const char *filename)
                 return jpeg;
             /* Marqueur inconnu */
             default:
-                fprintf(stderr, "Marqueur lu '0x%04x' inconnu.\n", read);
+                fprintf(stderr, "Le format n'est pas reconnu : "
+                            "marqueur lu '0x%04x' inconnu.\n", read);
                 exit(EXIT_FAILURE);
         }
         /* Lecture du marqueur suivant */
         nb_read = read_bitstream(jpeg->stream, MARKER_SIZE, &read, false);
     }
+    trace("\n");
 
     /* === FIN DE LECTURE DES SECTIONS JPEG === */
 
     /* Si rien n'a ete renvoye, erreur */
     fprintf(stderr, "Absence de marqueur SOS !\n.");
-    exit(1);
+    exit(EXIT_FAILURE);
 }
 
 /* Ferme un descripteur prealablement ouvert, en liberant toute la memoire

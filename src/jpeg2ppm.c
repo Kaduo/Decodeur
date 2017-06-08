@@ -2,6 +2,8 @@
 Nom ......... : jpeg2ppm.c
 Role ........ : Fonctions du point d'entrée du programme
 Auteurs .... : A. He - M. Barbe - B. Potet (Ensimag 1A 2016/2017 - G6)
+Compilation : make (version sans debug) / make debug (version avec debug)
+Exécution : bin/jpeg2ppm <image>
 *******************************************************************************/
 
 #include <stdbool.h>
@@ -12,6 +14,7 @@ Auteurs .... : A. He - M. Barbe - B. Potet (Ensimag 1A 2016/2017 - G6)
 #include "picture.h"
 #include "mcu.h"
 #include "shared.h"
+#include "trace.h"
 
 /* Indique si l'image est en couleur */
 bool est_couleur(const struct jpeg_desc *jpeg)
@@ -110,21 +113,22 @@ enum component *get_components_order(const struct jpeg_desc *jpeg, uint8_t facto
 /* Récupère le nom du fichier de sortie */
 char *get_outfile_name(const char *filename, bool colored)
 {
-    char *outfile = calloc(strlen(filename) + 1, sizeof(char));
+    char *outfile = calloc(strlen(filename) + 5, sizeof(char));
     /* Recherche la derniere occurence du caractere point '.' */
     const char find = '.';
     const char *last = strchr(filename, find);
-    /* Si le caractere a ete trouve, on genere un nom, sinon NULL */
+    /* Si le point a ete trouve, on copie le nom jusqu'au point */
     if (last) {
         /* Recuperation de l'index du caractere trouve */
         size_t index = last - filename;
         /* Copie du filename dans l'outfile jusqu'au caractere trouve */
-        strncpy(outfile, filename, index + 1);
-        /* Concatenation de l'extension appropriee */
-        strcat(outfile, colored ? "ppm" : "pgm");
-        return outfile;
+        strncpy(outfile, filename, index);
+    } else { // Sinon, on copie tout le nom
+        strcpy(outfile, filename);
     }
-    return NULL;
+    /* Concatenation de l'extension appropriee */
+    strcat(outfile, colored ? ".ppm" : ".pgm");
+    return outfile;
 }
 
 int main(int argc, char **argv)

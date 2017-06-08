@@ -16,7 +16,7 @@ struct node {
 };
 
 /* Structure représentant une table de Huffman */
-struct huff_table{
+struct huff_table {
     uint16_t nb_codes;
     struct node *tree;
     uint8_t depth;
